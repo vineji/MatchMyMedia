@@ -26,3 +26,23 @@ class movie_search(APIView):
             return Response({'movies':movies})
         else:
             return Response({'movies':[]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class show_search(APIView):
+    def get(self,request, format=None):
+
+        title = request.GET.get('title','')
+
+        if not title:
+            return Response({'shows':[]}, status=status.HTTP_400_BAD_REQUEST)
+        
+        api_key = '75c89f5935bea75e58f550b0d0476ad2'
+        url = f'https://api.themoviedb.org/3/search/tv?query={title}&api_key={api_key}'
+
+        response = requests.get(url)
+
+        if response.status_code == 200:
+            data = response.json()
+            tv_shows = data['results'][:11]
+            return Response({'shows':tv_shows})
+        else:
+            return Response({'shows':[]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

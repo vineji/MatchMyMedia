@@ -9,11 +9,12 @@
             />
             <button type="submit">Search</button>
         </form>
-        <div v-if="movies.length> 0">
+        <button @click="toggleMedia">Toggle Media</button>
+        <div v-if="media.length> 0">
             <ul>
-                <li v-for="movie in movies" :key="movie.id">
-                    {{ movie.title }}
-                    <img :src=" 'https://image.tmdb.org/t/p/original/' + movie.poster_path" alt="Movie poster"  />
+                <li v-for="object in media" :key="object.id">
+                    {{ object.title || object.name}}
+                    <img :src=" 'https://image.tmdb.org/t/p/original/' + object.poster_path" alt="Movie poster"  />
                 </li>
             </ul>
 
@@ -25,7 +26,8 @@ export default {
     data() {
         return {
             query : '',
-            movies : []
+            media : [],
+            searchMedia : 'movie'
         };
     },
     methods: {
@@ -34,19 +36,44 @@ export default {
                 return
             }
 
-            try{
-                const response = await fetch(`http://localhost:8000/api/search-movie/?title=${this.query}`);
+            if (this.searchMedia == "movie"){
+                try{
+                    const response = await fetch(`http://localhost:8000/api/search-movie/?title=${this.query}`);
 
-                if (!response.ok){
-                    throw new Error('Failed to fetch data');
+                    if (!response.ok){
+                        throw new Error('Failed to fetch data');
+                    }
+                    const data = await response.json();
+                    this.media = data.movies || [];
                 }
-                const data = await response.json();
-                this.movies = data.movies || [];
+                catch (error){
+                    console.error('error catching data', error)
+                }
             }
-            catch (error){
+            else if (this.searchMedia == "tv"){
+                try{
+                    const response = await fetch(`http://localhost:8000/api/search-show/?title=${this.query}`);
 
-                console.error('error catching data', error)
+                    if (!response.ok){
+                        throw new Error('Failed to fetch data');
+                    }
+                    const data = await response.json();
+                    this.media = data.shows || [];
+                }
+                catch (error){
+                    console.error('error catching data', error)
+                }
             }
+        },
+        toggleMedia(){
+            if (this.searchMedia == "movie") {
+                this.searchMedia = "tv";
+            }
+            else{
+                this.searchMedia = "movie";
+            }
+            this.query = '';
+
         }
     }
 };
