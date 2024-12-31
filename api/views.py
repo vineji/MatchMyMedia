@@ -20,7 +20,7 @@ class movie_search(APIView):
 
         response = requests.get(url)
 
-        if response.status.code == 200:
+        if response.status_code == 200:
             data = response.json()
             movies = data['results'][:11]
             return Response({'movies':movies})
