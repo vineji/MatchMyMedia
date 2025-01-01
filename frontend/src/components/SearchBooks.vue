@@ -12,7 +12,6 @@
                 class="show_button"
                 > TV Shows  </button>
             </div>
-
             <input
             type="text"
             :placeholder="'Search ' + searchMedia"
@@ -21,12 +20,16 @@
             />
             <button @click="clearQuery" class="clear_button">Clear</button>
         </form>
-        <div v-if="mediaList.length > 0">
+        <div v-if="mediaList.length > 0" class="media_list">
             <ul>
                 <li v-for="media in mediaList" :key="media.id">
-                    {{ media.title || media.name}}
                     <img :src=" 'https://image.tmdb.org/t/p/original/' + media.poster_path" alt="Movie poster"  />
-                    <button @click="select(media)"> Select </button>
+                    <div class="sub_media_list">
+                        <p>{{ media.title || media.name}}</p>
+                        <p>Released: {{media.release_date }}</p>
+                        <p>Genre: {{ media.genre_ids }}</p>
+                        <button @click="select(media)"> Select </button>
+                    </div>
                 </li>
             </ul>
         </div>
@@ -100,32 +103,32 @@ export default {
 };
 </script>
 <style>
+li{
+    list-style: none;
+}
 .search_container{
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-right: 7rem;
-}
-
-li{
-    list-style: none;
-}
-img{
-    height: 3cm;
-    width: auto;
 }
 .search{
     display: flex;
     flex-direction: row;
     gap: 1rem;
+    margin-right: 7.5rem;
 }
-.search input{
+.search input {
+    display: flex;
+    align-items: flex-start;
     width: 33rem;
-    height: 2.8rem;
+    height: 3rem;
     border-radius: 1rem;
     padding-left: 1rem;
     font-size: 1.2rem;
+    border: #6D676E solid 2px;
+    color: #6D676E;
 }
+
 .search_button_div{
     background-color: #FBFFFE;
     border: #FAA916 solid 2px;
@@ -160,7 +163,7 @@ img{
 .clear_button{
     all: unset;
     border: #cb0422 2px solid;
-    font-weight: 500;
+    font-weight: 700;
     font-size: 1.2rem;
     width: 6rem;
     border-radius: 0.8rem;
@@ -171,5 +174,46 @@ img{
     color: #FBFFFE;
     background-color: #cb0422;
     transition: ease 0.3s;
+}
+
+.media_list{
+    margin-right: 5rem;
+}
+
+.media_list ul{
+    display: flex;
+    flex-direction: row;
+    width: 75rem;
+    max-width: 75rem;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    
+}
+.media_list li {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 21rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    font-size: 0.8rem;
+    min-height: 13rem;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+.media_list button{
+    width: 9rem;
+}
+.sub_media_list{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    max-width: 10rem;
+}
+img{
+    height: auto;
+    width: 8rem;
+    max-width: 100%;
 }
 </style>
