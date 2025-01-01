@@ -19,7 +19,7 @@
             v-model="query"
             @input="search"
             />
-            <button @click="clearQuery">Clear</button>
+            <button @click="clearQuery" class="clear_button">Clear</button>
         </form>
         <div v-if="mediaList.length > 0">
             <ul>
@@ -104,6 +104,7 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-right: 7rem;
 }
 
 li{
@@ -151,13 +152,24 @@ img{
     border-top-left-radius: 0.8rem;
     border-bottom-left-radius: 0.8rem;
 }
-
 .search_button_div button.active{
     background-color: #FAA916;
     color: #FBFFFE;
     transition: ease 0.3s;
-    
 }
-
-
+.clear_button{
+    all: unset;
+    border: #cb0422 2px solid;
+    font-weight: 500;
+    font-size: 1.2rem;
+    width: 6rem;
+    border-radius: 0.8rem;
+    height: 3rem;
+    color: #cb0422;
+}
+.clear_button:hover{
+    color: #FBFFFE;
+    background-color: #cb0422;
+    transition: ease 0.3s;
+}
 </style>
