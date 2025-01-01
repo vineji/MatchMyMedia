@@ -22,7 +22,7 @@ class movie_search(APIView):
 
         if response.status_code == 200:
             data = response.json()
-            movies = data['results'][:11]
+            movies = data['results'][:30]
             return Response({'movies':movies})
         else:
             return Response({'movies':[]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -42,7 +42,7 @@ class show_search(APIView):
 
         if response.status_code == 200:
             data = response.json()
-            tv_shows = data['results'][:11]
+            tv_shows = data['results'][:30]
             return Response({'shows':tv_shows})
         else:
             return Response({'shows':[]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
