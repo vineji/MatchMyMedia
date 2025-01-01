@@ -1,23 +1,27 @@
 <template>
     <div>
-        <form>
+        <form @submit.prevent>
             <input
             type="text"
             placeholder="Search Movies"
             v-model="query"
             @input="search"
             />
-            <button type="submit">Search</button>
+            <button @click="clearQuery">Clear</button>
         </form>
-        <button @click="toggleMedia">Toggle Media</button>
-        <div v-if="media.length> 0">
+        <button @click="toggleMedia"> Toggle Media </button>
+        <div v-if="mediaList.length > 0">
             <ul>
-                <li v-for="object in media" :key="object.id">
-                    {{ object.title || object.name}}
-                    <img :src=" 'https://image.tmdb.org/t/p/original/' + object.poster_path" alt="Movie poster"  />
+                <li v-for="media in mediaList" :key="media.id">
+                    {{ media.title || media.name}}
+                    <img :src=" 'https://image.tmdb.org/t/p/original/' + media.poster_path" alt="Movie poster"  />
+                    <button @click="select(media)"> Select </button>
                 </li>
             </ul>
-
+        </div>
+        <div v-if="show_ChosenMedia == true">
+            {{ chosenMedia.title || chosenMedia.name}}
+            <img :src=" 'https://image.tmdb.org/t/p/original/' + chosenMedia.poster_path" alt="Movie poster"  />
         </div>
     </div>
 </template>
@@ -26,8 +30,11 @@ export default {
     data() {
         return {
             query : '',
-            media : [],
-            searchMedia : 'movie'
+            mediaList : [],
+            searchMedia : 'movie',
+            show_ChosenMedia : false,
+            chosenMedia : null,
+            
         };
     },
     methods: {
@@ -44,7 +51,7 @@ export default {
                         throw new Error('Failed to fetch data');
                     }
                     const data = await response.json();
-                    this.media = data.movies || [];
+                    this.mediaList = data.movies || [];
                 }
                 catch (error){
                     console.error('error catching data', error)
@@ -58,7 +65,7 @@ export default {
                         throw new Error('Failed to fetch data');
                     }
                     const data = await response.json();
-                    this.media = data.shows || [];
+                    this.mediaList = data.shows || [];
                 }
                 catch (error){
                     console.error('error catching data', error)
@@ -72,8 +79,16 @@ export default {
             else{
                 this.searchMedia = "movie";
             }
+            this.search();
+        },
+        clearQuery(){
             this.query = '';
-
+            this.mediaList = [];
+        },
+        select(media){
+            this.show_ChosenMedia = true;
+            this.chosenMedia = media;
+            this.clearQuery();
         }
     }
 };
