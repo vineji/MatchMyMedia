@@ -23,7 +23,7 @@
         <div v-if="mediaList.length > 0" class="media_list">
             <ul>
                 <li v-for="media in mediaList" :key="media.id">
-                    <img :src=" 'https://image.tmdb.org/t/p/original/' + media.poster_path" alt="Movie poster"  />
+                    <img :src=" 'https://image.tmdb.org/t/p/original/' + media.poster_path" alt="Movie poster" class="list_img"  />
                     <div class="sub_media_list">
                         <p>{{ media.title || media.name}}</p>
                         <p>Released: {{media.release_date }}</p>
@@ -33,9 +33,15 @@
                 </li>
             </ul>
         </div>
-        <div v-if="show_ChosenMedia == true">
-            {{ chosenMedia.title || chosenMedia.name}}
-            <img :src=" 'https://image.tmdb.org/t/p/original/' + chosenMedia.poster_path" alt="Movie poster"  />
+        <div v-if="show_ChosenMedia == true" class="chosen_media">
+            <img class="chosen_media_img" :src=" 'https://image.tmdb.org/t/p/original/' + chosenMedia.poster_path" alt="Movie poster"  />
+            <div class="chosen_media_info">
+                <p>Title: {{ chosenMedia.title || chosenMedia.name}}</p>
+                <p>Released: {{chosenMedia.release_date || chosenMedia.first_air_date }}</p>
+                <p>Genre: {{ chosenMedia.genre_ids }}</p>
+                <p>Overview: {{ chosenMedia.overview }}</p>
+                
+            </div>
         </div>
     </div>
 </template>
@@ -56,6 +62,9 @@ export default {
             if (this.query.length < 2){
                 return
             }
+
+            this.show_ChosenMedia = false;
+            this.chosenMedia = null;
 
             if (this.searchMedia == "Movie"){
                 try{
@@ -91,7 +100,6 @@ export default {
             this.search();
         },
         clearQuery(){
-            this.query = '';
             this.mediaList = [];
         },
         select(media){
@@ -211,9 +219,47 @@ li{
     justify-content: flex-end;
     max-width: 10rem;
 }
-img{
+.list_img{
     height: auto;
     width: 8rem;
     max-width: 100%;
 }
+
+.chosen_media{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 3rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    width: 53rem;
+    margin-right: 7rem;
+    margin-top: 2rem;
+    padding: 2rem;
+}
+
+.chosen_media_img{
+    height: auto;
+    width: 9rem;
+    max-width: 100%;
+}
+
+
+
+.chosen_media_info{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-evenly;
+    width: 40rem;
+    height: 14rem;
+}
+.chosen_media_info p{
+    gap: 0;
+    margin: 0;
+    text-align: left;
+}
+
+
 </style>
