@@ -54,6 +54,7 @@ export default {
             searchMedia : 'Movie',
             show_ChosenMedia : false,
             chosenMedia : null,
+        
             
         };
     },
@@ -123,7 +124,7 @@ li{
     display: flex;
     flex-direction: row;
     gap: 1rem;
-    margin-right: 7.5rem;
+    margin-right: 5rem;
 }
 .search input {
     display: flex;
@@ -234,7 +235,7 @@ li{
     border-radius: 1rem;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     width: 53rem;
-    margin-right: 7rem;
+    margin-right: 5rem;
     margin-top: 2rem;
     padding: 2rem;
 }
@@ -244,7 +245,6 @@ li{
     width: 9rem;
     max-width: 100%;
 }
-
 
 
 .chosen_media_info{
