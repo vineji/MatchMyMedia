@@ -38,7 +38,9 @@
             <div class="chosen_media_info">
                 <p>Title: {{ chosenMedia.title || chosenMedia.name}}</p>
                 <p>Released: {{chosenMedia.release_date || chosenMedia.first_air_date }}</p>
-                <p>Genre: {{ chosenMedia.genre_ids }}</p>
+                <ul v-if="chosenMedia.genre_ids.length > 0">
+                    <li v-for="id in chosenMedia.genre_ids" :key="id">{{ getGenreName(id) }}</li>
+                </ul>
                 <p>Overview: {{ chosenMedia.overview }}</p>
                 
             </div>
@@ -46,6 +48,10 @@
     </div>
 </template>
 <script>
+import { useGenreStore } from '@/stores/genreStore';
+
+
+
 export default {
     data() {
         return {
@@ -57,6 +63,11 @@ export default {
         
             
         };
+    },
+    computed: {
+        genreStore(){
+            return useGenreStore();
+        }
     },
     methods: {
         async search(){
@@ -107,7 +118,16 @@ export default {
             this.show_ChosenMedia = true;
             this.chosenMedia = media;
             this.clearQuery();
+        },
+        getGenreName(id){
+            const genreName = this.genreStore.getGenreById(id);
+            return genreName;
+        },
+        getGenreColor(id){
+            const color = this.genreStore.getGenreColorById(id);
+            return color;
         }
+
     }
 };
 </script>
