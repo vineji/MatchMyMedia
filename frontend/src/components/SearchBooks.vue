@@ -38,8 +38,9 @@
             <div class="chosen_media_info">
                 <p>Title: {{ chosenMedia.title || chosenMedia.name}}</p>
                 <p>Released: {{chosenMedia.release_date || chosenMedia.first_air_date }}</p>
-                <ul v-if="chosenMedia.genre_ids.length > 0">
-                    <li v-for="id in chosenMedia.genre_ids" :key="id">{{ getGenreName(id) }}</li>
+                <ul v-if="chosenMedia.genre_ids.length > 0" class="chosen_genre_list">
+                    <p>Genres: </p>
+                    <li class="chosen_genre" :style="{backgroundColor: getGenreColor(id)}" v-for="id in chosenMedia.genre_ids" :key="id">{{ getGenreName(id) }}</li>
                 </ul>
                 <p>Overview: {{ chosenMedia.overview }}</p>
                 
@@ -120,12 +121,11 @@ export default {
             this.clearQuery();
         },
         getGenreName(id){
-            const genreName = this.genreStore.getGenreById(id);
-            return genreName;
+            return this.genreStore.getGenreById(id);
+
         },
         getGenreColor(id){
-            const color = this.genreStore.getGenreColorById(id);
-            return color;
+            return this.genreStore.getGenreColorById(id);
         }
 
     }
@@ -279,6 +279,25 @@ li{
     gap: 0;
     margin: 0;
     text-align: left;
+}
+.chosen_genre_list{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    width: 40rem;
+    max-width: 40rem;
+    padding: 0;
+    gap: 1rem;
+    margin: 0;
+}
+.chosen_genre{
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+    padding-left: 0.6rem;
+    padding-right: 0.6rem;
+    border-radius: 0.5rem;
+    color: white;
 }
 
 
