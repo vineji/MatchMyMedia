@@ -36,13 +36,13 @@
         <div v-if="show_ChosenMedia == true" class="chosen_media">
             <img class="chosen_media_img" :src=" 'https://image.tmdb.org/t/p/original/' + chosenMedia.poster_path" alt="Movie poster"  />
             <div class="chosen_media_info">
-                <p>Title: {{ chosenMedia.title || chosenMedia.name}}</p>
-                <p>Released: {{chosenMedia.release_date || chosenMedia.first_air_date }}</p>
+                <p><b>Title: </b>{{ chosenMedia.title || chosenMedia.name}}</p>
+                <p><b>Released: </b> {{chosenMedia.release_date || chosenMedia.first_air_date }}</p>
                 <ul v-if="chosenMedia.genre_ids.length > 0" class="chosen_genre_list">
-                    <p>Genres: </p>
+                    <p><b>Genres: </b> </p>
                     <li class="chosen_genre" :style="{backgroundColor: getGenreColor(id)}" v-for="id in chosenMedia.genre_ids" :key="id">{{ getGenreName(id) }}</li>
                 </ul>
-                <p>Overview: {{ chosenMedia.overview }}</p>
+                <p class="overview"><b>Overview: </b> {{ chosenMedia.overview }}</p>
                 
             </div>
         </div>
@@ -274,6 +274,11 @@ li{
     justify-content: space-evenly;
     width: 40rem;
     height: 14rem;
+
+}
+.overview{
+    height: 7rem;
+    overflow-y: auto;
 }
 .chosen_media_info p{
     gap: 0;
