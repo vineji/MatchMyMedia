@@ -21,13 +21,15 @@
             <button @click="clearQuery" class="clear_button">Clear</button>
         </form>
         <div v-if="mediaList.length > 0" class="media_list">
-            <ul>
-                <li v-for="media in mediaList" :key="media.id">
+            <ul class="media_list_ul">
+                <li class="media_list_li" v-for="media in mediaList" :key="media.id">
                     <img :src=" 'https://image.tmdb.org/t/p/original/' + media.poster_path" alt="Movie poster" class="list_img"  />
                     <div class="sub_media_list">
                         <p>{{ media.title || media.name}}</p>
                         <p>Released: {{media.release_date }}</p>
-                        <p>Genre: {{ media.genre_ids }}</p>
+                        <ul v-if="media.genre_ids.length > 0" class="genre_list">
+                            <li v-for="id in media.genre_ids" :key="id"> {{ getGenreName(id) }}</li>
+                        </ul>
                         <button @click="select(media)"> Select </button>
                     </div>
                 </li>
@@ -209,7 +211,7 @@ li{
     margin-right: 5rem;
 }
 
-.media_list ul{
+.media_list_ul{
     display: flex;
     flex-direction: row;
     width: 75rem;
@@ -218,7 +220,7 @@ li{
     justify-content: space-evenly;
     
 }
-.media_list li {
+.media_list_li {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -237,9 +239,27 @@ li{
 .sub_media_list{
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    max-width: 10rem;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 9rem;
+    max-width: 9rem;
+    height: 12rem;
+    max-height: 12rem;
 }
+.genre_list{
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 6rem;
+    max-width: 6rem;
+    padding: 0;
+    margin: 0;
+    font-size: 0.8rem;
+
+}
+
 .list_img{
     height: auto;
     width: 8rem;
@@ -303,6 +323,10 @@ li{
     padding-right: 0.6rem;
     border-radius: 0.5rem;
     color: white;
+}
+.genre{
+    width: 5rem;
+    height: 1rem;
 }
 
 
