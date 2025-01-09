@@ -25,12 +25,19 @@
                 <li class="media_list_li" v-for="media in mediaList" :key="media.id">
                     <img :src=" 'https://image.tmdb.org/t/p/original/' + media.poster_path" alt="Movie poster" class="list_img"  />
                     <div class="sub_media_list">
-                        <p>{{ media.title || media.name}}</p>
-                        <p>Released: {{media.release_date }}</p>
-                        <ul v-if="media.genre_ids.length > 0" class="genre_list">
-                            <li v-for="id in media.genre_ids" :key="id"> {{ getGenreName(id) }}</li>
+                        <ul class="sub_media_list_ul">
+                            <li><b>Title: </b>{{ media.title || media.name}}</li>
+                            <li><b>Released: </b>{{media.release_date || media.first_air_date || "Not specified"}}</li>
+                            <li><b>Genres: </b></li>
+                            <ul v-if="media.genre_ids.length > 0" class="genre_list">
+                                <li class="genre" v-for="id in media.genre_ids" :key="id" :style="{backgroundColor: getGenreColor(id)}"> {{ getGenreName(id) }}</li>
+                            </ul>
+                            <ul v-else class="genre_list">
+                                <li class="genre" style="background-color: #9b9a9a;">Unknown</li>
+                            </ul>
+
                         </ul>
-                        <button @click="select(media)"> Select </button>
+                        <button @click="select(media)" class="media_list_button"> Select </button>
                     </div>
                 </li>
             </ul>
@@ -115,12 +122,14 @@ export default {
             this.search();
         },
         clearQuery(){
+            this.query = '';
             this.mediaList = [];
         },
         select(media){
             this.show_ChosenMedia = true;
             this.chosenMedia = media;
-            this.clearQuery();
+            this.mediaList = [];
+            this.query = media.title || media.name
         },
         getGenreName(id){
             return this.genreStore.getGenreById(id);
@@ -230,34 +239,92 @@ li{
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     font-size: 0.8rem;
     min-height: 13rem;
-    padding: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
     margin-top: 1rem;
 }
-.media_list button{
+.media_list_button{
+    margin-top: 1rem;
     width: 9rem;
+    min-height: 1.5rem;
+    height: 1.5rem;
+    max-height: 1.5rem;
+    background-color: #FBFFFE;
+    border-radius: 0.3rem;
+    border: none;
+    color: #1B1B1E;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    font-size: 0.8rem;
+
 }
+.media_list_button:hover{
+    background-color: #41ceaa;
+    color: #FBFFFE;
+    transition: 0.2s ease;
+
+}
+
 .sub_media_list{
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
     align-items: flex-start;
-    width: 9rem;
-    max-width: 9rem;
     height: 12rem;
-    max-height: 12rem;
+    
+    
 }
-.genre_list{
+.sub_media_list_ul{
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    width: 9rem;
+    max-width: 9rem;
+    height: 10rem;
+    text-align: left;
+    gap: 0.3rem;
+    padding: 0;
+    margin: 0;
+}
+
+
+.genre_list{
+    display: flex;
     flex-wrap: wrap;
+    gap: 0.2rem;
     justify-content: flex-start;
     align-items: flex-start;
-    width: 6rem;
-    max-width: 6rem;
+    width: 10rem;
+    max-width: 10rem;
     padding: 0;
     margin: 0;
     font-size: 0.8rem;
+    overflow-y: auto;
+    scrollbar-width: 1px;
+    scrollbar-color:  #1B1B1E #dcdcdc;
+}
 
+.genre_list::-webkit-scrollbar{
+    width: 3px;
+}
+
+.genre_list::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.genre_list::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+}
+
+.genre{
+    color: #FBFFFE;
+    padding-right: 0.4rem;
+    padding-left: 0.4rem;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+    border-radius: 0.3rem;
+    
 }
 
 .list_img{
@@ -300,6 +367,18 @@ li{
     height: 7rem;
     overflow-y: auto;
 }
+.overview::-webkit-scrollbar{
+    width: 4px;
+}
+
+.overview::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.overview::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
+}
 .chosen_media_info p{
     gap: 0;
     margin: 0;
@@ -324,10 +403,7 @@ li{
     border-radius: 0.5rem;
     color: white;
 }
-.genre{
-    width: 5rem;
-    height: 1rem;
-}
+
 
 
 </style>
