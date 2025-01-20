@@ -1,8 +1,9 @@
 from django.urls import path, include
-from .views import movie_search, show_search
+from . import views
 
 urlpatterns = [
-    path('search-movie/', movie_search.as_view(), name='search-movie'),
-    path('search-show/', show_search.as_view(), name='search-show')
+    path('', views.main_spa, name='main page'),
+    path('search-movie/', views.movie_search.as_view(), name='search-movie'),
+    path('search-show/', views.show_search.as_view(), name='search-show')
 ]
 

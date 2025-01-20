@@ -62,7 +62,8 @@ import { useGenreStore } from '@/stores/genreStore';
 
 
 
-export default {
+export default 
+{
     data() {
         return {
             query : '',
@@ -70,8 +71,6 @@ export default {
             searchMedia : 'Movie',
             show_ChosenMedia : false,
             chosenMedia : null,
-        
-            
         };
     },
     computed: {
@@ -90,7 +89,7 @@ export default {
 
             if (this.searchMedia == "Movie"){
                 try{
-                    const response = await fetch(`http://localhost:8000/api/search-movie/?title=${this.query}`);
+                    const response = await fetch(`http://localhost:8000/search-movie/?title=${this.query}`);
 
                     if (!response.ok){
                         throw new Error('Failed to fetch data');
@@ -104,7 +103,7 @@ export default {
             }
             else if (this.searchMedia == "TV Show"){
                 try{
-                    const response = await fetch(`http://localhost:8000/api/search-show/?title=${this.query}`);
+                    const response = await fetch(`http://localhost:8000/search-show/?title=${this.query}`);
 
                     if (!response.ok){
                         throw new Error('Failed to fetch data');
@@ -124,6 +123,8 @@ export default {
         clearQuery(){
             this.query = '';
             this.mediaList = [];
+            this.chosenMedia = null;
+            this.show_ChosenMedia = false;
         },
         select(media){
             this.show_ChosenMedia = true;
@@ -139,8 +140,7 @@ export default {
             return this.genreStore.getGenreColorById(id);
         }
 
-    }
-};
+    },};
 </script>
 <style>
 li{
@@ -388,12 +388,13 @@ li{
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
+    flex-wrap: wrap;
     align-items: center;
     width: 40rem;
     max-width: 40rem;
     padding: 0;
-    gap: 1rem;
-    margin: 0;
+    gap: 0.5rem;
+    margin-top: 1rem;
 }
 .chosen_genre{
     padding-top: 0.2rem;

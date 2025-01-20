@@ -7,6 +7,10 @@ from rest_framework import status
 
 import requests
 
+
+def main_spa(request):
+    return render(request, 'index.html')
+
 class movie_search(APIView):
     def get(self,request, format=None):
 
