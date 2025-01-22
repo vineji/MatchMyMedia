@@ -20,6 +20,7 @@
             />
             <button @click="clearQuery" class="clear_button">Clear</button>
         </form>
+        <button @click="nextPage">Next</button>
         <div v-if="mediaList.length > 0" class="media_list">
             <ul class="media_list_ul">
                 <li class="media_list_li" v-for="media in mediaList" :key="media.id">
@@ -71,6 +72,8 @@ export default
             searchMedia : 'Movie',
             show_ChosenMedia : false,
             chosenMedia : null,
+            currentPage : 1,
+            totalPages : 1,
         };
     },
     computed: {
@@ -103,13 +106,15 @@ export default
             }
             else if (this.searchMedia == "TV Show"){
                 try{
-                    const response = await fetch(`http://localhost:8000/search-show/?title=${this.query}`);
+                    const response = await fetch(`http://localhost:8000/search-show/?title=${this.query}&page=${this.currentPage}`);
 
                     if (!response.ok){
                         throw new Error('Failed to fetch data');
                     }
                     const data = await response.json();
                     this.mediaList = data.shows || [];
+                    this.currentPage = data.current_page || 1;
+                    this.totalPages = data.total_pages || 1;
                 }
                 catch (error){
                     console.error('error catching data', error)
@@ -138,6 +143,11 @@ export default
         },
         getGenreColor(id){
             return this.genreStore.getGenreColorById(id);
+        },
+        nextPage(){
+                this.currentPage++;
+                this.search();
+            
         }
 
     },};
