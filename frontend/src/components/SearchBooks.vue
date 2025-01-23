@@ -20,7 +20,6 @@
             />
             <button @click="clearQuery" class="clear_button">Clear</button>
         </form>
-        <button @click="nextPage">Next</button>
         <div v-if="mediaList.length > 0" class="media_list">
             <ul class="media_list_ul">
                 <li class="media_list_li" v-for="media in mediaList" :key="media.id">
@@ -40,6 +39,16 @@
                         </ul>
                         <button @click="select(media)" class="media_list_button"> Select </button>
                     </div>
+                </li>
+                <li class="pagination_control">
+                    <button @click="this.showPageMultiplier--">Previous</button>
+                    <button @click="changePage((this.showPages * this.showPageMultiplier) - 5)">{{(this.showPages * this.showPageMultiplier) - 5}}</button>
+                    <button @click="changePage((this.showPages * this.showPageMultiplier) - 4)">{{(this.showPages * this.showPageMultiplier) - 4}}</button>
+                    <button @click="changePage((this.showPages * this.showPageMultiplier) - 3)">{{(this.showPages * this.showPageMultiplier) - 3}}</button>
+                    <button @click="changePage((this.showPages * this.showPageMultiplier) - 2)">{{(this.showPages * this.showPageMultiplier) - 2}}</button>
+                    <button @click="changePage((this.showPages * this.showPageMultiplier) - 1)">{{(this.showPages * this.showPageMultiplier) - 1}}</button>
+                    <button @click="changePage(this.showPages * this.showPageMultiplier)">{{(this.showPages * this.showPageMultiplier)}}</button>
+                    <button @click="this.showPageMultiplier++">Next</button>
                 </li>
             </ul>
         </div>
@@ -74,6 +83,8 @@ export default
             chosenMedia : null,
             currentPage : 1,
             totalPages : 1,
+            showPages : 6,
+            showPageMultiplier : 1,
         };
     },
     computed: {
@@ -89,16 +100,19 @@ export default
 
             this.show_ChosenMedia = false;
             this.chosenMedia = null;
+            
 
             if (this.searchMedia == "Movie"){
                 try{
-                    const response = await fetch(`http://localhost:8000/search-movie/?title=${this.query}`);
+                    const response = await fetch(`http://localhost:8000/search-movie/?title=${this.query}&page=${this.currentPage}`);
 
                     if (!response.ok){
                         throw new Error('Failed to fetch data');
                     }
                     const data = await response.json();
                     this.mediaList = data.movies || [];
+                    this.currentPage = data.current_page || 1;
+                    this.totalPages = data.total_pages || 1;
                 }
                 catch (error){
                     console.error('error catching data', error)
@@ -122,10 +136,12 @@ export default
             }
         },
         toggleMedia(media){
+            this.currentPage = 1;
             this.searchMedia = media;
             this.search();
         },
         clearQuery(){
+            this.currentPage = 1;
             this.query = '';
             this.mediaList = [];
             this.chosenMedia = null;
@@ -136,6 +152,7 @@ export default
             this.chosenMedia = media;
             this.mediaList = [];
             this.query = media.title || media.name
+            this.currentPage = 1;
         },
         getGenreName(id){
             return this.genreStore.getGenreById(id);
@@ -144,12 +161,10 @@ export default
         getGenreColor(id){
             return this.genreStore.getGenreColorById(id);
         },
-        nextPage(){
-                this.currentPage++;
-                this.search();
-            
-        }
-
+        changePage(pageNumber){
+            this.currentPage = pageNumber;
+            this.search();
+        },
     },};
 </script>
 <style>
@@ -236,7 +251,9 @@ li{
     width: 75rem;
     max-width: 75rem;
     flex-wrap: wrap;
-    justify-content: space-evenly;
+    justify-content: flex-start;
+    gap: 1.7rem;
+    margin-left: 5rem;
     
 }
 .media_list_li {
@@ -253,7 +270,6 @@ li{
     padding-bottom: 1rem;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
-    margin-top: 1rem;
 }
 .media_list_button{
     margin-top: 1rem;
@@ -271,7 +287,6 @@ li{
 }
 .media_list_button:hover{
     background-color: #41ceaa;
-    color: #FBFFFE;
     transition: 0.2s ease;
 
 }
@@ -297,6 +312,24 @@ li{
     padding: 0;
     margin: 0;
 }
+
+.pagination_control{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 22rem;
+    border-radius: 1rem;
+    height: 15rem;
+    max-height: 15rem;
+    gap: 0.5rem;
+}
+.pagination_control button{
+    height: 5rem;
+    width: 5rem;
+}
+
 
 
 .genre_list{
