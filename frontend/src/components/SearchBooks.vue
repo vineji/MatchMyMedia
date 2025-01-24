@@ -41,14 +41,12 @@
                     </div>
                 </li>
                 <li class="pagination_control">
-                    <button :disabled="page1 == 1" @click="this.showPageMultiplier--">Previous</button>
+                    <button :disabled="page1 == 1" @click="this.showPageMultiplier--">&lt;</button>
                     <button :disabled="page1 > totalPages" @click="changePage(page1)">{{page1}}</button>
                     <button :disabled="page2 > totalPages" @click="changePage(page2)">{{page2}}</button>
                     <button :disabled="page3 > totalPages" @click="changePage(page3)">{{page3}}</button>
                     <button :disabled="page4 > totalPages" @click="changePage(page4)">{{page4}}</button>
-                    <button :disabled="page5 > totalPages" @click="changePage(page5)">{{page5}}</button>
-                    <button :disabled="page6 > totalPages" @click="changePage(page6)">{{page6}}</button>
-                    <button :disabled="page6 >= totalPages" @click="this.showPageMultiplier++">Next</button>
+                    <button :disabled="page6 > totalPages" @click="this.showPageMultiplier++">&gt;</button>
                 </li>
             </ul>
         </div>
@@ -354,8 +352,32 @@ li{
     gap: 0.5rem;
 }
 .pagination_control button{
-    height: 5rem;
-    width: 5rem;
+    height: 5.5rem;
+    width: 5.5rem;
+    font-size: 2rem;
+    border: #1B1B1E 2px solid;
+    background-color: #ffffff;
+    color: #1B1B1E;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    border-radius: 0.8rem;
+    transition: transform 0.2s ease, box-shadow0.2s ease;
+}
+.pagination_control button:disabled{
+    border: #a7a7a7 2px solid;
+    color: #929292;
+    
+}
+.pagination_control button:disabled:hover{
+    background-color: #ffffff;
+    transform: scale(1.0);
+    font-weight: normal;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.pagination_control button:hover{
+    background-color: #41ceaa;
+    font-weight: bold;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
 
