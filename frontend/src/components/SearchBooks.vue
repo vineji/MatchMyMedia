@@ -16,7 +16,7 @@
             type="text"
             :placeholder="'Search ' + searchMedia"
             v-model="query"
-            @input="search"
+            @input="search(true)"
             />
             <button @click="clearQuery" class="clear_button">Clear</button>
         </form>
@@ -41,14 +41,14 @@
                     </div>
                 </li>
                 <li class="pagination_control">
-                    <button @click="this.showPageMultiplier--">Previous</button>
-                    <button @click="changePage((this.showPages * this.showPageMultiplier) - 5)">{{(this.showPages * this.showPageMultiplier) - 5}}</button>
-                    <button @click="changePage((this.showPages * this.showPageMultiplier) - 4)">{{(this.showPages * this.showPageMultiplier) - 4}}</button>
-                    <button @click="changePage((this.showPages * this.showPageMultiplier) - 3)">{{(this.showPages * this.showPageMultiplier) - 3}}</button>
-                    <button @click="changePage((this.showPages * this.showPageMultiplier) - 2)">{{(this.showPages * this.showPageMultiplier) - 2}}</button>
-                    <button @click="changePage((this.showPages * this.showPageMultiplier) - 1)">{{(this.showPages * this.showPageMultiplier) - 1}}</button>
-                    <button @click="changePage(this.showPages * this.showPageMultiplier)">{{(this.showPages * this.showPageMultiplier)}}</button>
-                    <button @click="this.showPageMultiplier++">Next</button>
+                    <button :disabled="page1 == 1" @click="this.showPageMultiplier--">Previous</button>
+                    <button :disabled="page1 > totalPages" @click="changePage(page1)">{{page1}}</button>
+                    <button :disabled="page2 > totalPages" @click="changePage(page2)">{{page2}}</button>
+                    <button :disabled="page3 > totalPages" @click="changePage(page3)">{{page3}}</button>
+                    <button :disabled="page4 > totalPages" @click="changePage(page4)">{{page4}}</button>
+                    <button :disabled="page5 > totalPages" @click="changePage(page5)">{{page5}}</button>
+                    <button :disabled="page6 > totalPages" @click="changePage(page6)">{{page6}}</button>
+                    <button :disabled="page6 >= totalPages" @click="this.showPageMultiplier++">Next</button>
                 </li>
             </ul>
         </div>
@@ -90,16 +90,44 @@ export default
     computed: {
         genreStore(){
             return useGenreStore();
-        }
+        },
+        page1(m){
+            m = this.showPageMultiplier;
+            return (6 * m) - 5
+        },
+        page2(m){
+            m = this.showPageMultiplier;
+            return (6 * m) - 4
+        },
+        page3(m){
+            m = this.showPageMultiplier;
+            return (6 * m) - 3
+        },
+        page4(m){
+            m = this.showPageMultiplier;
+            return (6 * m) - 2
+        },
+        page5(m){
+            m = this.showPageMultiplier;
+            return (6 * m) - 1
+        },
+        page6(m){
+            m = this.showPageMultiplier;
+            return (6 * m) 
+        },
     },
     methods: {
-        async search(){
+        async search(newSearch){
             if (this.query.length < 2){
                 return
             }
 
             this.show_ChosenMedia = false;
             this.chosenMedia = null;
+
+            if (newSearch == true){
+                this.currentPage = 1;
+            }
             
 
             if (this.searchMedia == "Movie"){
@@ -163,7 +191,7 @@ export default
         },
         changePage(pageNumber){
             this.currentPage = pageNumber;
-            this.search();
+            this.search(false);
         },
     },};
 </script>
