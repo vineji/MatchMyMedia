@@ -40,15 +40,15 @@
                         <button @click="select(media)" class="media_list_button"> Select </button>
                     </div>
                 </li>
-                <li class="pagination_control">
-                    <button :disabled="page1 == 1" @click="this.showPageMultiplier--">&lt;</button>
-                    <button :disabled="page1 > totalPages" @click="changePage(page1)">{{page1}}</button>
-                    <button :disabled="page2 > totalPages" @click="changePage(page2)">{{page2}}</button>
-                    <button :disabled="page3 > totalPages" @click="changePage(page3)">{{page3}}</button>
-                    <button :disabled="page4 > totalPages" @click="changePage(page4)">{{page4}}</button>
-                    <button :disabled="page6 > totalPages" @click="this.showPageMultiplier++">&gt;</button>
-                </li>
             </ul>
+            <li class="pagination_control">
+                <button class="pagination_control_button_next_prev" :disabled="page1 == 1" @click="this.showPageMultiplier--">&lt;</button>
+                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage === page1 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page1 ? 'bold' : ''}" :disabled="page1 > totalPages" @click="changePage(page1)">{{page1}}</button>
+                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage === page2 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page2 ? 'bold' : ''}" :disabled="page2 > totalPages" @click="changePage(page2)">{{page2}}</button>
+                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage === page3 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page3 ? 'bold' : ''}" :disabled="page3 > totalPages" @click="changePage(page3)">{{page3}}</button>
+                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage === page4 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page4 ? 'bold' : ''}" :disabled="page4 > totalPages" @click="changePage(page4)">{{page4}}</button>
+                <button class="pagination_control_button_next_prev" :disabled="page4 >= totalPages" @click="this.showPageMultiplier++">&gt;</button>
+            </li>
         </div>
         <div v-if="show_ChosenMedia == true" class="chosen_media">
             <img class="chosen_media_img" :src=" 'https://image.tmdb.org/t/p/original/' + chosenMedia.poster_path" alt="Movie poster"  />
@@ -81,7 +81,6 @@ export default
             chosenMedia : null,
             currentPage : 1,
             totalPages : 1,
-            showPages : 6,
             showPageMultiplier : 1,
         };
     },
@@ -91,27 +90,19 @@ export default
         },
         page1(m){
             m = this.showPageMultiplier;
-            return (6 * m) - 5
+            return (4 * m) - 3
         },
         page2(m){
             m = this.showPageMultiplier;
-            return (6 * m) - 4
+            return (4 * m) - 2
         },
         page3(m){
             m = this.showPageMultiplier;
-            return (6 * m) - 3
+            return (4 * m) - 1
         },
         page4(m){
             m = this.showPageMultiplier;
-            return (6 * m) - 2
-        },
-        page5(m){
-            m = this.showPageMultiplier;
-            return (6 * m) - 1
-        },
-        page6(m){
-            m = this.showPageMultiplier;
-            return (6 * m) 
+            return (4 * m)
         },
     },
     methods: {
@@ -268,26 +259,28 @@ li{
 }
 
 .media_list{
-    margin-right: 5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 1rem;
 }
 
 .media_list_ul{
     display: flex;
     flex-direction: row;
-    width: 75rem;
-    max-width: 75rem;
+    width: 88rem;
+    max-width: 88rem;
     flex-wrap: wrap;
     justify-content: flex-start;
-    gap: 1.7rem;
-    margin-left: 5rem;
-    
+    gap: 1.5rem;
+
 }
 .media_list_li {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-evenly;
-    width: 21rem;
+    width: 19rem;
     border-radius: 1rem;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     font-size: 0.8rem;
@@ -296,6 +289,11 @@ li{
     padding-bottom: 1rem;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
+    transition: 0.3s ease;
+}
+.media_list_li:hover {
+    transform: scale(1.06);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
 }
 .media_list_button{
     margin-top: 1rem;
@@ -309,11 +307,14 @@ li{
     color: #1B1B1E;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     font-size: 0.8rem;
+    transition: 0.2s ease;
 
 }
 .media_list_button:hover{
     background-color: #41ceaa;
     transition: 0.2s ease;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 
 }
 
@@ -342,18 +343,20 @@ li{
 .pagination_control{
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
     justify-content: space-evenly;
     align-items: center;
-    width: 22rem;
     border-radius: 1rem;
-    height: 15rem;
-    max-height: 15rem;
+    height: 6rem;
+    max-height: 6rem;
     gap: 0.5rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    width: 33rem;
+    margin-left: 2.5rem;
 }
-.pagination_control button{
-    height: 5.5rem;
-    width: 5.5rem;
+.pagination_control_button_page{
+    height: 4.8rem;
+    width: 4.8rem;
     font-size: 2rem;
     border: #1B1B1E 2px solid;
     background-color: #ffffff;
@@ -362,21 +365,50 @@ li{
     border-radius: 0.8rem;
     transition: transform 0.2s ease, box-shadow0.2s ease;
 }
-.pagination_control button:disabled{
-    border: #a7a7a7 2px solid;
-    color: #929292;
+.pagination_control_button_next_prev{
+    height: 3.5rem;
+    width: 3.5rem;
+    font-size: 2rem;
+    border: #1B1B1E 2px solid;
+    background-color: #ffffff;
+    color: #1B1B1E;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    border-radius: 0.8rem;
+    transition: transform 0.2s ease, box-shadow0.2s ease;
+
+}
+.pagination_control_button_page:disabled{
+    border: #b8b7b7 2px solid;
+    color: #b8b7b7;
     
 }
-.pagination_control button:disabled:hover{
+.pagination_control_button_page:disabled:hover{
     background-color: #ffffff;
     transform: scale(1.0);
     font-weight: normal;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
-.pagination_control button:hover{
+.pagination_control_button_page:hover{
     background-color: #41ceaa;
     font-weight: bold;
     transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+.pagination_control_button_next_prev:disabled{
+    border: #b8b7b7 2px solid;
+    color: #b8b7b7;
+    
+}
+.pagination_control_button_next_prev:disabled:hover{
+    background-color: #ffffff;
+    transform: scale(1.0);
+    font-weight: normal;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.pagination_control_button_next_prev:hover{
+    background-color: #41ceaa;
+    font-weight: bold;
+    transform: scale(1.1);
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 
@@ -388,8 +420,8 @@ li{
     gap: 0.2rem;
     justify-content: flex-start;
     align-items: flex-start;
-    width: 10rem;
-    max-width: 10rem;
+    width: 9.2rem;
+    max-width: 9.2rem;
     padding: 0;
     margin: 0;
     font-size: 0.8rem;
@@ -424,6 +456,7 @@ li{
     height: auto;
     width: 8rem;
     max-width: 100%;
+    border-radius: 0.39rem;
 }
 
 .chosen_media{
