@@ -78,7 +78,7 @@ class book_search(APIView):
 
         title = request.GET.get('title', '')
         page_number = request.GET.get('page', 1)
-        startIndex = 10 * (page_number - 1)
+        startIndex = 10 * (int(page_number) - 1)
         maxItemsPerPage = 20
 
         if not title:

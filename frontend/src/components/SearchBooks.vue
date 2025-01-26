@@ -2,6 +2,10 @@
     <div class="search_container">
         <form @submit.prevent class="search">
             <div class="search_button_div">
+                <button @click="toggleMedia('Book')"
+                :class="{active: searchMedia === 'Book'}"
+                class="book_button"
+                > Books</button>
                 <button @click="toggleMedia('Movie')"
                 :class="{active: searchMedia === 'Movie'}"
                 class="movie_button"
@@ -26,7 +30,7 @@
                     <img :src=" 'https://image.tmdb.org/t/p/original/' + media.poster_path" alt="Movie poster" class="list_img"  />
                     <div class="sub_media_list">
                         <ul class="sub_media_list_ul">
-                            <li><b>Title: </b>{{ media.title || media.name}}</li>
+                            <li><b>Title: </b>{{ media.title || media.name || media.volumeInfo['title']}}</li>
                             <li><b>Released: </b>{{media.release_date || media.first_air_date || "Not specified"}}</li>
                             <li><b>Genres: </b></li>
                             <ul v-if="media.genre_ids.length > 0" class="genre_list">
@@ -43,10 +47,10 @@
             </ul>
             <li class="pagination_control">
                 <button class="pagination_control_button_next_prev" :disabled="this.currentPage == 1" @click="prevPage">&lt;</button>
-                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage === page1 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page1 ? 'bold' : ''}" :disabled="page1 > totalPages" @click="changePage(page1)">{{page1}}</button>
-                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage === page2 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page2 ? 'bold' : ''}" :disabled="page2 > totalPages" @click="changePage(page2)">{{page2}}</button>
-                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage === page3 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page3 ? 'bold' : ''}" :disabled="page3 > totalPages" @click="changePage(page3)">{{page3}}</button>
-                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage === page4 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page4 ? 'bold' : ''}" :disabled="page4 > totalPages" @click="changePage(page4)">{{page4}}</button>
+                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage == page1 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page1 ? 'bold' : ''}" :disabled="page1 > totalPages" @click="changePage(page1)">{{page1}}</button>
+                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage == page2 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page2 ? 'bold' : ''}" :disabled="page2 > totalPages" @click="changePage(page2)">{{page2}}</button>
+                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage == page3 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page3 ? 'bold' : ''}" :disabled="page3 > totalPages" @click="changePage(page3)">{{page3}}</button>
+                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage == page4 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page4 ? 'bold' : ''}" :disabled="page4 > totalPages" @click="changePage(page4)">{{page4}}</button>
                 <button class="pagination_control_button_next_prev" :disabled="this.currentPage >= totalPages" @click="nextPage">&gt;</button>
             </li>
         </div>
@@ -151,6 +155,23 @@ export default
                     console.error('error catching data', error)
                 }
             }
+            else if (this.searchMedia == "Book"){
+                try{
+                    const response = await fetch(`http://localhost:8000/search-book/?title=${this.query}&page=${this.currentPage}`);
+                    if (!response.ok){
+                        throw new Error('Failed to fetch data');
+                    }
+                    const data = await response.json();
+                    this.mediaList = data.books || [];
+                    this.currentPage = data.current_page || 1;
+                    this.totalPages = data.total_pages || 1;
+                    console.log(data);
+                }
+                catch (error){
+                    console.error('error catching data', error)
+                }
+            }
+
         },
         toggleMedia(media){
             this.currentPage = 1;
@@ -236,7 +257,8 @@ li{
     border-radius: 1rem;
     overflow: hidden;
 }
-.search_button_div button{
+
+.book_button{
     all: unset;
     background-color: #FBFFFE;
     color: #FAA916;
@@ -247,18 +269,36 @@ li{
     font-weight: 500;
     font-size: 1.2rem;
 }
+
 .movie_button{
-    border-top-right-radius: 0.8rem;
-    border-bottom-right-radius: 0.8rem;
+    all: unset;
+    background-color: #FBFFFE;
+    color: #FAA916;
+    height: 3rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1.2rem;
+    border-right: 2px #FAA916 solid;
+    border-left: 2px #FAA916 solid;
 }
 .show_button{
-    border-top-left-radius: 0.8rem;
-    border-bottom-left-radius: 0.8rem;
+    all: unset;
+    background-color: #FBFFFE;
+    color: #FAA916;
+    height: 3rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 1.2rem;
 }
+
+
 .search_button_div button.active{
     background-color: #FAA916;
     color: #FBFFFE;
-    transition: ease 0.3s;
 }
 .clear_button{
     all: unset;
