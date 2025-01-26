@@ -42,12 +42,12 @@
                 </li>
             </ul>
             <li class="pagination_control">
-                <button class="pagination_control_button_next_prev" :disabled="page1 == 1" @click="this.showPageMultiplier--">&lt;</button>
+                <button class="pagination_control_button_next_prev" :disabled="this.currentPage == 1" @click="prevPage">&lt;</button>
                 <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage === page1 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page1 ? 'bold' : ''}" :disabled="page1 > totalPages" @click="changePage(page1)">{{page1}}</button>
                 <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage === page2 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page2 ? 'bold' : ''}" :disabled="page2 > totalPages" @click="changePage(page2)">{{page2}}</button>
                 <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage === page3 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page3 ? 'bold' : ''}" :disabled="page3 > totalPages" @click="changePage(page3)">{{page3}}</button>
                 <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage === page4 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page4 ? 'bold' : ''}" :disabled="page4 > totalPages" @click="changePage(page4)">{{page4}}</button>
-                <button class="pagination_control_button_next_prev" :disabled="page4 >= totalPages" @click="this.showPageMultiplier++">&gt;</button>
+                <button class="pagination_control_button_next_prev" :disabled="this.currentPage >= totalPages" @click="nextPage">&gt;</button>
             </li>
         </div>
         <div v-if="show_ChosenMedia == true" class="chosen_media">
@@ -182,6 +182,24 @@ export default
             this.currentPage = pageNumber;
             this.search(false);
         },
+        nextPage(){
+            if (this.page4 == this.currentPage){
+                this.showPageMultiplier++;
+                this.changePage(this.page1);
+            }
+            else{
+                this.changePage(this.currentPage + 1);
+            }
+        },
+        prevPage(){
+            if (this.page1 == this.currentPage){
+                this.showPageMultiplier--;
+                this.changePage(this.page4);
+            }
+            else{
+                this.changePage(this.currentPage - 1);
+            }
+        }
     },};
 </script>
 <style>
