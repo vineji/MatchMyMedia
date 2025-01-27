@@ -29,8 +29,8 @@
                 <li class="media_list_li" v-for="media in mediaList" :key="media.id">
                     <img :src=" 'https://image.tmdb.org/t/p/original/' + media.poster_path" alt="Movie poster" class="list_img"  />
                     <div class="sub_media_list">
-                        <ul class="sub_media_list_ul">
-                            <li><b>Title: </b>{{ media.title || media.name || media.volumeInfo['title']}}</li>
+                        <ul class="sub_media_list_ul" v-if="this.searchMedia == 'Movie' || this.searchMedia == 'TV Show'">
+                            <li><b>Title: </b>{{ media.title || media.name}}</li>
                             <li><b>Released: </b>{{media.release_date || media.first_air_date || "Not specified"}}</li>
                             <li><b>Genres: </b></li>
                             <ul v-if="media.genre_ids.length > 0" class="genre_list">
@@ -39,7 +39,17 @@
                             <ul v-else class="genre_list">
                                 <li class="genre" style="background-color: #9b9a9a;">Unknown</li>
                             </ul>
-
+                        </ul>
+                        <ul class="sub_media_list_ul" v-else-if="this.searchMedia == 'Book'" >
+                            <li class="book_title"><b>Title: </b>{{ media.volumeInfo['title']}}</li>
+                            <li><b>Published </b>{{media.volumeInfo['publishedDate']|| "Not specified"}}</li>
+                            <li><b>Categories: </b></li>
+                            <ul v-if="media.volumeInfo?.categories?.length > 0"  class="genre_list">
+                                <li class="genre" style="background-color: grey;" v-for="category in media.volumeInfo['categories']" :key="category">{{ category }}</li>
+                            </ul>
+                            <ul v-else class="genre_list">
+                                <li class="genre" style="background-color: #9b9a9a;">Unknown</li>
+                            </ul>
                         </ul>
                         <button @click="select(media)" class="media_list_button"> Select </button>
                     </div>
@@ -176,7 +186,8 @@ export default
         toggleMedia(media){
             this.currentPage = 1;
             this.searchMedia = media;
-            this.search();
+            this.mediaList = [];
+            this.search(true);
         },
         clearQuery(){
             this.currentPage = 1;
@@ -397,6 +408,24 @@ li{
     padding: 0;
     margin: 0;
 }
+.book_title{
+    max-height: 5rem;
+    overflow-y: auto;
+    width: 9.1rem;
+    padding-right: 0.1rem;
+}
+.book_title::-webkit-scrollbar{
+    width: 3px;
+}
+
+.book_title::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.book_title::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
+}
 
 .pagination_control{
     display: flex;
@@ -501,12 +530,14 @@ li{
 }
 
 .genre{
+    display: inline-block;
     color: #FBFFFE;
     padding-right: 0.4rem;
     padding-left: 0.4rem;
     padding-top: 0.1rem;
     padding-bottom: 0.1rem;
     border-radius: 0.3rem;
+    max-width: 8rem;
     
 }
 
