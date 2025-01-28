@@ -27,13 +27,14 @@
         <div v-if="mediaList.length > 0" class="media_list">
             <ul class="media_list_ul">
                 <li class="media_list_li" v-for="media in mediaList" :key="media.id">
-                    <img :src=" 'https://image.tmdb.org/t/p/original/' + media.poster_path" alt="Movie poster" class="list_img"  />
+                    <img v-if="this.searchMedia == 'Movie' || this.searchMedia == 'TV Show'" :src=" 'https://image.tmdb.org/t/p/original/' + media.poster_path" alt="Movie poster" class="list_img"  />
+                    <img v-if="this.searchMedia == 'Book'" :src="media.volumeInfo?.imageLinks?.thumbnail" class="list_img">
                     <div class="sub_media_list">
                         <ul class="sub_media_list_ul" v-if="this.searchMedia == 'Movie' || this.searchMedia == 'TV Show'">
                             <li><b>Title: </b>{{ media.title || media.name}}</li>
                             <li><b>Released: </b>{{media.release_date || media.first_air_date || "Not specified"}}</li>
                             <li><b>Genres: </b></li>
-                            <ul v-if="media.genre_ids.length > 0" class="genre_list">
+                            <ul v-if="media.genre_ids?.length > 0" class="genre_list">
                                 <li class="genre" v-for="id in media.genre_ids" :key="id" :style="{backgroundColor: getGenreColor(id)}"> {{ getGenreName(id) }}</li>
                             </ul>
                             <ul v-else class="genre_list">
@@ -42,7 +43,7 @@
                         </ul>
                         <ul class="sub_media_list_ul" v-else-if="this.searchMedia == 'Book'" >
                             <li class="book_title"><b>Title: </b>{{ media.volumeInfo['title']}}</li>
-                            <li><b>Published </b>{{media.volumeInfo['publishedDate']|| "Not specified"}}</li>
+                            <li><b>Published: </b>{{media.volumeInfo['publishedDate']|| "Not specified"}}</li>
                             <li><b>Categories: </b></li>
                             <ul v-if="media.volumeInfo?.categories?.length > 0"  class="genre_list">
                                 <li class="genre" style="background-color: grey;" v-for="category in media.volumeInfo['categories']" :key="category">{{ category }}</li>
@@ -57,24 +58,41 @@
             </ul>
             <li class="pagination_control">
                 <button class="pagination_control_button_next_prev" :disabled="this.currentPage == 1" @click="prevPage">&lt;</button>
-                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage == page1 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page1 ? 'bold' : ''}" :disabled="page1 > totalPages" @click="changePage(page1)">{{page1}}</button>
-                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage == page2 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page2 ? 'bold' : ''}" :disabled="page2 > totalPages" @click="changePage(page2)">{{page2}}</button>
-                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage == page3 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page3 ? 'bold' : ''}" :disabled="page3 > totalPages" @click="changePage(page3)">{{page3}}</button>
-                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage == page4 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage === page4 ? 'bold' : ''}" :disabled="page4 > totalPages" @click="changePage(page4)">{{page4}}</button>
+                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage == page1 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage == page1 ? 'bold' : ''}" :disabled="page1 > totalPages" @click="changePage(page1)">{{page1}}</button>
+                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage == page2 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage == page2 ? 'bold' : ''}" :disabled="page2 > totalPages" @click="changePage(page2)">{{page2}}</button>
+                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage == page3 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage == page3 ? 'bold' : ''}" :disabled="page3 > totalPages" @click="changePage(page3)">{{page3}}</button>
+                <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage == page4 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage == page4 ? 'bold' : ''}" :disabled="page4 > totalPages" @click="changePage(page4)">{{page4}}</button>
                 <button class="pagination_control_button_next_prev" :disabled="this.currentPage >= totalPages" @click="nextPage">&gt;</button>
             </li>
         </div>
-        <div v-if="show_ChosenMedia == true" class="chosen_media">
+        <div v-if="this.show_ChosenMedia == true && (this.searchMedia == 'Movie' || this.searchMedia == 'TV Show')" class="chosen_media">
             <img class="chosen_media_img" :src=" 'https://image.tmdb.org/t/p/original/' + chosenMedia.poster_path" alt="Movie poster"  />
             <div class="chosen_media_info">
                 <p><b>Title: </b>{{ chosenMedia.title || chosenMedia.name}}</p>
                 <p><b>Released: </b> {{chosenMedia.release_date || chosenMedia.first_air_date }}</p>
-                <ul v-if="chosenMedia.genre_ids.length > 0" class="chosen_genre_list">
+                <ul v-if="chosenMedia?.genre_ids?.length > 0" class="chosen_genre_list">
                     <p><b>Genres: </b> </p>
                     <li class="chosen_genre" :style="{backgroundColor: getGenreColor(id)}" v-for="id in chosenMedia.genre_ids" :key="id">{{ getGenreName(id) }}</li>
                 </ul>
                 <p class="overview"><b>Overview: </b> {{ chosenMedia.overview }}</p>
-                
+            </div>
+        </div>
+        <div v-if="this.show_ChosenMedia == true && (this.searchMedia == 'Book')" class="chosen_media">
+            <img class="chosen_media_img" :src="chosenMedia.volumeInfo?.imageLinks?.thumbnail" alt="Movie poster"  />
+            <div class="chosen_media_info">
+                <p><b>Title: </b>{{ chosenMedia.volumeInfo['title']}}</p>
+                <ul class="authors">
+                    <p><b>Authors: </b></p>
+                    <li v-for="(author,index) in chosenMedia.volumeInfo?.authors" :key="index">
+                        <span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}
+                    </li>
+                </ul>
+                <p><b>Published Date: </b> {{ chosenMedia.volumeInfo['publishedDate']|| "Not specified" }}</p>
+                <ul v-if="chosenMedia.volumeInfo?.categories?.length > 0" class="chosen_genre_list">
+                    <p><b>Categories: </b> </p>
+                    <li class="chosen_genre" style="background-color: grey;" v-for="category in chosenMedia.volumeInfo['categories']" :key="category">{{ category}}</li>
+                </ul>
+                <p class="overview"><b>Description: </b> {{ chosenMedia.volumeInfo['description'] }}</p>
             </div>
         </div>
     </div>
@@ -185,6 +203,8 @@ export default
         },
         toggleMedia(media){
             this.currentPage = 1;
+            this.showPageMultiplier = 1;
+            this.show_ChosenMedia = false;
             this.searchMedia = media;
             this.mediaList = [];
             this.search(true);
@@ -200,7 +220,7 @@ export default
             this.show_ChosenMedia = true;
             this.chosenMedia = media;
             this.mediaList = [];
-            this.query = media.title || media.name
+            this.query = media.title || media.name || media.volumeInfo['title'];
             this.currentPage = 1;
         },
         getGenreName(id){
@@ -220,7 +240,7 @@ export default
                 this.changePage(this.page1);
             }
             else{
-                this.changePage(this.currentPage + 1);
+                this.changePage(Number(this.currentPage) + 1);
             }
         },
         prevPage(){
@@ -229,7 +249,7 @@ export default
                 this.changePage(this.page4);
             }
             else{
-                this.changePage(this.currentPage - 1);
+                this.changePage(Number(this.currentPage) - 1);
             }
         }
     },};
@@ -563,9 +583,11 @@ li{
 }
 
 .chosen_media_img{
+    align-self: flex-start;
     height: auto;
     width: 9rem;
     max-width: 100%;
+    border-radius: 0.3rem;
 }
 
 
@@ -575,25 +597,10 @@ li{
     align-items: flex-start;
     justify-content: space-evenly;
     width: 40rem;
-    height: 14rem;
+    min-height: 14rem;
 
 }
-.overview{
-    height: 7rem;
-    overflow-y: auto;
-}
-.overview::-webkit-scrollbar{
-    width: 4px;
-}
 
-.overview::-webkit-scrollbar-thumb{
-    background-color: #1B1B1E;
-    border-radius: 1rem;
-}
-.overview::-webkit-scrollbar-track{
-    background-color: #dcdcdc;
-    border-radius: 1rem;
-}
 .chosen_media_info p{
     gap: 0;
     margin: 0;
@@ -618,6 +625,18 @@ li{
     padding-right: 0.6rem;
     border-radius: 0.5rem;
     color: white;
+}
+.authors{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 40rem;
+    max-width: 40rem;
+    padding: 0;
+    gap: 0.5rem;
+    margin-top: 1rem;
 }
 
 
