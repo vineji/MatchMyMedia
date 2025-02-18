@@ -16,13 +16,16 @@
                 class="show_button"
                 > TV Shows  </button>
             </div>
-            <input
-            type="text"
-            :placeholder="'Search ' + searchMedia"
-            v-model="query"
-            @input="search(true)"
-            />
-            <button @click="clearQuery" class="clear_button">Clear</button>
+            <div class="searchbar">
+                <input
+                type="text"
+                :placeholder="'Search ' + searchMedia"
+                v-model="query"
+                @input="search(true)"
+                />
+                <button @click="clearQuery" class="clear_button">&times;</button>
+            </div>
+            <button class="rcmnd-button" @click="recommendBooks(chosenMedia)" >Recommend Books</button>
         </form>
         <div v-if="mediaList.length > 0" class="media_list">
             <ul class="media_list_ul">
@@ -153,7 +156,7 @@ export default
 
             if (this.searchMedia == "Movie"){
                 try{
-                    const response = await fetch(`http://localhost:8000/search-movie/?title=${this.query}&page=${this.currentPage}`);
+                    const response = await fetch(`http://127.0.0.1:8000/search-movie/?title=${this.query}&page=${this.currentPage}`);
 
                     if (!response.ok){
                         throw new Error('Failed to fetch data');
@@ -169,7 +172,7 @@ export default
             }
             else if (this.searchMedia == "TV Show"){
                 try{
-                    const response = await fetch(`http://localhost:8000/search-show/?title=${this.query}&page=${this.currentPage}`);
+                    const response = await fetch(`http://127.0.0.1:8000/search-show/?title=${this.query}&page=${this.currentPage}`);
 
                     if (!response.ok){
                         throw new Error('Failed to fetch data');
@@ -185,7 +188,7 @@ export default
             }
             else if (this.searchMedia == "Book"){
                 try{
-                    const response = await fetch(`http://localhost:8000/search-book/?title=${this.query}&page=${this.currentPage}`);
+                    const response = await fetch(`http://127.0.0.1:8000/search-book/?title=${this.query}&page=${this.currentPage}`);
                     if (!response.ok){
                         throw new Error('Failed to fetch data');
                     }
@@ -199,6 +202,38 @@ export default
                     console.error('error catching data', error)
                 }
             }
+
+        },
+        async recommendBooks(media){
+
+            let media_map = new Map();
+            let genres = []
+
+            if (media == null){
+                alert("Select a media in order to get book recommendations.");
+                return;
+            }
+
+            if (this.searchMedia == "Movie" || this.searchMedia == "TV Show"){
+                for (let i = 0; i < media.genre_ids.length; i++){
+                    genres.push(this.getGenreName(media.genre_ids[i]))
+                }
+                media_map.set("title", media.title || media.name);
+                media_map.set("description",media.overview);
+                media_map.set("genre", genres);
+            }
+            else if(this.searchMedia == "Book"){
+                media_map.set("title", media.volumeInfo['title']);
+                media_map.set("description",media.volumeInfo['description']);
+                media_map.set("genre", media.volumeInfo['categories']);
+            }
+
+            let media_params = new URLSearchParams(media_map)
+
+            let url = 'http://127.0.0.1:8000/get-recommendations/?' + media_params.toString();
+            const response = await fetch(url);
+
+            console.log(response);
 
         },
         toggleMedia(media){
@@ -267,18 +302,28 @@ li{
     display: flex;
     flex-direction: row;
     gap: 1rem;
-    margin-right: 5rem;
 }
-.search input {
+.searchbar {
     display: flex;
-    align-items: flex-start;
-    width: 33rem;
+    flex-direction: row;
+    align-items: center;
+    width: 32rem;
     height: 3rem;
     border-radius: 1rem;
-    padding-left: 1rem;
     font-size: 1.2rem;
     border: #6D676E solid 2px;
+    border-right: none;
     color: #6D676E;
+}
+.searchbar input{
+    width: 28rem;
+    height: 2.8rem;
+    border-radius: 1rem;
+    font-size: 1.2rem;
+    border: none;
+    padding-left: 1rem;
+    outline: none;
+
 }
 
 .search_button_div{
@@ -325,6 +370,25 @@ li{
     font-weight: 500;
     font-size: 1.2rem;
 }
+.rcmnd-button{
+    all: unset;
+    font-size: 1.15rem;
+    background-color: #FBFFFE;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-weight: 501;
+    color: #25c79e;
+    border-radius: 1rem;
+    border: 2px solid #25c79e;
+    height: 3rem;
+    transition: 0.3s ease;
+}
+
+.rcmnd-button:hover{
+    background-color: #25c79e;
+    color: #FBFFFE;
+    transition: 0.3s ease;
+}
 
 
 .search_button_div button.active{
@@ -333,17 +397,17 @@ li{
 }
 .clear_button{
     all: unset;
-    border: #cb0422 2px solid;
-    font-weight: 700;
-    font-size: 1.2rem;
-    width: 6rem;
-    border-radius: 0.8rem;
-    height: 3rem;
-    color: #cb0422;
+    font-weight: 500;
+    font-size: 2rem;
+    width: 3.5rem;
+    border-radius: 1rem;
+    height: 3.25rem;
+    color: #FBFFFE;
+    background-color: #e51635;
 }
 .clear_button:hover{
-    color: #FBFFFE;
-    background-color: #cb0422;
+    font-weight: 600;
+    background-color: #ff1538;
     transition: ease 0.3s;
 }
 

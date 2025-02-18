@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from django.http import HttpResponse
-
+from django.http import HttpResponse,JsonResponse
+from . import recommendation
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -103,4 +103,15 @@ class book_search(APIView):
             return Response(response_data)
         else:
             return Response({'books':[]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class get_book_recommendations(APIView):
+    def get(self,request,format=None):
+
+        data = request.GET.dict()
+
+        recommendations = recommendation.get_recommended_books(data) 
+
+        return JsonResponse({"recommendations": recommendations})
+
 
