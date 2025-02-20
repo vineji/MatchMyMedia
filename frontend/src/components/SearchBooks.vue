@@ -27,6 +27,11 @@
             </div>
             <button class="rcmnd-button" @click="recommendBooks(chosenMedia)" >Recommend Books</button>
         </form>
+        <RecommendModal
+        v-model:isVisible="isModalVisible"
+        :recommendedBooks="rcmndBooks"
+        @close="isModalVisible = false"
+        />
         <div v-if="mediaList.length > 0" class="media_list">
             <ul class="media_list_ul">
                 <li class="media_list_li" v-for="media in mediaList" :key="media.id">
@@ -102,11 +107,10 @@
 </template>
 <script>
 import { useGenreStore } from '@/stores/genreStore';
+import RecommendModal from './RecommendModal.vue';
 
-
-
-export default 
-{
+export default {
+    components: {RecommendModal},
     data() {
         return {
             query : '',
@@ -117,30 +121,29 @@ export default
             currentPage : 1,
             totalPages : 1,
             showPageMultiplier : 1,
+            isModalVisible : false,
+            rcmndBooks : [],
         };
     },
     computed: {
         genreStore(){
             return useGenreStore();
         },
-        page1(m){
-            m = this.showPageMultiplier;
-            return (4 * m) - 3
+        page1(){
+            return (4 * this.showPageMultiplier) - 3
         },
-        page2(m){
-            m = this.showPageMultiplier;
-            return (4 * m) - 2
+        page2(){
+            return (4 * this.showPageMultiplier) - 2
         },
-        page3(m){
-            m = this.showPageMultiplier;
-            return (4 * m) - 1
+        page3(){
+            return (4 * this.showPageMultiplier) - 1
         },
-        page4(m){
-            m = this.showPageMultiplier;
-            return (4 * m)
+        page4(){
+            return (4 * this.showPageMultiplier)
         },
     },
     methods: {
+
         async search(newSearch){
             if (this.query.length < 2){
                 return
@@ -149,8 +152,10 @@ export default
             this.show_ChosenMedia = false;
             this.chosenMedia = null;
 
+
             if (newSearch == true){
                 this.currentPage = 1;
+                this.showPageMultiplier = 1;
             }
             
 
@@ -231,10 +236,22 @@ export default
             let media_params = new URLSearchParams(media_map)
 
             let url = 'http://127.0.0.1:8000/get-recommendations/?' + media_params.toString();
-            const response = await fetch(url);
+            try {
+                const response = await fetch(url);
 
-            console.log(response);
-
+                if(!response.ok){
+                    throw new Error("Failed to fecth recommendations");
+                }
+                const data = await response.json();
+                this.rcmndBooks = data.recommendations || [];
+                this.openModal();
+            }
+            catch (error){
+                console.error("Error fecthing recommendations ", error)
+            }
+        },
+        openModal(){
+            this.isModalVisible =  true;
         },
         toggleMedia(media){
             this.currentPage = 1;
@@ -270,12 +287,14 @@ export default
             this.search(false);
         },
         nextPage(){
-            if (this.page4 == this.currentPage){
-                this.showPageMultiplier++;
-                this.changePage(this.page1);
-            }
-            else{
-                this.changePage(Number(this.currentPage) + 1);
+            if (this.currentPage < this.totalPages){
+                this.currentPage++;
+
+                if (this.currentPage > this.page4){
+                    this.showPageMultiplier++;
+                }
+                this.search(false);
+
             }
         },
         prevPage(){
@@ -284,8 +303,9 @@ export default
                 this.changePage(this.page4);
             }
             else{
-                this.changePage(Number(this.currentPage) - 1);
+                this.changePage(Number(this.currentPage)-1)
             }
+            this.search(false);
         }
     },};
 </script>

@@ -23,12 +23,11 @@ def fetch_books_from_google_api(query):
     recommendations = []
 
     start_index = 0
-
-    excluded_categories = ['Cooking','Self-Help','Health & Fitness','Hobbies','Crafts',
-                            'Gardening','Travel','Art','Photography']
     
     max_results = 40
     
+    filtered_categories = ["fiction", "drama", "adventure", "fantasy", "horror", "action", "comedy", "history", "western"
+                           , "crime", "mystery", "romance", "magic", "family", "war", "kids", "children", "sci-fi"]
 
     try:
 
@@ -53,12 +52,13 @@ def fetch_books_from_google_api(query):
                 volumeInfo = book.get("volumeInfo", {})
                 categories = volumeInfo.get("categories", [])
 
-                if not categories or any(category in excluded_categories for category in categories):
+                if not categories or not any(any(fc in category.lower() for fc in filtered_categories) for category in categories):
                     continue
             
                 recommendations.append({
                     "title" : volumeInfo.get("title", "Unknown Title"),
                     "authors" : volumeInfo.get("authors", ["Unknown Author"]),
+                    "published_date" : volumeInfo.get("publishedDate", "Unknown"),
                     "description" : volumeInfo.get("description", "No Description Available"),
                     "categories" : categories,
                     "image" : volumeInfo.get("imageLinks", {}).get("thumbnail")
