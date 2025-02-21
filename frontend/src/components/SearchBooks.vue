@@ -30,6 +30,8 @@
         <RecommendModal
         v-model:isVisible="isModalVisible"
         :recommendedBooks="rcmndBooks"
+        :mediaType="searchMedia"
+        :mediaName="query"
         @close="isModalVisible = false"
         />
         <div v-if="mediaList.length > 0" class="media_list">
@@ -488,7 +490,6 @@ li{
     transition: 0.2s ease;
     font-weight: bold;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-
 }
 
 .sub_media_list{
