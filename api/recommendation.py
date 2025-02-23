@@ -27,7 +27,7 @@ def fetch_books_from_google_api(query):
     max_results = 40
     
     filtered_categories = ["fiction", "drama", "adventure", "fantasy", "horror", "action", "comedy", "history", "western"
-                           , "crime", "mystery", "romance", "magic", "family", "war", "kids", "children", "sci-fi"]
+                           , "crime", "mystery", "romance", "magic", "family", "war", "kids", "children", "sci-fi", "comic", "novel", "graphic"]
 
     try:
 
