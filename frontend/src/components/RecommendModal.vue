@@ -91,7 +91,8 @@ export default{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    width: 65rem;
+    width: 93%;
+    margin-left: 1rem;
 }
 .books_li_container{
     display: flex;
@@ -244,5 +245,21 @@ export default{
     font-weight: bold;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
-
+.close-button{
+    all: unset;
+    width: 4rem;
+    font-size: 1.2rem;
+    border: none;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    border-radius: 0.5rem;
+    color: #FBFFFE;
+    background-color: #e51635;
+}
+.close-button:hover{
+    font-weight: 600;
+    background-color: #ff1538;
+    transition: ease 0.3s;
+    
+}
 </style>
