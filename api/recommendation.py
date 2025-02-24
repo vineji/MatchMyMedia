@@ -87,9 +87,9 @@ def extract_keywords(text, n=5):
 
     return [feature_arr[i] for i in tfIdf_sorting[:n]]
 
-def rank_books_by_cosine_similarity(movie_query, books):
+def rank_books_by_cosine_similarity(media_query, books):
      
-    movie_embedding = model.encode(movie_query["description"], convert_to_tensor=True)
+    movie_embedding = model.encode(media_query["description"], convert_to_tensor=True)
 
     ranked_books = []
 
@@ -102,13 +102,13 @@ def rank_books_by_cosine_similarity(movie_query, books):
     return [book[0] for book in ranked_books]
     
 
-def get_recommended_books(movie_query):
+def get_recommended_books(media_query):
 
-    movie_query["keywords"] = extract_keywords(movie_query["description"])
+    media_query["keywords"] = extract_keywords(media_query["description"])
 
-    books = fetch_books_from_google_api(movie_query)
+    books = fetch_books_from_google_api(media_query)
 
-    ranked_book_recommendations = rank_books_by_cosine_similarity(movie_query, books)
+    ranked_book_recommendations = rank_books_by_cosine_similarity(media_query, books)
 
     return ranked_book_recommendations
 
