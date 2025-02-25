@@ -102,6 +102,10 @@
                     <p><b>Categories: </b> </p>
                     <li class="chosen_genre" style="background-color: grey;" v-for="category in chosenMedia.volumeInfo['categories']" :key="category">{{ category}}</li>
                 </ul>
+                <ul v-else class="chosen_genre_list">
+                    <p><b>Categories: </b> </p>
+                    <li class="chosen_genre" style="background-color: #9b9a9a;">Unknown</li>
+                </ul>
                 <p class="overview"><b>Description: </b> {{ chosenMedia.volumeInfo['description'] }}</p>
             </div>
         </div>
