@@ -3,8 +3,10 @@
         <div class="modal">
             <div class="modal-header">
                 <p>Recommended books for: {{ mediaType }} - {{ mediaName }}</p>
-                <button v-if="show_list == false" @click="back">Back</button>
-                <button @click="close" class="close-button">Close</button>
+                <div>
+                    <button v-if="show_list == false" @click="back" class="back">Back</button>
+                    <button @click="close" class="close-button">Close</button>
+                </div>
             </div>
             <ul v-if="show_list" class="list-container">
                 <li class="books_li" v-for="book in recommendedBooks" :key="book.title">
@@ -128,11 +130,23 @@ export default{
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: flex-start;
-    overflow-x: auto;
+    overflow-y: auto;
     gap: 1rem;
     padding-bottom: 1rem;
     padding-top: 0.5rem;
+}
 
+.list-container::-webkit-scrollbar{
+    width: 0.5rem;
+}
+
+.list-container::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 2rem;
+}
+.list-container::-webkit-scrollbar-track{
+    background-color: #e9e7e7;
+    border-radius: 2rem;
 }
 .modal-header{
     display: flex;
@@ -300,6 +314,7 @@ export default{
 .close-button{
     all: unset;
     width: 4rem;
+    height: 3rem;
     font-size: 1.2rem;
     border: none;
     padding-right: 0.5rem;
@@ -310,7 +325,7 @@ export default{
 }
 .close-button:hover{
     font-weight: 600;
-    background-color: #ff1538;
+    background-color: #fc2646;
     transition: ease 0.3s;
 }
 .chosen_book_div{
@@ -323,6 +338,18 @@ export default{
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+.chosen_book_div::-webkit-scrollbar{
+    width: 0.5rem;
+}
+
+.chosen_book_div::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 2rem;
+}
+.chosen_book_div::-webkit-scrollbar-track{
+    background-color: #e9e7e7;
+    border-radius: 2rem;
 }
 .chosen_book_container{
     display: flex;
@@ -364,5 +391,21 @@ export default{
     width: 15rem;
     max-width: 15rem;
     border-radius: 0.7rem;
+}
+.back{
+    border: 2px solid #41ceaa;
+    color: #41ceaa;
+    background-color: #FBFFFE;
+    font-size: 1.2rem;
+    margin-right: 1.5rem;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    border-radius: 0.5rem;
+    height: 2.99rem;
+}
+.back:hover{
+    background-color: #41ceaa;
+    color: #FBFFFE;
+    transition: 0.3s ease;
 }
 </style>
