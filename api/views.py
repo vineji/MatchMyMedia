@@ -21,12 +21,12 @@ class movie_search(APIView):
 
         title = request.GET.get('title','')
         page_number = request.GET.get('page',1)
+        api_key = os.getenv("TMBD_API_KEY")
 
         if not title:
-            return Response({'movies':[]}, status=status.HTTP_400_BAD_REQUEST)
-        
-        api_key = os.getenv("TMBD_API_KEY")
-        url = f'https://api.themoviedb.org/3/search/movie?query={title}&api_key={api_key}&page={page_number}'
+            url = f'https://api.themoviedb.org/3/trending/movie/day?api_key={api_key}&page={page_number}'
+        else:
+            url = f'https://api.themoviedb.org/3/search/movie?query={title}&api_key={api_key}&page={page_number}'
 
         response = requests.get(url)
 
@@ -49,12 +49,12 @@ class show_search(APIView):
 
         title = request.GET.get('title','')
         page_number = request.GET.get('page',1)
+        api_key = os.getenv("TMBD_API_KEY")
 
         if not title:
-            return Response({'shows':[]}, status=status.HTTP_400_BAD_REQUEST)
-        
-        api_key = os.getenv("TMBD_API_KEY")
-        url = f'https://api.themoviedb.org/3/search/tv?query={title}&api_key={api_key}&page={page_number}'
+            url = f'https://api.themoviedb.org/3/trending/tv/day?api_key={api_key}&page={page_number}'
+        else: 
+            url = f'https://api.themoviedb.org/3/search/tv?query={title}&api_key={api_key}&page={page_number}'
 
         response = requests.get(url)
 
@@ -81,11 +81,12 @@ class book_search(APIView):
         startIndex = 10 * (int(page_number) - 1)
         maxItemsPerPage = 20
 
-        if not title:
-            return Response({'items':[]}, status=status.HTTP_400_BAD_REQUEST)
-        
         api_key = os.getenv("GOOGLE_BOOKS_API_KEY")
-        url = f'https://www.googleapis.com/books/v1/volumes?q={title}&startIndex={startIndex}&maxResults={maxItemsPerPage}&key={api_key}'
+
+        if not title:
+            url = f'https://www.googleapis.com/books/v1/volumes?q=subject:fiction&orderBy=Relevance&startIndex={startIndex}&maxResults={maxItemsPerPage}&key={api_key}'
+        else:
+            url = f'https://www.googleapis.com/books/v1/volumes?q={title}&startIndex={startIndex}&maxResults={maxItemsPerPage}&key={api_key}'
 
         response = requests.get(url)
 

@@ -2,24 +2,24 @@
     <div class="search_container">
         <form @submit.prevent class="search">
             <div class="search_button_div">
-                <button @click="toggleMedia('Book')"
-                :class="{active: searchMedia === 'Book'}"
+                <button @click="toggleMedia('Books')"
+                :class="{active: searchMedia === 'Books'}"
                 class="book_button"
                 > Books</button>
-                <button @click="toggleMedia('Movie')"
-                :class="{active: searchMedia === 'Movie'}"
+                <button @click="toggleMedia('Movies')"
+                :class="{active: searchMedia === 'Movies'}"
                 class="movie_button"
                 > Movies </button>
 
-                <button @click="toggleMedia('TV Show')"
-                :class="{active: searchMedia === 'TV Show'}"
+                <button @click="toggleMedia('TV Shows')"
+                :class="{active: searchMedia === 'TV Shows'}"
                 class="show_button"
                 > TV Shows  </button>
             </div>
             <div class="searchbar">
                 <input
                 type="text"
-                :placeholder="'Search ' + searchMedia"
+                :placeholder="'Search ' + searchMedia + ' - Trending '+ searchMedia"
                 v-model="query"
                 @input="search(true)"
                 />
@@ -37,10 +37,10 @@
         <div v-if="mediaList.length > 0" class="media_list">
             <ul class="media_list_ul">
                 <li class="media_list_li" v-for="media in mediaList" :key="media.id">
-                    <img v-if="this.searchMedia == 'Movie' || this.searchMedia == 'TV Show'" :src=" 'https://image.tmdb.org/t/p/original/' + media.poster_path" alt="Movie poster" class="list_img"  />
-                    <img v-if="this.searchMedia == 'Book'" :src="media.volumeInfo?.imageLinks?.thumbnail" class="list_img">
+                    <img v-if="this.searchMedia == 'Movies' || this.searchMedia == 'TV Shows'" :src=" 'https://image.tmdb.org/t/p/original/' + media.poster_path" alt="Movie poster" class="list_img"  />
+                    <img v-if="this.searchMedia == 'Books'" :src="media.volumeInfo?.imageLinks?.thumbnail" class="list_img">
                     <div class="sub_media_list">
-                        <ul class="sub_media_list_ul" v-if="this.searchMedia == 'Movie' || this.searchMedia == 'TV Show'">
+                        <ul class="sub_media_list_ul" v-if="this.searchMedia == 'Movies' || this.searchMedia == 'TV Shows'">
                             <li><b>Title: </b>{{ media.title || media.name}}</li>
                             <li><b>Released: </b>{{media.release_date || media.first_air_date || "Not specified"}}</li>
                             <li><b>Genres: </b></li>
@@ -51,7 +51,7 @@
                                 <li class="genre" style="background-color: #9b9a9a;">Unknown</li>
                             </ul>
                         </ul>
-                        <ul class="sub_media_list_ul" v-else-if="this.searchMedia == 'Book'" >
+                        <ul class="sub_media_list_ul" v-else-if="this.searchMedia == 'Books'" >
                             <li class="book_title"><b>Title: </b>{{ media.volumeInfo['title']}}</li>
                             <li><b>Published: </b>{{media.volumeInfo['publishedDate']|| "Not specified"}}</li>
                             <li><b>Categories: </b></li>
@@ -75,7 +75,7 @@
                 <button class="pagination_control_button_next_prev" :disabled="this.currentPage >= totalPages" @click="nextPage">&gt;</button>
             </li>
         </div>
-        <div v-if="this.show_ChosenMedia == true && (this.searchMedia == 'Movie' || this.searchMedia == 'TV Show')" class="chosen_media">
+        <div v-if="this.show_ChosenMedia == true && (this.searchMedia == 'Movies' || this.searchMedia == 'TV Shows')" class="chosen_media">
             <img class="chosen_media_img" :src=" 'https://image.tmdb.org/t/p/original/' + chosenMedia.poster_path" alt="Movie poster"  />
             <div class="chosen_media_info">
                 <p><b>Title: </b>{{ chosenMedia.title || chosenMedia.name}}</p>
@@ -87,7 +87,7 @@
                 <p class="overview"><b>Overview: </b> {{ chosenMedia.overview }}</p>
             </div>
         </div>
-        <div v-if="this.show_ChosenMedia == true && (this.searchMedia == 'Book')" class="chosen_media">
+        <div v-if="this.show_ChosenMedia == true && (this.searchMedia == 'Books')" class="chosen_media">
             <img class="chosen_media_img" :src="chosenMedia.volumeInfo?.imageLinks?.thumbnail" alt="Movie poster"  />
             <div class="chosen_media_info">
                 <p><b>Title: </b>{{ chosenMedia.volumeInfo['title']}}</p>
@@ -121,7 +121,7 @@ export default {
         return {
             query : '',
             mediaList : [],
-            searchMedia : 'Movie',
+            searchMedia : 'Movies',
             show_ChosenMedia : false,
             chosenMedia : null,
             currentPage : 1,
@@ -151,9 +151,6 @@ export default {
     methods: {
 
         async search(newSearch){
-            if (this.query.length < 2){
-                return
-            }
 
             this.show_ChosenMedia = false;
             this.chosenMedia = null;
@@ -165,7 +162,7 @@ export default {
             }
             
 
-            if (this.searchMedia == "Movie"){
+            if (this.searchMedia == "Movies"){
                 try{
                     const response = await fetch(`http://127.0.0.1:8000/search-movie/?title=${this.query}&page=${this.currentPage}`);
 
@@ -181,7 +178,7 @@ export default {
                     console.error('error catching data', error)
                 }
             }
-            else if (this.searchMedia == "TV Show"){
+            else if (this.searchMedia == "TV Shows"){
                 try{
                     const response = await fetch(`http://127.0.0.1:8000/search-show/?title=${this.query}&page=${this.currentPage}`);
 
@@ -197,7 +194,7 @@ export default {
                     console.error('error catching data', error)
                 }
             }
-            else if (this.searchMedia == "Book"){
+            else if (this.searchMedia == "Books"){
                 try{
                     const response = await fetch(`http://127.0.0.1:8000/search-book/?title=${this.query}&page=${this.currentPage}`);
                     if (!response.ok){
@@ -225,7 +222,7 @@ export default {
                 return;
             }
 
-            if (this.searchMedia == "Movie" || this.searchMedia == "TV Show"){
+            if (this.searchMedia == "Movies" || this.searchMedia == "TV Shows"){
                 for (let i = 0; i < media.genre_ids.length; i++){
                     genres.push(this.getGenreName(media.genre_ids[i]))
                 }
@@ -233,7 +230,7 @@ export default {
                 media_map.set("description",media.overview);
                 media_map.set("genre", genres);
             }
-            else if(this.searchMedia == "Book"){
+            else if(this.searchMedia == "Books"){
                 media_map.set("title", media.volumeInfo['title']);
                 media_map.set("description",media.volumeInfo['description']);
                 media_map.set("genre", media.volumeInfo['categories']);
@@ -273,6 +270,7 @@ export default {
             this.mediaList = [];
             this.chosenMedia = null;
             this.show_ChosenMedia = false;
+            this.search(true);
         },
         select(media){
             this.show_ChosenMedia = true;
@@ -313,7 +311,12 @@ export default {
             }
             this.search(false);
         }
-    },};
+    },
+    mounted(){
+        this.search(true);
+    }
+    
+    };
 </script>
 <style>
 li{
