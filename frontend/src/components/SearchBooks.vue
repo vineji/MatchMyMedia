@@ -26,6 +26,7 @@
                 <button @click="clearQuery" class="clear_button">&times;</button>
             </div>
             <button class="rcmnd-button" @click="recommendBooks(chosenMedia)" >Recommend Books</button>
+            <router-link class="login-btn" to="/login"><img class="userLogo" :src="userLogo"/>Login</router-link>
         </form>
         <RecommendModal
         v-model:isVisible="isModalVisible"
@@ -114,11 +115,14 @@
 <script>
 import { useGenreStore } from '@/stores/genreStore';
 import RecommendModal from './RecommendModal.vue';
+import userLogo from '@/assets/user-svgrepo-com.svg';
+
 
 export default {
     components: {RecommendModal},
     data() {
         return {
+            userLogo,
             query : '',
             mediaList : [],
             searchMedia : 'Movies',
@@ -319,6 +323,17 @@ export default {
     };
 </script>
 <style>
+
+body{
+    background-color: #f7f7f7;
+}
+
+.userLogo{
+    color: #1B1B1E;
+    height: 2rem;
+    width: auto;
+}
+
 li{
     list-style: none;
 }
@@ -343,6 +358,7 @@ li{
     border: #6D676E solid 2px;
     border-right: none;
     color: #6D676E;
+    background-color: #FBFFFE;
 }
 .searchbar input{
     width: 28rem;
@@ -413,8 +429,31 @@ li{
     transition: 0.3s ease;
 }
 
+
 .rcmnd-button:hover{
     background-color: #25c79e;
+    color: #FBFFFE;
+    transition: 0.3s ease;
+}
+.login-btn{
+    all: unset;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.15rem;
+    background-color: #FBFFFE;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-weight: 500;
+    color: #1B1B1E;
+    border-radius: 1rem;
+    border: 2px solid #1B1B1E;
+    height: 3rem;
+    transition: 0.3s ease;
+}
+.login-btn:hover{
+    background-color: #1B1B1E;
     color: #FBFFFE;
     transition: 0.3s ease;
 }
@@ -458,6 +497,7 @@ li{
 
 }
 .media_list_li {
+    background-color: #FBFFFE;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -668,6 +708,7 @@ li{
     gap: 3rem;
     border-radius: 1rem;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    background-color: #FBFFFE;
     width: 53rem;
     margin-right: 5rem;
     margin-top: 2rem;
