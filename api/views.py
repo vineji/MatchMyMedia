@@ -1,8 +1,7 @@
 from django.shortcuts import render
-from django.http import HttpResponse,JsonResponse
+from django.http import HttpResponse, JsonResponse
 from . import recommendation
-from rest_framework.views import APIView
-from rest_framework.response import Response
+
 from rest_framework import status
 
 import requests
@@ -16,8 +15,9 @@ load_dotenv()
 def main_spa(request):
     return render(request, 'index.html')
 
-class movie_search(APIView):
-    def get(self,request, format=None):
+def movie_search_view(request):
+    
+    if request.method == 'GET':
 
         title = request.GET.get('title','')
         page_number = request.GET.get('page',1)
@@ -40,12 +40,13 @@ class movie_search(APIView):
                 'total_pages': total_pages,
                 'current_page': current_page,
             }
-            return Response(response_data)
+            return JsonResponse(response_data)
         else:
-            return Response({'movies':[]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return JsonResponse({'movies':[]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-class show_search(APIView):
-    def get(self,request, format=None):
+def show_search_view(request):
+        
+    if request.method == 'GET':
 
         title = request.GET.get('title','')
         page_number = request.GET.get('page',1)
@@ -68,13 +69,14 @@ class show_search(APIView):
                 'total_pages': total_pages,
                 'current_page': current_page,
             }
-            return Response(response_data)
+            return JsonResponse(response_data)
         else:
-            return Response({'shows':[]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return JsonResponse({'shows':[]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
-class book_search(APIView):
-    def get(self,request,format=None):
+def book_search_view(request):
+        
+    if request.method == 'GET':
 
         title = request.GET.get('title', '')
         page_number = request.GET.get('page', 1)
@@ -101,14 +103,14 @@ class book_search(APIView):
                 'total_pages': total_pages,
                 'current_page': current_page
             }
-            return Response(response_data)
+            return JsonResponse(response_data)
         else:
-            return Response({'books':[]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return JsonResponse({'books':[]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class get_book_recommendations(APIView):
-    def get(self,request,format=None):
-
+def get_book_recommendations_view(request):
+        
+    if request.method == 'GET':
         data = request.GET.dict()
 
         recommendations = recommendation.get_recommended_books(data) 
