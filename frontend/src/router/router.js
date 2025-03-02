@@ -1,12 +1,12 @@
 import {createRouter, createWebHistory} from 'vue-router';
 
 import SearchBooks from '@/components/SearchBooks.vue';
-import LoginPage from '@/components/LoginPage.vue';
+import DashboardPage from '@/components/DashboardPage.vue';
 
 
 const routes = [
     { path: '/', name: 'Main Page', component: SearchBooks },
-    { path: '/login', name: 'Login Page', component: LoginPage },
+    { path: '/dashboard', name: 'Dashboard Page', component: DashboardPage },
 ]
 
 const router = createRouter({

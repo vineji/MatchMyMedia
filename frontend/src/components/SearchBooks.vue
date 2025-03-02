@@ -26,7 +26,7 @@
                 <button @click="clearQuery" class="clear_button">&times;</button>
             </div>
             <button class="rcmnd-button" @click="recommendBooks(chosenMedia)" >Recommend Books</button>
-            <router-link class="login-btn" to="/login"><img class="userLogo" :src="userLogo"/>Login</router-link>
+            <button class="login-btn" @click="redirectToLogin"><img class="userLogo" :src="userLogo"/>Login</button>
         </form>
         <RecommendModal
         v-model:isVisible="isModalVisible"
@@ -314,6 +314,9 @@ export default {
                 this.changePage(Number(this.currentPage)-1)
             }
             this.search(false);
+        },
+        redirectToLogin(){
+            window.location.href= "http://127.0.0.1:8000/login/";
         }
     },
     mounted(){

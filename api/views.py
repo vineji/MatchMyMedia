@@ -1,5 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
+from django.urls import reverse
 from . import recommendation
 
 from rest_framework import status
@@ -9,11 +10,51 @@ import requests
 import os
 from dotenv import load_dotenv
 
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login, get_user_model
+from django.middleware.csrf import get_token
+
+from .forms import CustomUserCreationForm
+
 load_dotenv()
 
 
 def main_spa(request):
     return render(request, 'index.html')
+
+def get_csrf_token(request):
+    csrf_token = get_token(request)
+    return JsonResponse({"csrfToken": csrf_token})
+
+def login_view(request):
+    if request.method== "POST":
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect("http://localhost:8080/dashboard/")
+        else:
+            return render(request, "login.html", {"form": form, "error": "Invalid username or password."})
+    form = AuthenticationForm()
+    return render(request, 'login.html')
+
+def sign_up_view(request):
+    if request.method== "POST":
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            print(user)
+            login(request, user)
+            return redirect("http://localhost:8080/dashboard/")
+        else:
+            print(form.errors)
+            return render(request, "signup.html", {"form": form})
+    
+    form = CustomUserCreationForm()
+    return render(request, "signup.html", {"form": form})
+
+
+
 
 def movie_search_view(request):
     
