@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login, get_user_model
+from django.contrib.auth.decorators import login_required
 from django.middleware.csrf import get_token
 
 from .forms import CustomUserCreationForm
@@ -32,7 +33,8 @@ def login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect("http://localhost:8080/dashboard/")
+            print(request.session.items())
+            return redirect("http://127.0.0.1:8080/dashboard/")
         else:
             return render(request, "login.html", {"form": form, "error": "Invalid username or password."})
     form = AuthenticationForm()
@@ -45,13 +47,28 @@ def sign_up_view(request):
             user = form.save()
             print(user)
             login(request, user)
-            return redirect("http://localhost:8080/dashboard/")
+            return redirect("http://127.0.0.1:8080/dashboard/")
         else:
             print(form.errors)
             return render(request, "signup.html", {"form": form})
     
     form = CustomUserCreationForm()
     return render(request, "signup.html", {"form": form})
+
+@login_required
+def user_view(request):
+
+    if request.method == "GET":
+        if request.user.is_authenticated:
+
+            user_data = {
+                "id": request.user.id,
+                "username": request.user.username,
+                "online_id": getattr(request.user, "online_id", None),
+            }
+            return JsonResponse(user_data)
+    print("user not authenticated")
+    return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
 
