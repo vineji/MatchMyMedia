@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
 from . import recommendation
-
+import json
 from rest_framework import status
 
 import requests
@@ -15,7 +15,7 @@ from django.contrib.auth import login, get_user_model
 from django.contrib.auth.decorators import login_required
 from django.middleware.csrf import get_token
 
-from .forms import CustomUserCreationForm
+from .forms import CustomUserCreationForm, CustomUserUpdateForm
 
 load_dotenv()
 
@@ -67,6 +67,23 @@ def user_view(request):
                 "online_id": getattr(request.user, "online_id", None),
             }
             return JsonResponse(user_data)
+    elif request.methof == "PUT":
+
+        try:
+            data = json.loads(request.body)
+            form  = CustomUserUpdateForm(data, instance=request.user)
+            if form.is_valid():
+                form.save()
+                return JsonResponse({"message": "User details updated successfully!"})
+            else:
+                print(form.errors)
+                return JsonResponse({"errors": form.errors}, status=400)
+        except json.JSONDecodeError:
+                    return JsonResponse({"error": "Invalid JSON data."}, status=400)
+
+
+
+
     print("user not authenticated")
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
