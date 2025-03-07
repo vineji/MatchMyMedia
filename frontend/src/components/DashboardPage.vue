@@ -4,15 +4,15 @@
         <div class="dashboard_container">   
             <div class="user_info">
                 <h2 class="user_info_header">User Information</h2>
-                <ul class="user_info_list">
+                <ul v-if="changePassword == false"  class="user_info_list">
                     <li class="user_info_li">
                         <p><b>Username</b></p>
                         <div class="user_info_div">
                             <input v-model="user_data.username" :placeholder="user_data.username" :readonly="readUsername">
                             <button v-if="readUsername == true" class="change_btn" @click="changeUsername">Change</button>
-                            <div v-else-if="readUsername == false">
-                                <button @click="saveUsername">Save</button>
-                                <button @click="cancelUsername" >Cancel</button>
+                            <div class="change_div" v-else-if="readUsername == false">
+                                <button @click="saveUsername" class="save_btn">Save</button>
+                                <button @click="cancelUsername" class="cancel_btn">Cancel</button>
                             </div>
                         </div>
                     </li>
@@ -21,24 +21,29 @@
                         <div class="user_info_div">
                             <input v-model="user_data.online_id" :placeholder="user_data.online_id" :readonly="readOnlineId">
                             <button v-if="readOnlineId == true" class="change_btn" @click="changeOnlineId">Change</button>
-                            <div v-else-if="readOnlineId == false">
-                                <button @click="saveOnlineId">Save</button>
-                                <button @click="cancelOnlineId" >Cancel</button>
+                            <div class="change_div" v-else-if="readOnlineId == false">
+                                <button @click="saveOnlineId" class="save_btn">Save</button>
+                                <button @click="cancelOnlineId" class="cancel_btn">Cancel</button>
                             </div>
                         </div>
                     </li>
                     <li class="user_info_li">
                         <p><b>Date of Birth</b></p>
                         <div class="user_info_div">
-                            <input v-model="user_data.DOB" :placeholder="user_data.DOB" :readonly="readDOB">
+                            <input v-model="user_data.DOB" :placeholder="user_data.DOB" type="date" :readonly="readDOB">
+                            <button v-if="readDOB == true" class="change_btn" @click="changeDOB">Change</button>
+                            <div class="change_div" v-else-if="readDOB == false">
+                                <button @click="saveDOB" class="save_btn">Save</button>
+                                <button @click="cancelDOB" class="cancel_btn">Cancel</button>
+                            </div>
                         </div>
                     </li>
+                    <button class="change_password_btn" @click="change_password">Change Password</button>
                 </ul>
-                <div class="button_div">
-                    <button>Change Password</button>
-                    <button>Opt In for weekly book recommendations</button>
+                <ul v-if="changePassword == true">
+                    <p>hello</p>
 
-                </div>
+                </ul>
             </div>   
             <div class="user_genres">
                 <p>genre</p>
@@ -57,6 +62,7 @@ export default{
             readUsername: true,
             readOnlineId: true,
             readDOB: true,
+            changePassword: false
         }
     },
     methods : {
@@ -136,6 +142,7 @@ export default{
         changeUsername(){
             this.readUsername = false;
             this.cancelOnlineId();
+            this.cancelDOB();
         },
         cancelUsername(){
             this.fetch_user();
@@ -167,11 +174,52 @@ export default{
         changeOnlineId(){
             this.readOnlineId = false;
             this.cancelUsername();
+            this.cancelDOB();
         },
         cancelOnlineId(){
             this.fetch_user();
             this.readOnlineId = true;
+        },
+        async saveDOB(){
+            try{
+
+                const response = await fetch("http://127.0.0.1:8000/user/",
+                {    
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    credentials: "include", 
+                    body: JSON.stringify({ DOB: this.user_data.DOB})
+                });
+
+                if (response.ok) {
+                    console.log("DOB updated successfully");
+                    this.readDOB = true;
+                }
+            }
+            catch (error){
+                console.error("Error updating DOB:", error)
+            }
+        },
+        changeDOB(){
+            this.readDOB = false;
+            this.cancelUsername();
+            this.cancelOnlineId();
+        },
+        cancelDOB(){
+            this.fetch_user();
+            this.readDOB = true;
+        },
+        change_password(){
+            this.cancelUsername();
+            this.cancelOnlineId();
+            this.cancelDOB();
+            this.changePassword = true;
+
         }
+
 
     },
     async mounted() {
@@ -222,12 +270,14 @@ body{
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    justify-content: space-between;
+    justify-content: flex-start;
     width: 31rem;
-    height: 17rem;
+    height: 24rem;
     margin: 0;
     padding: 0;
     margin-left: 1rem;
+    gap: 1rem;
+
 }
 .user_info_li p{
     margin: 0;
@@ -275,15 +325,71 @@ body{
     padding-left: 1rem;
     padding-right: 1rem;
     border-radius: 0.5rem;
+    transition: 0.2s ease;
 }
 .change_btn:hover{
-    background-color: #0dc43bdb;
+    background-color: #0dc43bae;
 }
 
 .button_div{
     margin-top: 2rem;
+}
+
+.save_btn{
+    all: unset;
+    background-color: #0fb485;
+    font-size: 1.1rem;
+    color: #FBFFFE;
+    font-weight: 401;
+    padding-left: 0.7rem;
+    padding-right: 0.7rem;
+    border-radius: 0.5rem;
+    transition: 0.2s ease;
+}
+.save_btn:hover{
+    background-color: rgba(13, 196, 144, 0.823);
+}
+.cancel_btn{
+    all: unset;
+    background-color: #e51635;
+    font-size: 1.1rem;
+    color: #FBFFFE;
+    font-weight: 401;
+    padding-left: 0.7rem;
+    padding-right: 0.7rem;
+    border-radius: 0.5rem;
+    transition: 0.2s ease;
+}
+.cancel_btn:hover{
+    background-color: #ff1538be;
+}
+
+.change_div{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 9.5rem;
+}
+.change_password_btn{
+    all: unset;
+    margin-top: 1rem;
+    height: 3rem;
+    font-size: 1.2rem;
+    font-weight: 401;
+    align-self: flex-start;
+    color: #FBFFFE;
+    background-color: #c7142f;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-radius: 0.5rem;
+    transition: 0.2s ease;
+}
+
+.change_password_btn:hover{
+    background-color: #c7142fa8;
 
 }
+
 
 
 </style>

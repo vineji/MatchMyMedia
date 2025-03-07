@@ -66,6 +66,7 @@ def user_view(request):
                 "username": request.user.username,
                 "online_id": getattr(request.user, "online_id", None),
                 "email": request.user.email,
+                "DOB": request.user.DOB,
             }
             return JsonResponse(user_data)
     elif request.method == "PUT":
@@ -78,7 +79,8 @@ def user_view(request):
             updated_data = {
                 "username": data.get("username", User.username),
                 "online_id": data.get("online_id", User.online_id),
-                "email": data.get("email", User.email)
+                "email": data.get("email", User.email),
+                "DOB": data.get("DOB", User.DOB)
             }
             form  = CustomUserUpdateForm(updated_data, instance=request.user)
             if form.is_valid():

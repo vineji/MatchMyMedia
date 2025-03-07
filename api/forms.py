@@ -6,9 +6,16 @@ from django.db.models import Model
 User = get_user_model()
 
 class CustomUserCreationForm(UserCreationForm):
+
     online_id = forms.CharField(
         required=True,
         label="online id"
+    )
+
+    DOB = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        required=True,
+        label="Date of Birth"
     )
 
     class Meta:
@@ -16,6 +23,7 @@ class CustomUserCreationForm(UserCreationForm):
         fields = (
             "username",
             "online_id",
+            "DOB",
             "password1",
             "password2"
         )
@@ -26,10 +34,15 @@ class CustomUserUpdateForm(forms.ModelForm):
         required=True,
         label="online id"
     )
+    DOB = forms.DateField(
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        required=True,
+        label="Date of Birth"
+    )
 
     class Meta:
         model = User
-        fields = ("username","online_id")
+        fields = ("username","online_id","DOB")
     
     def clean_username(self):
 
