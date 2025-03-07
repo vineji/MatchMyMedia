@@ -31,7 +31,7 @@ class CustomUserUpdateForm(forms.ModelForm):
         model = User
         fields = ("username","online_id")
     
-    def check_username(self) -> str:
+    def clean_username(self):
 
         username = self.cleaned_data.get("username")
 

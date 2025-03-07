@@ -65,13 +65,22 @@ def user_view(request):
                 "id": request.user.id,
                 "username": request.user.username,
                 "online_id": getattr(request.user, "online_id", None),
+                "email": request.user.email,
             }
             return JsonResponse(user_data)
-    elif request.methof == "PUT":
+    elif request.method == "PUT":
 
         try:
             data = json.loads(request.body)
-            form  = CustomUserUpdateForm(data, instance=request.user)
+
+            User = request.user
+
+            updated_data = {
+                "username": data.get("username", User.username),
+                "online_id": data.get("online_id", User.online_id),
+                "email": data.get("email", User.email)
+            }
+            form  = CustomUserUpdateForm(updated_data, instance=request.user)
             if form.is_valid():
                 form.save()
                 return JsonResponse({"message": "User details updated successfully!"})

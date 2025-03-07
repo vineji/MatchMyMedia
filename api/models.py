@@ -17,6 +17,7 @@ class User(AbstractUser):
     online_id = models.CharField(max_length=255, unique=True)
     favourite_genres = models.ManyToManyField(Genre, blank=True)
     favourite_books= models.JSONField(default=list, blank=True)
+    DOB = models.DateField(null=True,blank=True)
 
     groups = models.ManyToManyField(
         Group,

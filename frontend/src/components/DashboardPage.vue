@@ -1,7 +1,50 @@
 <template>
-    <div >
-        <p>Dashboard</p>
-        <p>{{ user_data }}</p>
+    <div class="page_container">
+        <h1>User Dashboard</h1>
+        <div class="dashboard_container">   
+            <div class="user_info">
+                <h2 class="user_info_header">User Information</h2>
+                <ul class="user_info_list">
+                    <li class="user_info_li">
+                        <p><b>Username</b></p>
+                        <div class="user_info_div">
+                            <input v-model="user_data.username" :placeholder="user_data.username" :readonly="readUsername">
+                            <button v-if="readUsername == true" class="change_btn" @click="changeUsername">Change</button>
+                            <div v-else-if="readUsername == false">
+                                <button @click="saveUsername">Save</button>
+                                <button @click="cancelUsername" >Cancel</button>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="user_info_li">
+                        <p><b>Online ID</b></p>
+                        <div class="user_info_div">
+                            <input v-model="user_data.online_id" :placeholder="user_data.online_id" :readonly="readOnlineId">
+                            <button v-if="readOnlineId == true" class="change_btn" @click="changeOnlineId">Change</button>
+                            <div v-else-if="readOnlineId == false">
+                                <button @click="saveOnlineId">Save</button>
+                                <button @click="cancelOnlineId" >Cancel</button>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="user_info_li">
+                        <p><b>Date of Birth</b></p>
+                        <div class="user_info_div">
+                            <input v-model="user_data.DOB" :placeholder="user_data.DOB" :readonly="readDOB">
+                        </div>
+                    </li>
+                </ul>
+                <div class="button_div">
+                    <button>Change Password</button>
+                    <button>Opt In for weekly book recommendations</button>
+
+                </div>
+            </div>   
+            <div class="user_genres">
+                <p>genre</p>
+
+            </div>      
+        </div>
     </div>
 </template>
 <script>
@@ -10,7 +53,10 @@ export default{
     data() {
         return{
             user_data: {},
-            csrfToken: ""
+            csrfToken: "",
+            readUsername: true,
+            readOnlineId: true,
+            readDOB: true,
         }
     },
     methods : {
@@ -63,7 +109,68 @@ export default{
             catch (error){
                 console.error(`${error}`)
             }
+        },
+        async saveUsername(){
+            try{
 
+                const response = await fetch("http://127.0.0.1:8000/user/",
+                {    
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    credentials: "include", 
+                    body: JSON.stringify({ username: this.user_data.username})
+                });
+
+                if (response.ok) {
+                    console.log("Username updated successfully");
+                    this.readUsername = true;
+                }
+            }
+            catch (error){
+                console.error("Error updating username:", error)
+            }
+        },
+        changeUsername(){
+            this.readUsername = false;
+            this.cancelOnlineId();
+        },
+        cancelUsername(){
+            this.fetch_user();
+            this.readUsername = true;
+        },
+        async saveOnlineId(){
+            try{
+
+                const response = await fetch("http://127.0.0.1:8000/user/",
+                {    
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    credentials: "include", 
+                    body: JSON.stringify({ online_id: this.user_data.online_id})
+                });
+
+                if (response.ok) {
+                    console.log("Online ID updated successfully");
+                    this.readOnlineId = true;
+                }
+            }
+            catch (error){
+                console.error("Error updating online ID:", error)
+            }
+        },
+        changeOnlineId(){
+            this.readOnlineId = false;
+            this.cancelUsername();
+        },
+        cancelOnlineId(){
+            this.fetch_user();
+            this.readOnlineId = true;
         }
 
     },
@@ -74,5 +181,109 @@ export default{
 };
 </script>
 <style>
+
+body{
+    background-color: rgba(247, 244, 244, 0.944);
+}
+
+.page_container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.dashboard_container{
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 90rem;
+    height: 35rem;
+}
+
+.user_info{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    background-color: #FBFFFE; 
+    width: 33rem;   
+    height: 27rem;
+    padding: 2rem;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    border-radius: 2rem;
+}
+.user_info_header{
+    font-size: 1.8rem;
+    margin: 0;
+    align-self: center;
+    margin-bottom: 1.5rem;
+}
+.user_info_list{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 31rem;
+    height: 17rem;
+    margin: 0;
+    padding: 0;
+    margin-left: 1rem;
+}
+.user_info_li p{
+    margin: 0;
+    padding: 0;
+}
+.user_info_li{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+.user_info_li b{
+    font-size: 1.2rem;
+}
+.user_info_div{
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    width: 31rem;
+    justify-content: space-between;
+}
+.user_info_div input {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    font-size: 1.2rem;
+    border: 3px solid #1B1B1E;
+    padding-left: 0.5rem;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    width: 19.5rem;
+    border-radius: 0.5rem;
+}
+
+.user_genres{
+    background-color: aliceblue;  
+    width: 35rem;
+}
+
+.change_btn{
+    all: unset;
+    background-color: #0dc43b;
+    font-size: 1.2rem;
+    color: #FBFFFE;
+    font-weight: 401;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-radius: 0.5rem;
+}
+.change_btn:hover{
+    background-color: #0dc43bdb;
+}
+
+.button_div{
+    margin-top: 2rem;
+
+}
+
 
 </style>
