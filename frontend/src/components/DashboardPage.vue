@@ -40,9 +40,29 @@
                     </li>
                     <button class="change_password_btn" @click="change_password">Change Password</button>
                 </ul>
-                <ul v-if="changePassword == true">
-                    <p>hello</p>
-
+                <ul v-if="changePassword == true" class="user_info_list">
+                    <li class="user_info_li">
+                        <p><b>Old Password</b></p>
+                        <div class="user_info_div">
+                            <input v-model="password_form.old_password" placeholder="Enter Old Password" type="password">
+                        </div>
+                    </li>
+                    <li class="user_info_li">
+                        <p><b>New Password</b></p>
+                        <div class="user_info_div">
+                            <input v-model="password_form.new_password_1" placeholder="Enter New Password"  type="password">
+                        </div>
+                    </li>
+                    <li class="user_info_li">
+                        <p><b>Confirm New Password</b></p>
+                        <div class="user_info_div">
+                            <input v-model="password_form.new_password_2" placeholder="Re-enter New Password" type="password">
+                        </div>
+                    </li>
+                    <div class="password_btn_div">
+                        <button @click="updatePassword" class="update_btn">Update Password</button>
+                        <button @click="cancelPassword" class="cancel_password_btn">Cancel</button>
+                    </div>
                 </ul>
             </div>   
             <div class="user_genres">
@@ -58,6 +78,7 @@ export default{
     data() {
         return{
             user_data: {},
+            password_form: {},
             csrfToken: "",
             readUsername: true,
             readOnlineId: true,
@@ -65,7 +86,7 @@ export default{
             changePassword: false
         }
     },
-    methods : {
+    methods: {
         async fetch_csrf_token(){
 
             try{
@@ -217,8 +238,45 @@ export default{
             this.cancelOnlineId();
             this.cancelDOB();
             this.changePassword = true;
+        },
+        cancelPassword(){
+            this.password_form.old_password = "";
+            this.password_form.new_password_1 = "";
+            this.password_form.new_password_2 = "";
+            this.changePassword = false;
+        },
+        async updatePassword(){
+            try{
+                const response = await fetch("http://127.0.0.1:8000/user/",
+                {    
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    credentials: "include", 
+                    body: JSON.stringify({
+                        action : 'change_password',
+                        old_password : this.password_form.old_password,
+                        new_password1 : this.password_form.new_password_1,
+                        new_password2 : this.password_form.new_password_2
+                    })
+                });
+
+                const data = await response.json();
+                if (!response.ok) {
+                    let errorMessage = Object.values(data.errors || {}).flat().join("\n");
+                    throw new Error(errorMessage || "Unexpected error occured when changing password");
+                }
+                this.cancelPassword();
+            }
+            catch (error) {
+                console.error("Error:", error);
+                alert(error);
+            }
 
         }
+        
 
 
     },

@@ -10,8 +10,8 @@ import requests
 import os
 from dotenv import load_dotenv
 
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import login, get_user_model
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
+from django.contrib.auth import login, get_user_model, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.middleware.csrf import get_token
 
@@ -71,26 +71,52 @@ def user_view(request):
             return JsonResponse(user_data)
     elif request.method == "PUT":
 
-        try:
-            data = json.loads(request.body)
+        data = json.loads(request.body)
+        action = data.get('action')
 
-            User = request.user
 
-            updated_data = {
-                "username": data.get("username", User.username),
-                "online_id": data.get("online_id", User.online_id),
-                "email": data.get("email", User.email),
-                "DOB": data.get("DOB", User.DOB)
-            }
-            form  = CustomUserUpdateForm(updated_data, instance=request.user)
-            if form.is_valid():
-                form.save()
-                return JsonResponse({"message": "User details updated successfully!"})
-            else:
-                print(form.errors)
-                return JsonResponse({"errors": form.errors}, status=400)
-        except json.JSONDecodeError:
-                    return JsonResponse({"error": "Invalid JSON data."}, status=400)
+        if not action:
+
+            try:
+                
+
+                User = request.user
+
+                updated_data = {
+                    "username": data.get("username", User.username),
+                    "online_id": data.get("online_id", User.online_id),
+                    "email": data.get("email", User.email),
+                    "DOB": data.get("DOB", User.DOB)
+                }
+                form  = CustomUserUpdateForm(updated_data, instance=request.user)
+                if form.is_valid():
+                    form.save()
+                    return JsonResponse({"message": "User details updated successfully!"})
+                else:
+                    print(form.errors)
+                    return JsonResponse({"errors": form.errors}, status=400)
+            except json.JSONDecodeError:
+                return JsonResponse({"error": "Invalid JSON data."}, status=400)
+    
+    elif request.method == "POST":
+
+        data = json.loads(request.body)
+        action = data.get('action')
+        
+        if action == 'change_password':
+            try:
+                form = PasswordChangeForm(user=request.user, data = data)
+
+                if form.is_valid():
+                    user = form.save()
+                    update_session_auth_hash(request, user)
+                    return JsonResponse({"message": "Password updated successfully!"})
+                else:
+                    print(form.errors)
+                    return JsonResponse({"errors": form.errors}, status=400)
+            except json.JSONDecodeError:
+                return JsonResponse({"error": "Invalid JSON data."}, status=400)
+
 
 
 

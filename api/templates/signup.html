@@ -19,7 +19,10 @@
             <h1 class="signup-header">Sign Up</h1>
             <div class="input-container"> 
                 <input class="inputs" type="text" id="username" name="username" placeholder="Enter Username" required>
-                <input class="inputs" type="text" id="online_id" name="online_id" placeholder="Enter Online ID" value="{{ form.online_id.value|default:'' }}" required>
+                <div class="input-container-div">
+                    <input class="input_online_id" type="text" id="online_id" name="online_id" placeholder="Enter Online ID" value="{{ form.online_id.value|default:'' }}" required>
+                    <input class="input_DOB" type="date" id="DOB" name="DOB" placeholder="Enter DOB" value="{{ form.DOB.value|default:'' }}"  max="2020-01-01" title="Date of Birth" required>
+                </div>
                 <input class="inputs" type="password" id="password1" name="password1" placeholder="Enter Password" required>
                 <input class="inputs" type="password" id="password2" name="password2" placeholder="Retype Password" required>
             </div>
@@ -89,6 +92,38 @@
         display: flex;
         flex-direction: column;
         gap: 2rem;
+    }
+
+    .input-container-div{
+        display: flex;
+        flex-direction: row;
+        width: 25rem;
+        justify-content: space-between;
+    }
+
+    .input_online_id{
+        all: unset;
+        width: 14.3rem;
+        height: 3rem;
+        font-size: 1.3rem;
+        border-radius: 0.7rem;
+        border: 3.5px solid #1B1B1E;
+        padding-left: 0.6rem;
+        color: #1B1B1E;
+    }
+    .input_DOB{
+        all: unset;
+        width: 8.5rem;
+        height: 3rem;
+        font-size: 1.3rem;
+        border-radius: 0.7rem;
+        border: 3.5px solid #1B1B1E;
+        color: #1B1B1E;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        margin-left: 0.5rem;
     }
 
     .inputs{
