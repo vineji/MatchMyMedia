@@ -8,7 +8,7 @@
                     <li class="user_info_li">
                         <p><b>Username</b></p>
                         <div class="user_info_div">
-                            <input v-model="user_data.username" :placeholder="user_data.username" :readonly="readUsername">
+                            <input class="user_info_div_input" v-model="user_data.username" :placeholder="user_data.username" :readonly="readUsername">
                             <button v-if="readUsername == true" class="change_btn" @click="changeUsername">Change</button>
                             <div class="change_div" v-else-if="readUsername == false">
                                 <button @click="saveUsername" class="save_btn">Save</button>
@@ -19,7 +19,7 @@
                     <li class="user_info_li">
                         <p><b>Online ID</b></p>
                         <div class="user_info_div">
-                            <input v-model="user_data.online_id" :placeholder="user_data.online_id" :readonly="readOnlineId">
+                            <input class="user_info_div_input" v-model="user_data.online_id" :placeholder="user_data.online_id" :readonly="readOnlineId">
                             <button v-if="readOnlineId == true" class="change_btn" @click="changeOnlineId">Change</button>
                             <div class="change_div" v-else-if="readOnlineId == false">
                                 <button @click="saveOnlineId" class="save_btn">Save</button>
@@ -30,7 +30,7 @@
                     <li class="user_info_li">
                         <p><b>Date of Birth</b></p>
                         <div class="user_info_div">
-                            <input v-model="user_data.DOB" :placeholder="user_data.DOB" type="date" :readonly="readDOB">
+                            <input class="user_info_div_date" v-model="user_data.DOB" :placeholder="user_data.DOB" type="date" :readonly="readDOB" max="2020-01-01">
                             <button v-if="readDOB == true" class="change_btn" @click="changeDOB">Change</button>
                             <div class="change_div" v-else-if="readDOB == false">
                                 <button @click="saveDOB" class="save_btn">Save</button>
@@ -43,20 +43,26 @@
                 <ul v-if="changePassword == true" class="user_info_list">
                     <li class="user_info_li">
                         <p><b>Old Password</b></p>
-                        <div class="user_info_div">
-                            <input v-model="password_form.old_password" placeholder="Enter Old Password" type="password">
+                        <div class="user_password_div">
+                            <input class="user_info_div_input" v-model="password_form.old_password" placeholder="Enter Old Password" :type="showOldPassword ? 'text' : 'password'">
+                            <button class="show_password_btn" @click="show_OldPassword">{{showOldPassword ? 'Hide' : 'Show'}}</button>
+                            <button class="clear_password_btn" @click="clearOldPassword">Clear</button>
                         </div>
                     </li>
                     <li class="user_info_li">
                         <p><b>New Password</b></p>
-                        <div class="user_info_div">
-                            <input v-model="password_form.new_password_1" placeholder="Enter New Password"  type="password">
+                        <div class="user_password_div">
+                            <input class="user_info_div_input" v-model="password_form.new_password_1" placeholder="Enter New Password"  :type="showNewPassword1 ? 'text' : 'password'">
+                            <button class="show_password_btn" @click="show_NewPassword1">{{showNewPassword1 ? 'Hide' : 'Show'}}</button>
+                            <button class="clear_password_btn" @click="clearNewPassword1">Clear</button>
                         </div>
                     </li>
                     <li class="user_info_li">
                         <p><b>Confirm New Password</b></p>
-                        <div class="user_info_div">
-                            <input v-model="password_form.new_password_2" placeholder="Re-enter New Password" type="password">
+                        <div class="user_password_div">
+                            <input class="user_info_div_input" v-model="password_form.new_password_2" placeholder="Re-enter New Password" :type="showNewPassword2 ? 'text' : 'password'">
+                            <button class="show_password_btn" @click="show_NewPassword2">{{showNewPassword2 ? 'Hide' : 'Show'}}</button>
+                            <button class="clear_password_btn" @click="clearNewPassword2">Clear</button>
                         </div>
                     </li>
                     <div class="password_btn_div">
@@ -83,7 +89,10 @@ export default{
             readUsername: true,
             readOnlineId: true,
             readDOB: true,
-            changePassword: false
+            changePassword: false,
+            showOldPassword: false,
+            showNewPassword1: false,
+            showNewPassword2: false,
         }
     },
     methods: {
@@ -275,6 +284,24 @@ export default{
                 alert(error);
             }
 
+        },
+        show_OldPassword(){
+            this.showOldPassword = !this.showOldPassword;
+        },
+        show_NewPassword1(){
+            this.showNewPassword1 = !this.showNewPassword1;
+        },
+        show_NewPassword2(){
+            this.showNewPassword2 = !this.showNewPassword2;
+        },
+        clearOldPassword(){
+            this.password_form.old_password = '';
+        },
+        clearNewPassword1(){
+            this.password_form.new_password_1 = '';
+        },
+        clearNewPassword2(){
+            this.password_form.new_password_2 = '';
         }
         
 
@@ -356,7 +383,7 @@ body{
     width: 31rem;
     justify-content: space-between;
 }
-.user_info_div input {
+.user_info_div_input {
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -367,6 +394,19 @@ body{
     padding-bottom: 0.6rem;
     width: 19.5rem;
     border-radius: 0.5rem;
+}
+.user_info_div_date{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    font-size: 1.2rem;
+    border: 3px solid #1B1B1E;
+    padding-left: 0.5rem;
+    padding-top: 0.47rem;
+    padding-bottom: 0.47rem;
+    width: 19.5rem;
+    border-radius: 0.5rem;
+
 }
 
 .user_genres{
@@ -432,6 +472,7 @@ body{
     all: unset;
     margin-top: 1rem;
     height: 3rem;
+    width: 10rem;
     font-size: 1.2rem;
     font-weight: 401;
     align-self: flex-start;
@@ -446,6 +487,88 @@ body{
 .change_password_btn:hover{
     background-color: #c7142fa8;
 
+}
+
+.password_btn_div{
+    width: 20.4rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.update_btn{
+    all: unset;
+
+    height: 3rem;
+    width: 10rem;
+    font-size: 1.2rem;
+    font-weight: 401;
+    align-self: flex-start;
+    color: #FBFFFE;
+    background-color: #0fb485;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-radius: 0.5rem;
+    transition: 0.2s ease;
+}
+.update_btn:hover{
+    background-color: rgba(13, 196, 144, 0.823);
+}
+.cancel_password_btn{
+    all: unset;
+    height: 3rem;
+    background-color: #e51635;
+    font-size: 1.2rem;
+    color: #FBFFFE;
+    font-weight: 401;
+    padding-left: 0.7rem;
+    padding-right: 0.7rem;
+    border-radius: 0.5rem;
+    transition: 0.2s ease;
+}
+.cancel_password_btn:hover{
+    background-color: #ff1538be;
+}
+.user_password_div{
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    width: 31rem;
+
+}
+.show_password_btn{
+    all: unset;
+    background-color: #FAA916;
+    color: #FBFFFE;
+    width: 3rem;
+    font-weight: 401;
+    font-size: 1.1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-radius: 0.5rem;
+    margin-left: 0.3rem;
+    transition: 0.2s ease;
+}
+.show_password_btn:hover{
+    background-color: #faaa16b4;
+}
+.clear_password_btn{
+    all: unset;
+    background-color: #e51635;
+    color: #FBFFFE;
+    font-weight: 401;
+    font-size: 1.1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-radius: 0.5rem;
+    margin-left: 0.3rem;
+    transition: 0.2s ease;
+
+}
+.clear_password_btn:hover{
+    background-color: #e51635b9;
 }
 
 
