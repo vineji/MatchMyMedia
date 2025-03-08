@@ -7,7 +7,8 @@ import json
 
 class Genre(models.Model):
 
-    name = models.CharField(max_length=255, unique=True)
+    name = models.CharField(max_length=30, unique=True)
+    colour = models.CharField(max_length=255, unique=False, default='#00008b')
 
     def __str__(self):
         return self.name
@@ -29,6 +30,19 @@ class User(AbstractUser):
         related_name = "custom_user_permissions_set",
         blank = True
     )
+
+    def get_genres(self):
+        return [[x.name,x.colour] for x in self.favourite_genres.all()]
+    
+    def to_dict(self):
+        return {
+            'id' : self.id,
+            'username': self.username,
+            'online_id': self.online_id,
+            'DOB': self.DOB,
+            'favourite_genres': self.get_genres()
+        }
+    
 
 
 

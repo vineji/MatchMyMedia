@@ -71,10 +71,33 @@
                     </div>
                 </ul>
             </div>   
-            <div class="user_genres">
-                <p>genre</p>
+            <div class="genre_book_container">
+                <div class="add_genre_container">
+                    <h3>Favourite Genres</h3>
+                    <div class="genre_div">
+                        <p>Your Genres:</p>
+                        <button class="add_genre_btn" @click="openGenreModal">Add Genre</button>
+                    </div>
+                    <ul class="user_genre_list">
+                        <li class="user_genre" style="background-color: grey;" v-if="user_data.favourite_genres.length == 0">No genres added yet</li>
+                        <li v-for="genre in user_data.favourite_genres" :key="genre" class="user_genre" :style=" {backgroundColor: genre[1] } ">{{genre[0]}} <button class="delete_genre_btn" @click="deleteGenre(genre[0])">-</button></li>
+                    </ul>
+                </div>
+                <div class="add_book_container">
+                </div>
+            </div>  
+            <div v-if="openAddGenre == true" class="genre_modal">
+                <div class="genre_modal_conatiner">
+                    <h4>Add Genre</h4>
+                    <div>
+                        <input type="text"  placeholder="Enter your own genre"/><button>Add</button>
+                    </div>
+                    <p>Choose from genres below</p>
+                    <ul>
 
-            </div>      
+                    </ul>
+                </div>
+            </div>    
         </div>
     </div>
 </template>
@@ -83,7 +106,9 @@ export default{
     name:"DashboardPage",
     data() {
         return{
-            user_data: {},
+            user_data: {
+                favourite_genres : []
+            },
             password_form: {},
             csrfToken: "",
             readUsername: true,
@@ -93,6 +118,7 @@ export default{
             showOldPassword: false,
             showNewPassword1: false,
             showNewPassword2: false,
+            openAddGenre: false,
         }
     },
     methods: {
@@ -121,7 +147,6 @@ export default{
             
         },
         async fetch_user(){
-
             try{
 
                 const response = await fetch("http://127.0.0.1:8000/user/",
@@ -138,6 +163,7 @@ export default{
                 if (response.ok){
                     const data = await response.json();
                     this.user_data = data;
+                    this.user_data.favourite_genres = data.favourite_genres;
                     console.log("Fetched user data");
                 }
 
@@ -302,9 +328,32 @@ export default{
         },
         clearNewPassword2(){
             this.password_form.new_password_2 = '';
+        },
+        openGenreModal(){
+            this.openAddGenre = true;
+        },
+        async deleteGenre(genreName){
+            try
+            {
+                const response = await fetch("http://127.0.0.1:8000/user/",
+                {    
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    body: JSON.stringify({ genre_name: genreName , action: "delete_genre" }),
+                    credentials: "include", 
+                })
+                if (!response.ok) {
+                    throw new Error(`Failed to remove genre: ${response.status}`);
+                }
+                this.fetch_user();
+            }
+            catch (error){
+                console.error("Error removing genre:", error);
+            }
         }
-        
-
 
     },
     async mounted() {
@@ -329,8 +378,8 @@ body{
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: space-evenly;
-    width: 90rem;
+    justify-content: space-between;
+    width: 80rem;
     height: 35rem;
 }
 
@@ -343,7 +392,7 @@ body{
     height: 27rem;
     padding: 2rem;
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-    border-radius: 2rem;
+    border-radius: 1.4rem;
 }
 .user_info_header{
     font-size: 1.8rem;
@@ -570,6 +619,163 @@ body{
 .clear_password_btn:hover{
     background-color: #e51635b9;
 }
+.genre_book_container{
+    width: 40rem;
+    display: flex;
+    flex-direction: column;
+    height: 31rem;
+    justify-content: space-between;
+}
+.add_genre_container{
+    width: 38rem;
+    height: 13rem;
+    background-color: #FBFFFE;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    border-radius: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-left: 2rem;
+}
+.add_genre_container h3{
+    margin-bottom: 0.7rem;
+    align-self: center;
+    margin-right: 2rem;
+
+}
+
+.add_book_container{
+    width: 40rem;
+    height: 17rem;
+    background-color: #FBFFFE;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    border-radius: 1.4rem;
+}
+.add_genre_btn{
+    all: unset;
+    font-size: 1.1rem;
+    height: 2.5rem;
+    font-weight: 401;
+    color: #1B1B1E;
+    background-color: #FAA916;
+    border-radius: 0.5rem;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+    transition: 0.2s ease;
+}
+.add_genre_btn:hover{
+    background-color: #faaa16b9;
+    color: #1b1b1ea8;
+}
+.genre_div{
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 36rem;
+    justify-content: space-between;
+}
+.genre_div p {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    height: 2.5rem;
+    font-weight: 401;
+    color: #1B1B1E;
+    background-color: #41ceaa;
+    border-radius: 0.5rem;
+    padding-left: 0.6rem;
+    padding-right: 0.6rem;
+}
+.genre_modal{
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    background: rgba(0,0,0,0.5);
+    width: 100%;
+    height: 100%;
+}
+.genre_modal_conatiner{
+    display: flex;
+    flex-direction: column;
+    background-color: #FBFFFE;
+    width: 36rem;
+    height: 30rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+.user_genre_list{
+    padding-left: 0;
+    padding-top: 0.3rem;
+    width: 36rem;
+    max-width: 36rem;
+    height: 5rem;
+    max-height: 5rem;
+    overflow-y: scroll;
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.user_genre_list::-webkit-scrollbar{
+    width: 5px;
+}
+
+.user_genre_list::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.user_genre_list::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
+}
+.user_genre{
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    color: #FBFFFE;
+    font-size: 1rem;
+    height: 2rem;
+    padding-left: 0.7rem;
+    padding-right: 0.7rem;
+    border-radius: 0.3rem;
+}
+.delete_genre_btn{
+    padding: 0;
+    margin: 0;
+    all: unset;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #c7142f;
+    height: 0.95rem;
+    width: 0.95rem;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.9rem;
+    font-size: 1.2rem;
+    text-align: right;
+    font-weight: 501;
+}
+.delete_genre_btn:hover{
+    background-color: #c7142fba;
+}
+
 
 
 

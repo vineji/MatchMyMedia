@@ -17,6 +17,8 @@ from django.middleware.csrf import get_token
 
 from .forms import CustomUserCreationForm, CustomUserUpdateForm
 
+from .models import Genre
+
 load_dotenv()
 
 
@@ -60,15 +62,9 @@ def user_view(request):
 
     if request.method == "GET":
         if request.user.is_authenticated:
-
-            user_data = {
-                "id": request.user.id,
-                "username": request.user.username,
-                "online_id": getattr(request.user, "online_id", None),
-                "email": request.user.email,
-                "DOB": request.user.DOB,
-            }
+            user_data = request.user.to_dict()
             return JsonResponse(user_data)
+        
     elif request.method == "PUT":
 
         data = json.loads(request.body)
@@ -78,7 +74,6 @@ def user_view(request):
         if not action:
 
             try:
-                
 
                 User = request.user
 
@@ -116,6 +111,34 @@ def user_view(request):
                     return JsonResponse({"errors": form.errors}, status=400)
             except json.JSONDecodeError:
                 return JsonResponse({"error": "Invalid JSON data."}, status=400)
+    
+    elif request.method == 'DELETE':
+
+        data = json.loads(request.body)
+        action = data.get('action')
+
+        
+        if action == 'delete_genre':
+
+            try:
+                genre_name = data.get('genre_name')
+
+                if not genre_name:
+                    return JsonResponse({"error": "Genre name is required"}, status=400)
+                
+                genre = Genre.objects.get(name=genre_name)
+
+                request.user.favourite_genres.remove(genre)
+
+                return JsonResponse({"message": "Genre removed successfully."}, status=200)
+            
+            except json.JSONDecodeError:
+                return JsonResponse({"error": "Invalid JSON format"}, status=400)
+                
+            except Exception as e:
+                return JsonResponse({"error": str(e)}, status=500)
+
+
 
 
 
