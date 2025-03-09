@@ -87,14 +87,14 @@
                 </div>
             </div>  
             <div v-if="openAddGenre == true" class="genre_modal">
-                <div class="genre_modal_conatiner">
+                <div class="genre_modal_container">
                     <h4>Add Genre</h4>
-                    <div>
-                        <input type="text"  placeholder="Enter your own genre"/><button>Add</button>
+                    <div class="genre_modal_div">
+                        <p>Choose from genres below</p>
+                        <input type="text" v-model="newGenreName"  placeholder="Enter your own genre" maxlength="25"/><button @click="addNewGenre">Add</button>
                     </div>
-                    <p>Choose from genres below</p>
-                    <ul>
-
+                    <ul class="add_genre_list">
+                        <li v-for="genre in genreList.filter(genre => !user_data.favourite_genres.some(favGenre => favGenre[0] === genre[0]))" :key="genre[0]" class="add_user_genre" :style=" {backgroundColor: genre[1] } ">{{ genre[0] }}<button @click="addGenre(genre[0])" class="add_existing_genre_btn">+</button></li>
                     </ul>
                 </div>
             </div>    
@@ -119,6 +119,8 @@ export default{
             showNewPassword1: false,
             showNewPassword2: false,
             openAddGenre: false,
+            genreList: [],
+            newGenreName: "",
         }
     },
     methods: {
@@ -353,12 +355,94 @@ export default{
             catch (error){
                 console.error("Error removing genre:", error);
             }
+        },
+        async addGenre(genreName){
+            try
+            {
+                const response = await fetch("http://127.0.0.1:8000/user/",
+                {    
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    body: JSON.stringify({ genre_name: genreName , action: "add_genre" }),
+                    credentials: "include", 
+                })
+                if (!response.ok) {
+                    throw new Error(`Failed to add genre: ${response.status}`);
+                }
+                this.fetch_user();
+            }
+            catch (error){
+                console.error("Error adding genre:", error);
+            }
+        },
+        async addNewGenre(){
+
+            if (!this.newGenreName || this.newGenreName.trim().length == 0){
+                alert("Please provide a new genre name");
+                return;
+            }
+
+            try
+            {
+                const response = await fetch("http://127.0.0.1:8000/genre/",
+                {    
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    body: JSON.stringify({ genre_name: this.newGenreName}),
+                    credentials: "include", 
+                })
+                if (!response.ok) {
+                    throw new Error(`Failed to add new genre: ${response.status}`);
+
+                }
+
+                let data = await response.json();
+                let new_genre = data.genre_name;
+                this.addGenre(new_genre);
+
+                this.newGenreName = "";
+                this.fetch_user();
+                this.fetch_genres();
+            }
+            catch (error){
+                console.error("Error adding new genre:", error);
+                alert("Error:" + error.message);
+            }
+
+        },
+        async fetch_genres(){
+            try{
+                const response = await fetch("http://127.0.0.1:8000/genre/",
+                {    
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    credentials: "include", 
+                });
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch genres: ${response.status}`);
+                }
+                this.genreList = await response.json();
+            }
+            catch (error){
+                console.error("Error fetching genres:", error);
+            }
+            
         }
 
     },
     async mounted() {
         await this.fetch_csrf_token();
         this.fetch_user();
+        this.fetch_genres();
     }
 };
 </script>
@@ -703,7 +787,7 @@ body{
     width: 100%;
     height: 100%;
 }
-.genre_modal_conatiner{
+.genre_modal_container{
     display: flex;
     flex-direction: column;
     background-color: #FBFFFE;
@@ -722,6 +806,7 @@ body{
     height: 5rem;
     max-height: 5rem;
     overflow-y: scroll;
+    overflow-x: hidden;
     display: flex;
     flex-direction: row;
     align-items: flex-start;
@@ -758,11 +843,11 @@ body{
     margin: 0;
     all: unset;
     position: absolute;
-    top: -5px;
-    right: -5px;
+    top: -4px;
+    right: -4px;
     background-color: #c7142f;
-    height: 0.95rem;
-    width: 0.95rem;
+    height: 0.9rem;
+    width: 0.9rem;
     z-index: 10;
     display: flex;
     align-items: center;
@@ -775,6 +860,123 @@ body{
 .delete_genre_btn:hover{
     background-color: #c7142fba;
 }
+.add_genre_list{
+    padding: 0;
+    margin: 0;
+    padding-top: 0.5rem;
+    width: 37rem;
+    max-width: 37rem;
+    max-height: 14rem;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 0.7rem;
+}
+.add_genre_list::-webkit-scrollbar{
+    width: 5px;
+}
+
+.add_genre_list::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.add_genre_list::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
+}
+.add_user_genre{
+    position: relative;
+    margin: 0;
+    padding: 0;
+    height: 2.1rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    color: #FBFFFE;
+    border-radius: 0.3rem;
+
+}
+.add_existing_genre_btn{
+    padding: 0;
+    margin: 0;
+    all: unset;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #06b930;
+    height: 0.9rem;
+    width: 0.9rem;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.9rem;
+    font-size: 0.9rem;
+    text-align: right;
+    font-weight: 401;
+    transition: 0.2s ease;
+}
+.add_existing_genre_btn:hover{
+    background-color: #19d745;
+}
+.genre_modal_div{
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    height: 3rem;
+    padding-bottom: 1rem;
+    width: 37rem;
+}
+.genre_modal_div p{
+    margin: 0;
+    padding: 0;
+    background-color: #41ceaa;
+    color: #1B1B1E;
+    font-weight: 401;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+}
+.genre_modal_div input{
+    all: unset;
+    margin-left: 5.5rem;
+    padding-left: 0.5rem;
+    text-align: left;
+    border: 3px solid #1B1B1E;
+    height: 2rem;
+    width: 12rem;
+    border-radius: 0.4rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.genre_modal_div button{
+    all: unset;
+    margin-left: 0.5rem;
+    height: 2.3rem;
+    background-color: #FAA916;
+    font-weight: 401;
+    color: #1B1B1E;
+    width: 4rem;
+    font-size: 1.1rem;
+    border-radius: 0.4rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: 0.2s ease;
+}
+.genre_modal_div button:hover{
+    background-color: #faaa16c3;
+    color: #1b1b1eac;
+}
+
 
 
 

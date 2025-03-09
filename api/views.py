@@ -111,6 +111,26 @@ def user_view(request):
                     return JsonResponse({"errors": form.errors}, status=400)
             except json.JSONDecodeError:
                 return JsonResponse({"error": "Invalid JSON data."}, status=400)
+        
+        elif action == 'add_genre':
+
+            try:
+                genre_name = data.get('genre_name')
+
+                if not genre_name:
+                    return JsonResponse({"error": "Genre name is required"}, status=400)
+                
+                genre = Genre.objects.get(name=genre_name)
+
+                request.user.favourite_genres.add(genre)
+
+                return JsonResponse({"message": "Genre added successfully."}, status=200)
+            
+            except json.JSONDecodeError:
+                return JsonResponse({"error": "Invalid JSON format"}, status=400)
+                
+            except Exception as e:
+                return JsonResponse({"error": str(e)}, status=500)
     
     elif request.method == 'DELETE':
 
@@ -139,13 +159,49 @@ def user_view(request):
                 return JsonResponse({"error": str(e)}, status=500)
 
 
-
-
-
-
-
     print("user not authenticated")
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+@login_required
+def genre_view(request):
+
+    if request.method == "GET":
+
+        all_genres = Genre.objects.all()
+        genre_list = [[genre.name,genre.colour] for genre in all_genres]
+
+        return JsonResponse(genre_list, safe=False)
+    
+    elif request.method == "POST":
+        try:
+
+            data = json.loads(request.body)
+            genre_name = data.get('genre_name')
+
+            if not genre_name:
+                return JsonResponse({"error": "Genre name is required"}, status=400)
+            
+            genre_name_cleaned = genre_name.strip().lower()
+
+            genre = Genre.objects.filter(name__iexact=genre_name_cleaned).first()
+
+
+            if genre:
+                return JsonResponse({"message": "Genre already exists."}, status=200)
+            
+            genre = Genre.objects.create(name=genre_name)
+
+            return JsonResponse({
+                "message": "Genre added to the database successfully.",
+                "genre_name": genre.name,
+            }, status=201)
+        
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format"}, status=400)
+        
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
 
 
 
