@@ -123,8 +123,28 @@ def user_view(request):
                 genre = Genre.objects.get(name=genre_name)
 
                 request.user.favourite_genres.add(genre)
+                request.user.save()
 
                 return JsonResponse({"message": "Genre added successfully."}, status=200)
+            
+            except json.JSONDecodeError:
+                return JsonResponse({"error": "Invalid JSON format"}, status=400)
+                
+            except Exception as e:
+                return JsonResponse({"error": str(e)}, status=500)
+        
+        elif action == 'add_book':
+
+            try:
+                book = data.get('book')
+
+                if not book:
+                    return JsonResponse({"error": "Book is required"}, status=400)
+
+                request.user.favourite_books.append(book)
+                request.user.save()
+
+                return JsonResponse({"message": "Book added successfully."}, status=200)
             
             except json.JSONDecodeError:
                 return JsonResponse({"error": "Invalid JSON format"}, status=400)
@@ -149,6 +169,7 @@ def user_view(request):
                 genre = Genre.objects.get(name=genre_name)
 
                 request.user.favourite_genres.remove(genre)
+                request.user.save()
 
                 return JsonResponse({"message": "Genre removed successfully."}, status=200)
             

@@ -115,9 +115,9 @@
                         <h4>Add Books</h4>
                         <input v-model="query" @input="searchBook(true)"  type="text" placeholder="Search Books - Trending Books"/>
                         <button @click="clearQuery" class="clear_book_btn">&times;</button>
-                        <button v-if="showList == false">Add to Favourites</button>
-                        <button v-if="showList == false">Back</button>
-                        <button @click="exitAddBook">Exit</button>
+                        <button v-if="showList == false" class="favourite_book_btn" @click="addFavouriteBook">Add to Favourites</button>
+                        <button v-if="showList == false" class="book_back_btn" @click="backToShowList">Back</button>
+                        <button @click="exitAddBook" class="cancel_add_book_btn">Exit</button>
                     </div>
                     <ul class="books_ul" v-if="showList == true">
                         <li class="books_li_modal" v-for="book in searchedBooks" :key="book.id">
@@ -302,6 +302,10 @@ export default{
             }
             
         },
+        backToShowList(){
+            this.showList = true;
+            this.chosen_book = {};
+        },
         exitAddBook(){
             this.openAddBook = false;
             this.chosen_book = {};
@@ -346,9 +350,30 @@ export default{
             this.chosen_book.published_date = book_object.volumeInfo['publishedDate']|| "Not specified";
             this.chosen_book.categories = book_object.volumeInfo['categories'];
             this.chosen_book.description = book_object.volumeInfo['description'];
-
             this.showList = false;
 
+        },
+        async addFavouriteBook(){
+            try
+            {
+                const response = await fetch("http://127.0.0.1:8000/user/",
+                {    
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    body: JSON.stringify({ book: this.chosen_book, action: "add_book" }),
+                    credentials: "include", 
+                })
+                if (!response.ok) {
+                    throw new Error(`Failed to add book: ${response.status}`);
+                }
+                this.fetch_user();
+            }
+            catch (error){
+                console.error("Error adding book:", error);
+            }
         },
         async saveUsername(){
             try{
@@ -561,8 +586,7 @@ export default{
                 return;
             }
 
-            try
-            {
+            try{
                 const response = await fetch("http://127.0.0.1:8000/genre/",
                 {    
                     method: "POST",
@@ -1457,7 +1481,7 @@ body{
     text-align: left;
 }
 .book_modal_container_header{
-    margin-top: 1.5rem;
+    margin-top: 2rem;
     margin-left: 2.5rem;
     align-self: flex-start;
     display: flex;
@@ -1465,7 +1489,7 @@ body{
     justify-content: flex-start;
     align-items: center;
     height: 2.5rem;
-    width: 79rem;
+    width: 77.5rem;
 
 }
 .book_modal_container_header h4{
@@ -1486,7 +1510,7 @@ body{
     padding-left: 0.5rem;
     outline: none;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    margin-left: 13rem;
+    margin-left: 9rem;
 }
 .clear_book_btn{
     all: unset;
@@ -1500,11 +1524,66 @@ body{
     color: #FBFFFE;
     font-size: 1.8rem;
     transition: 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 .clear_book_btn:hover{
     background-color: #e91938d4;
     font-weight: 501;
 }
+.cancel_add_book_btn{
+    all: unset;
+    margin-left: auto;
+    width: 5rem;
+    font-size: 1.2rem;
+    height: 2.9rem;
+    background-color: #e61534;
+    color: #FBFFFE;
+    font-weight: 401;
+    border-radius: 0.6rem;
+    transition: 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.cancel_add_book_btn:hover{
+    background-color: #e61534c8;
+}
+.favourite_book_btn{
+    all: unset;
+    font-size: 1.2rem;
+    height: 2.9rem;
+    font-weight: 401;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    background-color: #FAA916;
+    border-radius: 0.6rem;
+    color: #1B1B1E;
+    margin-left: 1rem;
+    transition: 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
 
+.favourite_book_btn:hover{
+    background-color: #faaa16c2;
+    color: #1b1b1eb6;
+}
+
+.book_back_btn{
+    all: unset;
+    margin-left: 8.5rem;
+    height: 2.5rem;
+    border: solid 3px #41ceaa;
+    transition: 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    color: #41ceaa;
+    font-weight: 401;
+    border-radius: 0.6rem;
+    font-size: 1.2rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+.book_back_btn:hover{
+    background-color: #41ceaa;
+    color: #FBFFFE;
+
+}
 
 </style>
