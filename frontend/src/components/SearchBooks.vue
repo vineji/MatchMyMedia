@@ -26,7 +26,7 @@
                 <button @click="clearQuery" class="clear_button">&times;</button>
             </div>
             <button class="rcmnd-button" @click="recommendBooks(chosenMedia)" >Recommend Books</button>
-            <button class="login-btn" @click="redirectToLogin"><img class="userLogo" :src="userLogo"/>Login</button>
+            <button class="login-btn" @click="redirectToLogin">Login</button>
         </form>
         <RecommendModal
         v-model:isVisible="isModalVisible"
@@ -115,14 +115,11 @@
 <script>
 import { useGenreStore } from '@/stores/genreStore';
 import RecommendModal from './RecommendModal.vue';
-import userLogo from '@/assets/user-svgrepo-com.svg';
-
 
 export default {
     components: {RecommendModal},
     data() {
         return {
-            userLogo,
             query : '',
             mediaList : [],
             searchMedia : 'Movies',
@@ -331,12 +328,6 @@ body{
     background-color: #f7f7f7;
 }
 
-.userLogo{
-    color: #1B1B1E;
-    height: 2rem;
-    width: auto;
-}
-
 li{
     list-style: none;
 }
@@ -356,12 +347,13 @@ li{
     align-items: center;
     width: 32rem;
     height: 3rem;
-    border-radius: 1rem;
+    border-radius: 0.8rem;
     font-size: 1.2rem;
-    border: #6D676E solid 2px;
+    border: #1B1B1E solid 3px;
     border-right: none;
     color: #6D676E;
     background-color: #FBFFFE;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 .searchbar input{
     width: 28rem;
@@ -376,10 +368,11 @@ li{
 
 .search_button_div{
     background-color: #FBFFFE;
-    border: #FAA916 solid 2px;
+    border: #FAA916 solid 3px;
     height: 3rem;
-    border-radius: 1rem;
+    border-radius: 0.8rem;
     overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .book_button{
@@ -404,8 +397,8 @@ li{
     cursor: pointer;
     font-weight: 500;
     font-size: 1.2rem;
-    border-right: 2px #FAA916 solid;
-    border-left: 2px #FAA916 solid;
+    border-right: 3px #FAA916 solid;
+    border-left: 3px #FAA916 solid;
 }
 .show_button{
     all: unset;
@@ -421,21 +414,21 @@ li{
 .rcmnd-button{
     all: unset;
     font-size: 1.15rem;
-    background-color: #FBFFFE;
+    background-color: #41ceaa;
     padding-left: 1rem;
     padding-right: 1rem;
-    font-weight: 501;
-    color: #25c79e;
-    border-radius: 1rem;
-    border: 2px solid #25c79e;
-    height: 3rem;
+    font-weight: 451;
+    color: #1B1B1E;
+    border-radius: 0.8rem;
+    height: 3.31rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     transition: 0.3s ease;
 }
 
 
 .rcmnd-button:hover{
-    background-color: #25c79e;
-    color: #FBFFFE;
+    background-color: #25c79eb5;
+    color: #1b1b1e8f;
     transition: 0.3s ease;
 }
 .login-btn{
@@ -450,10 +443,11 @@ li{
     padding-right: 1rem;
     font-weight: 500;
     color: #1B1B1E;
-    border-radius: 1rem;
-    border: 2px solid #1B1B1E;
+    border-radius: 0.8rem;
+    border: 3px solid #1B1B1E;
     height: 3rem;
     transition: 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 .login-btn:hover{
     background-color: #1B1B1E;
@@ -471,8 +465,8 @@ li{
     font-weight: 500;
     font-size: 2rem;
     width: 3.5rem;
-    border-radius: 1rem;
-    height: 3.25rem;
+    border-radius: 0.8rem;
+    height: 3.4rem;
     color: #FBFFFE;
     background-color: #e51635;
 }

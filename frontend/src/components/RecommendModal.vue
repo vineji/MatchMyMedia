@@ -56,7 +56,6 @@
                             <li class="chosen_genre" style="background-color: #9b9a9a;">Unknown</li>
                         </ul>
                         <p><b>Description: </b>{{ chosen_book.description }}</p>
-
                     </div>
                 </div>
             </div>
@@ -259,7 +258,7 @@ export default{
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: flex-start;
-    height: 2.5rem;
+    max-height: 5rem;
     overflow-y: auto;
 }
 .books_li_categories::-webkit-scrollbar{
@@ -360,7 +359,6 @@ export default{
     padding: 2rem;
     margin-top: 0.7rem;
     margin-bottom: 0.5rem;
-
 }
 .chosen_book_div1{
     display: flex;
