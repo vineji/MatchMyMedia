@@ -94,8 +94,10 @@
                         <input type="text" v-model="newGenreName"  placeholder="Enter your own genre" maxlength="25"/><button @click="addNewGenre">Add</button>
                     </div>
                     <ul class="add_genre_list">
+                        <li v-if="genreList.filter(genre => !user_data.favourite_genres.some(favGenre => favGenre[0] === genre[0])).length == 0" class="add_user_genre" style="background-color: grey;">No more genres available to add</li>
                         <li v-for="genre in genreList.filter(genre => !user_data.favourite_genres.some(favGenre => favGenre[0] === genre[0]))" :key="genre[0]" class="add_user_genre" :style=" {backgroundColor: genre[1] } ">{{ genre[0] }}<button @click="addGenre(genre[0])" class="add_existing_genre_btn">+</button></li>
                     </ul>
+                    <button @click="cancelAddGenre" class="cancel_add_genre_btn">Cancel</button>
                 </div>
             </div>    
         </div>
@@ -435,7 +437,9 @@ export default{
             catch (error){
                 console.error("Error fetching genres:", error);
             }
-            
+        },
+        cancelAddGenre(){
+            this.openAddGenre = false;
         }
 
     },
@@ -792,11 +796,17 @@ body{
     flex-direction: column;
     background-color: #FBFFFE;
     width: 36rem;
-    height: 30rem;
+    max-height: 29rem;
     padding-left: 2rem;
     padding-right: 2rem;
     border-radius: 1.5rem;
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+.genre_modal_container h4{
+    font-size: 1.5rem;
+    margin: 0;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
 }
 .user_genre_list{
     padding-left: 0;
@@ -864,9 +874,10 @@ body{
     padding: 0;
     margin: 0;
     padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
     width: 37rem;
     max-width: 37rem;
-    max-height: 14rem;
+    max-height: 15rem;
     overflow-y: scroll;
     overflow-x: hidden;
     display: flex;
@@ -975,6 +986,22 @@ body{
 .genre_modal_div button:hover{
     background-color: #faaa16c3;
     color: #1b1b1eac;
+}
+.cancel_add_genre_btn{
+    all: unset;
+    align-self: flex-end;
+    margin-top: 0.7rem;
+    margin-bottom: 1rem;
+    width: 5rem;
+    height: 2.5rem;
+    background-color: #e61534;
+    color: #FBFFFE;
+    font-weight: 401;
+    border-radius: 0.4rem;
+    transition: 0.2s ease;
+}
+.cancel_add_genre_btn:hover{
+    background-color: #e61534c8;
 }
 
 

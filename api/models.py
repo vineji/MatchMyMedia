@@ -8,7 +8,7 @@ import json
 class Genre(models.Model):
 
     name = models.CharField(max_length=30, unique=True)
-    colour = models.CharField(max_length=255, unique=False, default='#00008b')
+    colour = models.CharField(max_length=255, unique=False, default='#41ceaa')
 
     def __str__(self):
         return self.name

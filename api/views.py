@@ -187,7 +187,7 @@ def genre_view(request):
 
 
             if genre:
-                return JsonResponse({"message": "Genre already exists."}, status=200)
+                return JsonResponse({"message": "Genre already exists.","genre_name": genre.name,}, status=201)
             
             genre = Genre.objects.create(name=genre_name)
 
