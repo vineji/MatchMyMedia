@@ -53,8 +53,8 @@
                             </ul>
                         </ul>
                         <ul class="sub_media_list_ul" v-else-if="this.searchMedia == 'Books'" >
-                            <li class="book_title"><b>Title: </b>{{ media.volumeInfo['title']}}</li>
-                            <li><b>Published: </b>{{media.volumeInfo['publishedDate']|| "Not specified"}}</li>
+                            <li class="book_title"><b>Title: </b>{{ media?.volumeInfo?.title || 'No title available'}}</li>
+                            <li><b>Published: </b>{{media?.volumeInfo?.publishedDate || "Not specified"}}</li>
                             <li><b>Categories: </b></li>
                             <ul v-if="media.volumeInfo?.categories?.length > 0"  class="genre_list">
                                 <li class="genre" style="background-color: grey;" v-for="category in media.volumeInfo['categories']" :key="category">{{ category }}</li>
