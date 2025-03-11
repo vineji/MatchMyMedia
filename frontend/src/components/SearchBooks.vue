@@ -215,6 +215,8 @@ export default {
         },
         async recommendBooks(media){
 
+            this.openModal();
+
             let media_map = new Map();
             let genres = []
 
@@ -248,7 +250,6 @@ export default {
                 }
                 const data = await response.json();
                 this.rcmndBooks = data.recommendations || [];
-                this.openModal();
             }
             catch (error){
                 console.error("Error fecthing recommendations ", error)

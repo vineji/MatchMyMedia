@@ -9,6 +9,7 @@
                 </div>
             </div>
             <ul v-if="show_list" class="list-container">
+                <li class="loading" v-if="recommendedBooks.length == 0"> Loading...</li>
                 <li class="books_li" v-for="book in recommendedBooks" :key="book.title">
                     <img :src="book.image" class="book_image">
                     <div class="books_li_container">
@@ -63,6 +64,7 @@
     </div>
 </template>
 <script>
+
 export default{
     data()  {
         return{
@@ -94,6 +96,10 @@ export default{
 }
 </script>
 <style>
+.loading{
+    align-self: center;
+    justify-self: center;
+}
 .modal-container{
     position: fixed;
     top: 0;
@@ -321,6 +327,7 @@ export default{
     border-radius: 0.5rem;
     color: #FBFFFE;
     background-color: #e51635;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 .close-button:hover{
     font-weight: 600;
@@ -400,10 +407,19 @@ export default{
     padding-left: 1rem;
     border-radius: 0.5rem;
     height: 2.99rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 .back:hover{
     background-color: #41ceaa;
     color: #FBFFFE;
     transition: 0.3s ease;
+}
+.loading{
+    align-self: center;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 5rem;
+    margin-bottom: 3rem;
+    text-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 </style>

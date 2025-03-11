@@ -74,7 +74,6 @@ def user_view(request):
         if not action:
 
             try:
-
                 User = request.user
 
                 updated_data = {
@@ -140,6 +139,9 @@ def user_view(request):
 
                 if not book:
                     return JsonResponse({"error": "Book is required"}, status=400)
+                
+                if book in request.user.favourite_books:
+                    return JsonResponse({"error": "Book is already added to favourites"}, status=400)
 
                 request.user.favourite_books.append(book)
                 request.user.save()

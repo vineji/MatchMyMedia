@@ -40,7 +40,9 @@ class User(AbstractUser):
             'username': self.username,
             'online_id': self.online_id,
             'DOB': self.DOB,
-            'favourite_genres': self.get_genres()
+            'favourite_genres': self.get_genres(),
+            'favourite_books': self.favourite_books
+
         }
     
 

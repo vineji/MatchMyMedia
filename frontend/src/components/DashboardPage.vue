@@ -89,8 +89,32 @@
                         <p>Your Books:</p>
                         <button class="add_genre_btn" @click="openBookModal">Add Book</button>
                     </div>
-                    <ul>
-                        <li></li>
+                    <ul class="favourite_book_ul">
+                        <li class="favourite_book_li" v-for="book in user_data.favourite_books" :key="book">
+                            <img :src="book?.image" class="favourite_book_image">
+                            <div class="favourite_books_li_container">
+                                <div class="favourite_books_li_div">
+                                    <p class="favourite_book_div_title"><b>Title: </b>{{ book?.title }}</p>
+                                    <p class="favourite_book_div_published"><b>Published: </b>{{ book?.published_date|| "Not specified" }}</p>
+                                    <div class="favourite_books_li_authors">
+                                        <p><b>Authors: </b></p>
+                                        <li style="padding-right: 0.3rem;" v-for="(author,index) in book?.authors" :key="index">
+                                            <span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}
+                                        </li>
+                                    </div>
+                                    <div class="favourite_books_li_categories">
+                                        <p style="padding-right: 0.5rem;"><b>Categories:</b></p>
+                                        <ul v-if="book?.categories?.length > 0" class="favourite_category_ul">
+                                            <li class="rcmnd_genre_modal" style="background-color: darkblue;" v-for="category in book?.categories" :key="category">{{ category }}</li>
+                                        </ul>
+                                        <ul v-else class="category_ul_modal">
+                                            <li class="rcmnd_genre_modal" style="background-color: #9b9a9a;">Unknown</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <button class="favourite_more_info" @click="moreInfo(book,true)">More info</button>
+                            </div>
+                        </li>
                     </ul>
                 </div>
             </div>  
@@ -124,8 +148,8 @@
                             <img :src="book.volumeInfo?.imageLinks?.thumbnail" class="book_image_modal">
                             <div class="books_li_container_modal">
                                 <div class="books_li_div_modal">
-                                    <p class="book_div_title_modal"><b>Title: </b>{{ book.volumeInfo['title'] }}</p>
-                                    <p class="book_div_published_modal"><b>Published: </b>{{ book.volumeInfo['publishedDate']|| "Not specified" }}</p>
+                                    <p class="book_div_title_modal"><b>Title: </b>{{ book.volumeInfo?.title }}</p>
+                                    <p class="book_div_published_modal"><b>Published: </b>{{ book.volumeInfo?.publishedDate || "Not specified" }}</p>
                                     <div class="books_li_authors_modal">
                                         <p><b>Authors: </b></p>
                                         <li style="padding-right: 0.3rem;" v-for="(author,index) in book.volumeInfo?.authors" :key="index">
@@ -135,17 +159,17 @@
                                     <div class="books_li_categories_modal">
                                         <p style="padding-right: 0.5rem;"><b>Categories:</b></p>
                                         <ul v-if="book.volumeInfo?.categories?.length > 0" class="category_ul_modal">
-                                            <li class="rcmnd_genre_modal" style="background-color: darkblue;" v-for="category in book.volumeInfo['categories']" :key="category">{{ category }}</li>
+                                            <li class="rcmnd_genre_modal" style="background-color: darkblue;" v-for="category in book?.volumeInfo?.categories" :key="category">{{ category }}</li>
                                         </ul>
                                         <ul v-else class="category_ul_modal">
                                             <li class="rcmnd_genre_modal" style="background-color: #9b9a9a;">Unknown</li>
                                         </ul>
                                     </div>
                                 </div>
-                                <button class="more_info_modal" @click="moreInfo(book)">More info</button>
+                                <button class="more_info_modal" @click="moreInfo(book,false)">Select</button>
                             </div>
                         </li>
-                        <ul class="pagination_control">
+                        <ul class="pagination_control_modal">
                             <button class="pagination_control_button_next_prev" :disabled="this.currentPage == 1" @click="prevPage">&lt;</button>
                             <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage == page1 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage == page1 ? 'bold' : ''}" :disabled="page1 > totalPages" @click="changePage(page1)">{{page1}}</button>
                             <button class="pagination_control_button_page" :style="{backgroundColor: this.currentPage == page2 ? '#41ceaa' : '#FBFFFE', fontWeight: this.currentPage == page2 ? 'bold' : ''}" :disabled="page2 > totalPages" @click="changePage(page2)">{{page2}}</button>
@@ -156,25 +180,25 @@
                     </ul>
                     <div v-else-if="showList == false" class="chosen_book_div_modal">
                         <div class="chosen_book_container_modal">
-                            <img :src="chosen_book.image" class="chosen_book_image_modal">
+                            <img :src="chosen_book?.image" class="chosen_book_image_modal">
                             <div class="chosen_book_div1_modal">
-                                <p><b>Title: </b>{{ chosen_book.title }}</p>
+                                <p><b>Title: </b>{{ chosen_book?.title || 'Title unavailable' }}</p>
                                 <ul class="chosen_book_authors">
                                     <p><b>Authors: </b></p>
                                     <li v-for="(author,index) in chosen_book?.authors" :key="index">
                                         <span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}
                                     </li>
                                 </ul>
-                                <p><b>Published Date: </b>{{ chosen_book.published_date }}</p>
-                                <ul v-if="chosen_book.categories.length > 0" class="chosen_genre_list">
+                                <p><b>Published Date: </b>{{ chosen_book?.published_date }}</p>
+                                <ul v-if="chosen_book?.categories?.length > 0" class="chosen_genre_list">
                                     <p><b>Categories: </b> </p>
-                                    <li class="chosen_genre" style="background-color: grey;" v-for="category in chosen_book.categories" :key="category">{{ category}}</li>
+                                    <li class="chosen_genre" style="background-color: grey;" v-for="category in chosen_book?.categories" :key="category">{{ category}}</li>
                                 </ul>
                                 <ul v-else class="chosen_genre_list">
                                     <p><b>Categories: </b> </p>
                                     <li class="chosen_genre" style="background-color: #9b9a9a;">Unknown</li>
                                 </ul>
-                                <p><b>Description: </b>{{ chosen_book.description }}</p>
+                                <p><b>Description: </b>{{ chosen_book?.description }}</p>
                             </div>
                         </div>
                     </div>
@@ -308,6 +332,7 @@ export default{
         },
         exitAddBook(){
             this.openAddBook = false;
+            this.query = '';
             this.chosen_book = {};
         },
         clearQuery(){
@@ -343,13 +368,19 @@ export default{
             this.openAddBook = true;
             this.showList = true;
         },
-        moreInfo(book_object){
-            this.chosen_book.image = book_object.volumeInfo?.imageLinks?.thumbnail;
-            this.chosen_book.title = book_object.volumeInfo['title'];
-            this.chosen_book.authors = book_object.volumeInfo['authors'];
-            this.chosen_book.published_date = book_object.volumeInfo['publishedDate']|| "Not specified";
-            this.chosen_book.categories = book_object.volumeInfo['categories'];
-            this.chosen_book.description = book_object.volumeInfo['description'];
+        moreInfo(book_object, inFavourite){
+            if (inFavourite == false){
+                this.chosen_book.image = book_object.volumeInfo?.imageLinks?.thumbnail;
+                this.chosen_book.title = book_object.volumeInfo['title'];
+                this.chosen_book.authors = book_object.volumeInfo['authors'];
+                this.chosen_book.published_date = book_object.volumeInfo['publishedDate']|| "Not specified";
+                this.chosen_book.categories = book_object.volumeInfo['categories'];
+                this.chosen_book.description = book_object.volumeInfo['description'];
+            }
+            else{
+                this.chosen_book = book_object;
+                this.openAddBook = true;
+            }
             this.showList = false;
 
         },
@@ -366,8 +397,15 @@ export default{
                     body: JSON.stringify({ book: this.chosen_book, action: "add_book" }),
                     credentials: "include", 
                 })
+                const data = await response.json();
                 if (!response.ok) {
-                    throw new Error(`Failed to add book: ${response.status}`);
+                    if (data.error === 'Book is already added to favourites'){
+
+                        alert("You have already added this book to your favourites");
+                    }
+                    else{
+                        throw new Error(`Failed to add book: ${response.status}`);
+                    }
                 }
                 this.fetch_user();
             }
@@ -664,7 +702,7 @@ body{
     margin-top: 1rem;
     display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     width: 80rem;
     height: 35rem;
@@ -675,7 +713,7 @@ body{
     flex-direction: column;
     align-items: flex-start;
     background-color: #FBFFFE; 
-    width: 33rem;   
+    width: 31rem;   
     height: 27rem;
     padding: 2rem;
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
@@ -716,7 +754,7 @@ body{
     margin-top: 0.5rem;
     display: flex;
     flex-direction: row;
-    width: 31rem;
+    width: 28.7rem;
     justify-content: space-between;
 }
 .user_info_div_input {
@@ -728,7 +766,7 @@ body{
     padding-left: 0.5rem;
     padding-top: 0.6rem;
     padding-bottom: 0.6rem;
-    width: 19.5rem;
+    width: 17.5rem;
     border-radius: 0.5rem;
 }
 .user_info_div_date{
@@ -740,7 +778,7 @@ body{
     padding-left: 0.5rem;
     padding-top: 0.47rem;
     padding-bottom: 0.47rem;
-    width: 19.5rem;
+    width: 17.5rem;
     border-radius: 0.5rem;
 
 }
@@ -907,8 +945,9 @@ body{
     background-color: #e51635b9;
 }
 .add_book_container{
-    width: 38rem;
-    height: 17rem;
+    margin-top: 1rem;
+    width: 41.5rem;
+    height: 22rem;
     background-color: #FBFFFE;
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     border-radius: 1.4rem;
@@ -919,8 +958,8 @@ body{
 }
 .add_book_container h3{
     margin: 0;
-    margin-top: 1.3rem;
-    margin-bottom: 0.7rem;
+    margin-top: 1rem;
+    margin-bottom: 0.6rem;
     align-self: center;
     margin-right: 2rem;
 
@@ -938,10 +977,9 @@ body{
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
 }
 .genre_book_container{
-    width: 40rem;
+    width: 43.5rem;
     display: flex;
     flex-direction: column;
-    height: 31rem;
     justify-content: space-between;
 }
 .books_li_modal{
@@ -1143,7 +1181,7 @@ body{
 }
 
 .add_genre_container{
-    width: 38rem;
+    width: 41.5rem;
     height: 13rem;
     background-color: #FBFFFE;
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
@@ -1182,7 +1220,7 @@ body{
     display: flex;
     flex-direction: row;
     align-items: center;
-    width: 36rem;
+    width: 39.5rem;
     justify-content: space-between;
 }
 .genre_div p {
@@ -1232,8 +1270,8 @@ body{
 .user_genre_list{
     padding-left: 0;
     padding-top: 0.3rem;
-    width: 36rem;
-    max-width: 36rem;
+    width: 39.5rem;
+    max-width: 39.5rem;
     height: 5rem;
     max-height: 5rem;
     overflow-y: scroll;
@@ -1243,6 +1281,7 @@ body{
     align-items: flex-start;
     flex-wrap: wrap;
     gap: 0.5rem;
+    padding-right: 1rem;
 }
 .user_genre_list::-webkit-scrollbar{
     width: 5px;
@@ -1583,7 +1622,190 @@ body{
 .book_back_btn:hover{
     background-color: #41ceaa;
     color: #FBFFFE;
-
+}
+.pagination_control_modal{
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    border-radius: 1rem;
+    height: 6rem;
+    max-height: 6rem;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+    width: 33rem;
+}
+.favourite_book_ul{
+    padding: 0;
+    width: 40.3rem;
+    max-width: 40.3rem;
+    height: 15rem;
+    max-height: 15rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    overflow-y: scroll;
+    padding-left: 0.2rem;
+    padding-bottom: 1rem;
+    padding-top: 0.5rem;
+}
+.favourite_book_ul::-webkit-scrollbar{
+    width: 5px;
 }
 
+.favourite_book_ul::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.favourite_book_ul::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
+}
+.favourite_book_li{
+    padding: 1rem;
+    display: flex;
+    flex-direction: row;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    width: 17rem;
+    max-width: 17rem;
+    height: 11.2rem;
+    max-height: 11.2rem;
+    border-radius: 1rem;
+    gap: 0.5rem;
+}
+.favourite_book_image{
+    min-height: 11.1rem;
+    max-height: 11.1rem;
+    height: 11.1rem;
+    min-width: 7.2rem;
+    width: 7.2rem;
+    max-width: 7.2rem;
+    border-radius: 0.3rem;
+}
+.favourite_books_li_container{
+    display: flex;
+    flex-direction: column;
+    height: 12rem;
+    width: 100%;
+}
+.favourite_books_li_div{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+    height: 10rem;
+}
+.favourite_books_li_div p{
+    gap: 0;
+    margin: 0;
+    text-align: left;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+.favourite_book_div_title{
+    padding: 0;
+    margin: 0;
+    width: 10rem;
+    max-width: 10rem;
+    font-size: 0.8rem;
+    max-height: 4rem;
+    overflow-y: auto;
+}
+.favourite_book_div_title::-webkit-scrollbar{
+    width: 3px;
+}
+.favourite_book_div_title::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.favourite_book_div_title::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
+}
+.favourite_book_div_published{
+    width: 9.6rem;
+    max-width: 9.6rem;
+    font-size: 0.8rem;
+}
+.favourite_books_li_authors{
+    width: 9.5rem;
+    max-width: 9.5rem;
+    max-height: 2.3rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    font-size: 0.8rem;
+    padding-right: 0.5rem;
+}
+.favourite_books_li_authors p{
+    padding-right: 0.3rem;
+    font-size: 0.8rem;
+}
+.favourite_books_li_authors::-webkit-scrollbar{
+    width: 3px;
+}
+
+.favourite_books_li_authors::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.favourite_books_li_authors::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
+}
+.favourite_books_li_categories{
+    width: 10rem;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    max-height: 10rem;
+    overflow-y: auto;
+    font-size: 0.8rem;
+}
+.favourite_books_li_categories::-webkit-scrollbar{
+    width: 3px;
+}
+
+.favourite_books_li_categories::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.favourite_books_li_categories::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
+}
+.favourite_category_ul{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    margin: 0;
+    padding: 0;
+}
+.favourite_more_info{
+    align-self: center;
+    width: 7rem;
+    height: 1.3rem;
+    background-color: #FBFFFE;
+    border-radius: 0.3rem;
+    border: none;
+    color: #1B1B1E;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    font-size: 0.75rem;
+    transition: 0.2s ease;
+}
+
+.favourite_more_info:hover{
+    background-color: #41ceaa;
+    transition: 0.2s ease;
+    font-weight: bold;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
 </style>
