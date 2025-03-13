@@ -208,6 +208,7 @@
     </div>
 </template>
 <script>
+import { useUserStore } from '@/stores/userStore';
 export default{
     name:"DashboardPage",
     data() {
@@ -250,6 +251,9 @@ export default{
         page4(){
             return (4 * this.showPageMultiplier)
         },
+        userStore(){
+            return useUserStore();
+        }
     },
     methods: {
         async fetch_csrf_token(){
@@ -294,6 +298,7 @@ export default{
                     const data = await response.json();
                     this.user_data = data;
                     this.user_data.favourite_genres = data.favourite_genres;
+                    this.userStore.setUser(data.id, data.username, data.online_id, data.favourite_genres);
                     console.log("Fetched user data");
                 }
 
@@ -332,7 +337,7 @@ export default{
         },
         exitAddBook(){
             this.openAddBook = false;
-            this.query = '';
+            this.clearQuery();
             this.chosen_book = {};
         },
         clearQuery(){
