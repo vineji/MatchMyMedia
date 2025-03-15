@@ -11,7 +11,7 @@ import os
 from dotenv import load_dotenv
 
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
-from django.contrib.auth import login, get_user_model, update_session_auth_hash
+from django.contrib.auth import login, get_user_model, update_session_auth_hash, logout
 from django.contrib.auth.decorators import login_required
 from django.middleware.csrf import get_token
 
@@ -41,6 +41,10 @@ def login_view(request):
             return render(request, "login.html", {"form": form, "error": "Invalid username or password."})
     form = AuthenticationForm()
     return render(request, 'login.html')
+
+def logout_view(request):
+    logout(request)
+    return render(request, "login.html")
 
 def sign_up_view(request):
     if request.method== "POST":

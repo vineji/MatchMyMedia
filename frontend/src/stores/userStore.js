@@ -26,11 +26,21 @@ export const useUserStore = defineStore('userStore',{
 
             }
         },
+        updateUsername(username){
+            this.username = username;
+        },
+        updateOnlineID(online_id){
+            this.online_id = online_id;
+        },
+        updateFavouriteGenres(favourite_genres){
+            this.favourite_genres = favourite_genres;
+        },
         clearUser(){
-            this.user_id = null,
-            this.username = null,
-            this.online_id = null,
-            this.favourite_genres = []
+            localStorage.removeItem("user");
+            this.user_id = null;
+            this.username = null;
+            this.online_id = null;
+            this.favourite_genres = [];
         }
     }
 })

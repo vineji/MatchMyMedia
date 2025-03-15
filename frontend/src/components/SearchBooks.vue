@@ -26,7 +26,7 @@
                 <button @click="clearQuery" class="clear_button">&times;</button>
             </div>
             <button class="rcmnd-button" @click="recommendBooks(chosenMedia)" >Recommend Books</button>
-            <button class="login-btn" @click="redirectToLogin">Login</button>
+            <button class="login-btn" @click="redirectToLogin">{{loggedUser.online_id || 'Login'}}</button>
         </form>
         <RecommendModal
         v-model:isVisible="isModalVisible"
@@ -115,11 +115,13 @@
 <script>
 import { useGenreStore } from '@/stores/genreStore';
 import RecommendModal from './RecommendModal.vue';
+import { useUserStore } from '@/stores/userStore';
 
 export default {
     components: {RecommendModal},
     data() {
         return {
+            userData: {},
             query : '',
             mediaList : [],
             searchMedia : 'Movies',
@@ -132,9 +134,21 @@ export default {
             rcmndBooks : [],
         };
     },
+    setup(){
+        const userStore = useUserStore();
+        userStore.loadUser();
+        return {userStore};
+    },
     computed: {
         genreStore(){
             return useGenreStore();
+        },
+        loggedUser(){
+            return{
+                id: this.userStore.user_id || null,
+                online_id: this.userStore.online_id || null,
+                favourite_genres: this.userStore.favourite_genres || [],
+            }
         },
         page1(){
             return (4 * this.showPageMultiplier) - 3
@@ -291,6 +305,7 @@ export default {
         changePage(pageNumber){
             this.currentPage = pageNumber;
             this.search(false);
+            window.scrollTo({top: 0, behavior: 'smooth'});
         },
         nextPage(){
             if (this.currentPage < this.totalPages){
@@ -300,7 +315,7 @@ export default {
                     this.showPageMultiplier++;
                 }
                 this.search(false);
-
+                window.scrollTo({top: 0, behavior: 'smooth'});
             }
         },
         prevPage(){
@@ -312,9 +327,15 @@ export default {
                 this.changePage(Number(this.currentPage)-1)
             }
             this.search(false);
+            window.scrollTo({top: 0, behavior: 'smooth'});
         },
         redirectToLogin(){
-            window.location.href= "http://127.0.0.1:8000/login/";
+            if (this.loggedUser.online_id){
+                window.location.href= "http://127.0.0.1:8080/dashboard/";
+            }
+            else{
+                window.location.href= "http://127.0.0.1:8000/login/";
+            }
         }
     },
     mounted(){
@@ -595,7 +616,7 @@ li{
     height: 4.8rem;
     width: 4.8rem;
     font-size: 2rem;
-    border: #1B1B1E 2px solid;
+    border: #1B1B1E 3px solid;
     background-color: #ffffff;
     color: #1B1B1E;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -606,7 +627,7 @@ li{
     height: 3.5rem;
     width: 3.5rem;
     font-size: 2rem;
-    border: #1B1B1E 2px solid;
+    border: #1B1B1E 3px solid;
     background-color: #ffffff;
     color: #1B1B1E;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
@@ -615,7 +636,7 @@ li{
 
 }
 .pagination_control_button_page:disabled{
-    border: #b8b7b7 2px solid;
+    border: #b8b7b7 3px solid;
     color: #b8b7b7;
     
 }
@@ -632,7 +653,7 @@ li{
     box-shadow: 0 4px 8px rgba(0,0,0,0.3);
 }
 .pagination_control_button_next_prev:disabled{
-    border: #b8b7b7 2px solid;
+    border: #b8b7b7 3px solid;
     color: #b8b7b7;
     
 }

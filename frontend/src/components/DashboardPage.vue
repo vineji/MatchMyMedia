@@ -1,6 +1,8 @@
 <template>
     <div class="page_container">
         <h1>User Dashboard</h1>
+        <router-link :to="{name: 'Main Page'}">Home</router-link>
+        <button @click="logout">Logout</button>
         <div class="dashboard_container">   
             <div class="user_info">
                 <h2 class="user_info_header">User Information</h2>
@@ -331,6 +333,30 @@ export default{
             }
             
         },
+        async logout(){
+            try{
+
+                const response = await fetch("http://127.0.0.1:8000/logout/",
+                {    
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    credentials: "include", 
+                });
+                if (!response.ok){
+                    throw new Error('Failed to logout');
+                }
+                this.userStore.clearUser();
+                window.location.href = "http://127.0.0.1:8000/login";
+
+            }
+            catch (error){
+                console.error('error logging out', error)
+            }
+
+        },
         backToShowList(){
             this.showList = true;
             this.chosen_book = {};
@@ -435,6 +461,7 @@ export default{
                 if (response.ok) {
                     console.log("Username updated successfully");
                     this.readUsername = true;
+                    this.fetch_user();
                 }
             }
             catch (error){
@@ -467,6 +494,7 @@ export default{
                 if (response.ok) {
                     console.log("Online ID updated successfully");
                     this.readOnlineId = true;
+                    this.fetch_user();
                 }
             }
             catch (error){
@@ -499,6 +527,7 @@ export default{
                 if (response.ok) {
                     console.log("DOB updated successfully");
                     this.readDOB = true;
+                    this.fetch_user();
                 }
             }
             catch (error){
