@@ -42,7 +42,7 @@
                     <img v-if="this.searchMedia == 'Books'" :src="media.volumeInfo?.imageLinks?.thumbnail" class="list_img">
                     <div class="sub_media_list">
                         <ul class="sub_media_list_ul" v-if="this.searchMedia == 'Movies' || this.searchMedia == 'TV Shows'">
-                            <li><b>Title: </b>{{ media.title || media.name}}</li>
+                            <li><b>Title: </b>{{ media.title || media.name || "Title unavailable"}}</li>
                             <li><b>Released: </b>{{media.release_date || media.first_air_date || "Not specified"}}</li>
                             <li><b>Genres: </b></li>
                             <ul v-if="media.genre_ids?.length > 0" class="genre_list">
@@ -80,18 +80,22 @@
             <img class="chosen_media_img" :src=" 'https://image.tmdb.org/t/p/original/' + chosenMedia.poster_path" alt="Movie poster"  />
             <div class="chosen_media_info">
                 <p><b>Title: </b>{{ chosenMedia.title || chosenMedia.name}}</p>
-                <p><b>Released: </b> {{chosenMedia.release_date || chosenMedia.first_air_date }}</p>
-                <ul v-if="chosenMedia?.genre_ids?.length > 0" class="chosen_genre_list">
+                <p><b>Released: </b> {{chosenMedia.release_date || chosenMedia.first_air_date || "Unavailable" }}</p>
+                <ul class="chosen_genre_list">
                     <p><b>Genres: </b> </p>
+                    <li v-if="chosenMedia?.genre_ids?.length == 0" class="chosen_genre" style="grey">Unknown</li>
                     <li class="chosen_genre" :style="{backgroundColor: getGenreColor(id)}" v-for="id in chosenMedia.genre_ids" :key="id">{{ getGenreName(id) }}</li>
                 </ul>
-                <p class="overview"><b>Overview: </b> {{ chosenMedia.overview }}</p>
+                <p class="overview"><b>Overview: </b> {{ chosenMedia.overview || "Description unavailable" }} </p>
             </div>
         </div>
         <div v-if="this.show_ChosenMedia == true && (this.searchMedia == 'Books')" class="chosen_media">
             <img class="chosen_media_img" :src="chosenMedia.volumeInfo?.imageLinks?.thumbnail" alt="Movie poster"  />
             <div class="chosen_media_info">
-                <p><b>Title: </b>{{ chosenMedia.volumeInfo['title']}}</p>
+                <div class="chosen_media_title_div">
+                    <p class="chosen_media_info_title"><b>Title: </b>{{ chosenMedia.volumeInfo['title'] || "Title unavailable"}}</p>
+                    <button class="fav_btn" @click="addToFavourites(chosenMedia)">Add to Favourites</button>
+                </div>
                 <ul class="authors">
                     <p><b>Authors: </b></p>
                     <li v-for="(author,index) in chosenMedia.volumeInfo?.authors" :key="index">
@@ -101,13 +105,14 @@
                 <p><b>Published Date: </b> {{ chosenMedia.volumeInfo['publishedDate']|| "Not specified" }}</p>
                 <ul v-if="chosenMedia.volumeInfo?.categories?.length > 0" class="chosen_genre_list">
                     <p><b>Categories: </b> </p>
-                    <li class="chosen_genre" style="background-color: grey;" v-for="category in chosenMedia.volumeInfo['categories']" :key="category">{{ category}}</li>
+                    <p v-if="chosenMedia.volumeInfo?.categories?.length == 0" class="chosen_genre" style="background-color: grey;" >Unknown</p>
+                    <li class="chosen_genre" style="background-color: grey;" v-for="category in chosenMedia.volumeInfo?.categories" :key="category">{{ category }}</li>
                 </ul>
                 <ul v-else class="chosen_genre_list">
                     <p><b>Categories: </b> </p>
                     <li class="chosen_genre" style="background-color: #9b9a9a;">Unknown</li>
                 </ul>
-                <p class="overview"><b>Description: </b> {{ chosenMedia.volumeInfo['description'] }}</p>
+                <p class="overview"><b>Description: </b> {{ chosenMedia.volumeInfo['description'] || "Description unavailable" }}</p>
             </div>
         </div>
     </div>
@@ -132,6 +137,7 @@ export default {
             showPageMultiplier : 1,
             isModalVisible : false,
             rcmndBooks : [],
+            csrfToken : '',
         };
     },
     setup(){
@@ -165,6 +171,28 @@ export default {
     },
     methods: {
 
+        async fetch_csrf_token(){
+
+            try{
+                const response = await fetch("http://127.0.0.1:8000/csrf/",
+                {    
+                    method: "GET",
+                    credentials: "include", 
+                });
+
+                if (response.ok){
+                    const data = await response.json();
+                    this.csrfToken = data.csrfToken;
+                    console.log(`Fetched csrf token: ${this.csrfToken}`);
+                }
+                else{
+                console.log(`Failed to fetch token, ${response.statusText}`)
+                }
+            }
+            catch (error){
+                console.error(`Error fetching token, ${error}`)
+            }
+        },
         async search(newSearch){
 
             this.show_ChosenMedia = false;
@@ -269,6 +297,48 @@ export default {
                 console.error("Error fecthing recommendations ", error)
             }
         },
+        async addToFavourites(book){
+            if (this.loggedUser.online_id){
+                const book_object = {}
+                book_object.image = book.volumeInfo?.imageLinks?.thumbnail;
+                book_object.title = book.volumeInfo?.title;
+                book_object.authors = book.volumeInfo?.authors;
+                book_object.published_date = book.volumeInfo['publishedDate']|| "Not specified";
+                book_object.categories = book.volumeInfo?.categories;
+                book_object.description = book.volumeInfo?.description;
+
+                try
+                {
+                    const response = await fetch("http://127.0.0.1:8000/user/",
+                    {    
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": this.csrfToken,
+                        },
+                        body: JSON.stringify({ book: book_object, action: "add_book" }),
+                        credentials: "include", 
+                    })
+                    const data = await response.json();
+                    if (!response.ok) {
+                        if (data.error === 'Book is already added to favourites'){
+
+                            alert("You have already added this book to your favourites");
+                        }
+                        else{
+                            throw new Error(`Failed to add book: ${response.status}`);
+                        }
+                    }
+                }
+                catch (error){
+                    console.error("Error adding book:", error);
+                }
+            }
+            else{
+                alert("You have to have an account to favourite a book.");
+            }
+
+        },
         openModal(){
             this.isModalVisible =  true;
         },
@@ -340,6 +410,7 @@ export default {
     },
     mounted(){
         this.search(true);
+        this.fetch_csrf_token();
     }
     
     };
@@ -752,11 +823,41 @@ li{
     min-height: 14rem;
 
 }
+.chosen_media_title_div{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+.fav_btn{
+    all: unset;
+    font-size: 1rem;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    color: #41ceaa;
+    background-color: #FBFFFE;
+    border: solid 3px #41ceaa;
+    font-weight: 501;
+    border-radius: 0.4rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: 0.2s ease;
+}
+.fav_btn:hover{
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
 
 .chosen_media_info p{
     gap: 0;
     margin: 0;
     text-align: left;
+}
+.chosen_media_info_title{
+    width: 30rem;
+    max-width: 30rem;
 }
 .chosen_genre_list{
     display: flex;

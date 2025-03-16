@@ -402,11 +402,11 @@ export default{
         moreInfo(book_object, inFavourite){
             if (inFavourite == false){
                 this.chosen_book.image = book_object.volumeInfo?.imageLinks?.thumbnail;
-                this.chosen_book.title = book_object.volumeInfo['title'];
-                this.chosen_book.authors = book_object.volumeInfo['authors'];
+                this.chosen_book.title = book_object.volumeInfo?.title;
+                this.chosen_book.authors = book_object.volumeInfo?.authors;
                 this.chosen_book.published_date = book_object.volumeInfo['publishedDate']|| "Not specified";
-                this.chosen_book.categories = book_object.volumeInfo['categories'];
-                this.chosen_book.description = book_object.volumeInfo['description'];
+                this.chosen_book.categories = book_object.volumeInfo?.categories;
+                this.chosen_book.description = book_object.volumeInfo?.description;
             }
             else{
                 this.chosen_book = book_object;
