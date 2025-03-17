@@ -185,8 +185,8 @@
                             <img :src="chosen_book?.image" class="chosen_book_image_modal">
                             <div class="chosen_book_div1_modal">
                                 <div class="modal_title_div">
-                                    <p><b>Title: </b>{{ chosen_book?.title || 'Title unavailable' }}</p>
-                                    <button class="favourite_book_btn" v-if="isBookInFavourites(chosen_book) == true" @click="deleteFavouriteBook">Remove from Favourites</button>
+                                    <p class="modal_title1"><b>Title: </b>{{ chosen_book?.title || 'Title unavailable' }}</p>
+                                    <button class="favourite_book_btn" v-if="isBookInFavourites(chosen_book) == true" @click="deleteFavouriteBook">Unfavourite</button>
                                     <button class="favourite_book_btn" v-else-if="isBookInFavourites(chosen_book) == false" @click="addFavouriteBook">Add to Favourites</button>
                                 </div>
                                 <ul class="chosen_book_authors">
@@ -1575,6 +1575,10 @@ body{
     align-items: flex-start;
     margin-left: 1rem;
     min-height: 10rem;
+}
+.modal_title1{
+    width: 43rem;
+    max-width: 43rem;
 }
 .modal_title_div{
     display: flex;
