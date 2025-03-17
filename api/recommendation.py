@@ -35,17 +35,44 @@ def fetch_books_from_google_api(query):
 
             url = "https://www.googleapis.com/books/v1/volumes"
             query_string = f"{query['title']} {' '.join(query['keywords'])} {query['genre']}"
+            query_string_title = f"{query['title']}"
 
             param_list = {
-                    "q" : query_string,
-                    "maxResults" : 40,
-                    "startIndex" : start_index,
-                    "key" : api_key
+                "q" : query_string,
+                "maxResults" : 40,
+                "startIndex" : start_index,
+                "key" : api_key
             }
+
+            param_list_title = {
+                "q" : query_string_title,
+                "maxResults" : 3,
+                "startIndex" : start_index,
+                "key" : api_key
+            }
+
+            response_title = requests.get(url, params=param_list_title)
+            response_title.raise_for_status()
+            books_title_data = response_title.json()
+
+            for book in books_title_data.get("items", []):
+                volumeInfo = book.get("volumeInfo", {})
+                categories = volumeInfo.get("categories", [])
+
+                if not categories or not any(any(fc in category.lower() for fc in filtered_categories) for category in categories):
+                    continue
+            
+                recommendations.append({
+                    "title" : volumeInfo.get("title", "Unknown Title"),
+                    "authors" : volumeInfo.get("authors", ["Unknown Author"]),
+                    "published_date" : volumeInfo.get("publishedDate", "Unknown"),
+                    "description" : volumeInfo.get("description", "No Description Available"),
+                    "categories" : categories,
+                    "image" : volumeInfo.get("imageLinks", {}).get("thumbnail")
+                })
 
             response = requests.get(url, params=param_list)
             response.raise_for_status()
-
             books_data = response.json()
 
             for book in books_data.get("items", []):
@@ -67,7 +94,16 @@ def fetch_books_from_google_api(query):
             start_index += len(books_data.get("items", []))
             if len(books_data.get("items", [])) < 40:
                     break
-        return recommendations[:40]
+        
+        dupe_title_date = set()
+        final_recommendations = []
+
+        for book in recommendations:
+            if (book["title"],book["published_date"]) not in dupe_title_date:
+                final_recommendations.append(book)
+                dupe_title_date.add((book["title"],book["published_date"]))
+            
+        return final_recommendations
     
     except Exception as e:
         print(f"Error fetching books: {e}")
@@ -99,7 +135,7 @@ def rank_books_by_cosine_similarity(media_query, books):
         ranked_books.append((book,similarity_score))
     
     ranked_books.sort(key=lambda x: x[1], reverse=True)
-    return [book[0] for book in ranked_books]
+    return [book[0] for book in ranked_books][:42]
     
 
 def get_recommended_books(media_query):

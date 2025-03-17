@@ -92,6 +92,7 @@
                         <button class="add_genre_btn" @click="openBookModal">Add Book</button>
                     </div>
                     <ul class="favourite_book_ul">
+                        <li class="user_genre" style="background-color: grey;" v-if="user_data?.favourite_books?.length == 0">No books added yet</li>
                         <li class="favourite_book_li" v-for="book in user_data.favourite_books" :key="book">
                             <img :src="book?.image" class="favourite_book_image">
                             <div class="favourite_books_li_container">
@@ -141,7 +142,6 @@
                         <h4>Add Books</h4>
                         <input v-model="query" @input="searchBook(true)"  type="text" placeholder="Search Books - Trending Books"/>
                         <button @click="clearQuery" class="clear_book_btn">&times;</button>
-                        <button v-if="showList == false" class="favourite_book_btn" @click="addFavouriteBook">Add to Favourites</button>
                         <button v-if="showList == false" class="book_back_btn" @click="backToShowList">Back</button>
                         <button @click="exitAddBook" class="cancel_add_book_btn">Exit</button>
                     </div>
@@ -184,7 +184,11 @@
                         <div class="chosen_book_container_modal">
                             <img :src="chosen_book?.image" class="chosen_book_image_modal">
                             <div class="chosen_book_div1_modal">
-                                <p><b>Title: </b>{{ chosen_book?.title || 'Title unavailable' }}</p>
+                                <div class="modal_title_div">
+                                    <p><b>Title: </b>{{ chosen_book?.title || 'Title unavailable' }}</p>
+                                    <button class="favourite_book_btn" v-if="isBookInFavourites(chosen_book) == true" @click="deleteFavouriteBook">Remove from Favourites</button>
+                                    <button class="favourite_book_btn" v-else-if="isBookInFavourites(chosen_book) == false" @click="addFavouriteBook">Add to Favourites</button>
+                                </div>
                                 <ul class="chosen_book_authors">
                                     <p><b>Authors: </b></p>
                                     <li v-for="(author,index) in chosen_book?.authors" :key="index">
@@ -443,6 +447,31 @@ export default{
             catch (error){
                 console.error("Error adding book:", error);
             }
+        },
+        async deleteFavouriteBook(){
+            try{
+                const response = await fetch("http://127.0.0.1:8000/user/",
+                {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    body: JSON.stringify({ book: this.chosen_book, action: "delete_book" }),
+                    credentials: "include", 
+                })
+                if (!response.ok) {
+                    throw new Error(`Failed to remove book: ${response.status}`);
+                }
+                this.fetch_user();
+            }
+            catch (error){
+                console.error("Error removing book:", error);
+            }
+            
+        },
+        isBookInFavourites(book){
+            return this.user_data.favourite_books.some(favBook => favBook.title === book.title);
         },
         async saveUsername(){
             try{
@@ -1547,6 +1576,13 @@ body{
     margin-left: 1rem;
     min-height: 10rem;
 }
+.modal_title_div{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
 .chosen_book_div1_modal p{
     gap: 0%;
     padding: 0%;
@@ -1583,7 +1619,8 @@ body{
     padding-left: 0.5rem;
     outline: none;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    margin-left: 9rem;
+    justify-self: center;
+    margin-left: 14rem;
 }
 .clear_book_btn{
     all: unset;
@@ -1619,34 +1656,35 @@ body{
 .cancel_add_book_btn:hover{
     background-color: #e61534c8;
 }
+
 .favourite_book_btn{
     all: unset;
-    font-size: 1.2rem;
-    height: 2.9rem;
-    font-weight: 401;
-    padding-left: 1rem;
-    padding-right: 1rem;
-    background-color: #FAA916;
-    border-radius: 0.6rem;
-    color: #1B1B1E;
-    margin-left: 1rem;
-    transition: 0.2s ease;
+    font-size: 1rem;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    color: #41ceaa;
+    background-color: #FBFFFE;
+    border: solid 3px #41ceaa;
+    font-weight: 501;
+    border-radius: 0.4rem;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: 0.2s ease;
 }
-
 .favourite_book_btn:hover{
-    background-color: #faaa16c2;
-    color: #1b1b1eb6;
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 .book_back_btn{
     all: unset;
-    margin-left: 8.5rem;
+    margin-left: 16.5rem;
     height: 2.5rem;
-    border: solid 3px #41ceaa;
+    border: solid 3px #FAA916;
     transition: 0.2s ease;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    color: #41ceaa;
+    color: #FAA916;
     font-weight: 401;
     border-radius: 0.6rem;
     font-size: 1.2rem;
@@ -1654,7 +1692,7 @@ body{
     padding-right: 1rem;
 }
 .book_back_btn:hover{
-    background-color: #41ceaa;
+    background-color: #FAA916;
     color: #FBFFFE;
 }
 .pagination_control_modal{

@@ -14,10 +14,11 @@
                     <img :src="book.image" class="book_image">
                     <div class="books_li_container">
                         <div class="books_li_div">
-                            <p class="book_div_title"><b>Title: </b>{{ book.title }}</p>
-                            <p><b>Published: </b>{{ book.published_date }}</p>
+                            <p class="book_div_title"><b>Title: </b>{{ book.title || "Unavailable" }}</p>
+                            <p><b>Published: </b>{{ book.published_date || "Unavailable" }}</p>
                             <div class="books_li_authors">
                                 <p><b>Authors: </b></p>
+                                <li style="padding-right: 0.3rem;" v-if="book?.authors?.length == 0">Unknown</li>
                                 <li style="padding-right: 0.3rem;" v-for="(author,index) in book.authors" :key="index">
                                     <span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}
                                 </li>
@@ -40,14 +41,18 @@
                 <div class="chosen_book_container">
                     <img :src="chosen_book.image" class="chosen_book_image">
                     <div class="chosen_book_div1">
-                        <p><b>Title: </b>{{ chosen_book.title }}</p>
+                        <div class="div1_title">
+                            <p class="chosen_book_div1_title"><b>Title: </b>{{ chosen_book.title || "Unavailable" }}</p>
+                            <button class="fav_btn_modal" @click="addToFavourites(chosen_book)">Add to Favourites</button>
+                        </div>
                         <ul class="chosen_book_authors">
                             <p><b>Authors: </b></p>
+                            <li style="padding-right: 0.3rem;" v-if="chosen_book?.authors?.length == 0">Unknown</li>
                             <li v-for="(author,index) in chosen_book?.authors" :key="index">
                                 <span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}
                             </li>
                         </ul>
-                        <p><b>Published Date: </b>{{ chosen_book.published_date }}</p>
+                        <p><b>Published Date: </b>{{ chosen_book.published_date || "Unavailable" }}</p>
                         <ul v-if="chosen_book.categories.length > 0" class="chosen_genre_list">
                             <p><b>Categories: </b> </p>
                             <li class="chosen_genre" style="background-color: grey;" v-for="category in chosen_book.categories" :key="category">{{ category}}</li>
@@ -56,7 +61,7 @@
                             <p><b>Categories: </b> </p>
                             <li class="chosen_genre" style="background-color: #9b9a9a;">Unknown</li>
                         </ul>
-                        <p><b>Description: </b>{{ chosen_book.description }}</p>
+                        <p><b>Description: </b>{{ chosen_book.description || "Unavailable" }}</p>
                     </div>
                 </div>
             </div>
@@ -65,15 +70,18 @@
 </template>
 <script>
 
+
+
 export default{
     data()  {
         return{
             show_list : true,
             chosen_book : null,
+            csrfToken : ""
         }
 
     },
-    props: ['recommendedBooks','isVisible','mediaType','mediaName'],
+    props: ['recommendedBooks','isVisible','mediaType','mediaName', "loggedUser"],
     watch: {
         isVisible(newVal){
             if (newVal) {
@@ -82,6 +90,61 @@ export default{
         }
     },
     methods: {
+        async fetch_csrf_token(){
+            try{
+                const response = await fetch("http://127.0.0.1:8000/csrf/",
+                {    
+                    method: "GET",
+                    credentials: "include", 
+                });
+
+                if (response.ok){
+                    const data = await response.json();
+                    this.csrfToken = data.csrfToken;
+                    console.log(`Fetched csrf token: ${this.csrfToken}`);
+                }
+                else{
+                console.log(`Failed to fetch token, ${response.statusText}`)
+                }
+            }
+            catch (error){
+                console.error(`Error fetching token, ${error}`)
+            }
+            },
+        async addToFavourites(book){
+            if (this.loggedUser){
+                try
+                {
+                    const response = await fetch("http://127.0.0.1:8000/user/",
+                    {    
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": this.csrfToken,
+                        },
+                        body: JSON.stringify({ book: book, action: "add_book" }),
+                        credentials: "include", 
+                    })
+                    const data = await response.json();
+                    if (!response.ok) {
+                        if (data.error === 'Book is already added to favourites'){
+
+                            alert("You have already added this book to your favourites");
+                        }
+                        else{
+                            throw new Error(`Failed to add book: ${response.status}`);
+                        }
+                    }
+                }
+                catch (error){
+                    console.error("Error adding book:", error);
+                }
+            }
+            else{
+                alert("You have to have an account to favourite a book.");
+            }
+
+        },
         close(){
             this.$emit('update:isVisible', false);
         },
@@ -92,6 +155,9 @@ export default{
         back(){
             this.show_list = true;
         }
+    },
+    mounted(){
+        this.fetch_csrf_token();
     }
 }
 </script>
@@ -381,6 +447,37 @@ export default{
     margin: 0%;
     text-align: left;
 }
+.chosen_book_div1_title{
+    width: 30rem;
+    max-width: 30rem;
+}
+.div1_title{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+
+}
+.fav_btn_modal{
+    all: unset;
+    font-size: 1rem;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    color: #41ceaa;
+    background-color: #FBFFFE;
+    border: solid 3px #41ceaa;
+    font-weight: 501;
+    border-radius: 0.4rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: 0.2s ease;
+}
+.fav_btn_modal:hover{
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
 .chosen_book_authors{
     display: flex;
     flex-direction: row;
@@ -398,9 +495,10 @@ export default{
     border-radius: 0.7rem;
 }
 .back{
-    border: 2px solid #41ceaa;
-    color: #41ceaa;
+    border: 3px solid #FAA916;
+    color: #FAA916;
     background-color: #FBFFFE;
+    font-weight: 401;
     font-size: 1.2rem;
     margin-right: 1.5rem;
     padding-right: 1rem;
@@ -410,7 +508,7 @@ export default{
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 .back:hover{
-    background-color: #41ceaa;
+    background-color: #FAA916;
     color: #FBFFFE;
     transition: 0.3s ease;
 }

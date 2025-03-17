@@ -33,6 +33,7 @@
         :recommendedBooks="rcmndBooks"
         :mediaType="searchMedia"
         :mediaName="query"
+        :loggedUser="loggedUser.online_id"
         @close="isModalVisible = false"
         />
         <div v-if="mediaList.length > 0" class="media_list">
@@ -257,15 +258,15 @@ export default {
         },
         async recommendBooks(media){
 
-            this.openModal();
-
-            let media_map = new Map();
-            let genres = []
-
             if (media == null){
                 alert("Select a media in order to get book recommendations.");
                 return;
             }
+            this.rcmndBooks = [];
+            this.openModal();
+
+            let media_map = new Map();
+            let genres = []
 
             if (this.searchMedia == "Movies" || this.searchMedia == "TV Shows"){
                 for (let i = 0; i < media.genre_ids.length; i++){

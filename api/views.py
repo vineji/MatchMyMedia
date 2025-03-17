@@ -75,7 +75,6 @@ def user_view(request):
         data = json.loads(request.body)
         action = data.get('action')
 
-
         if not action:
 
             try:
@@ -158,6 +157,7 @@ def user_view(request):
                 
             except Exception as e:
                 return JsonResponse({"error": str(e)}, status=500)
+
     
     elif request.method == 'DELETE':
 
@@ -185,9 +185,28 @@ def user_view(request):
                 
             except Exception as e:
                 return JsonResponse({"error": str(e)}, status=500)
+        elif action == "delete_book":
 
+            try:
+                book = data.get('book')
 
-    print("user not authenticated")
+                if not book:
+                    return JsonResponse({"error": "Book is required"}, status=400)
+                
+                if book not in request.user.favourite_books:
+                    return JsonResponse({"error": "Book is already deleted to favourites"}, status=400)
+
+                request.user.favourite_books.remove(book)
+                request.user.save()
+
+                return JsonResponse({"message": "Book deleted successfully."}, status=200)
+            
+            except json.JSONDecodeError:
+                return JsonResponse({"error": "Invalid JSON format"}, status=400)
+                
+            except Exception as e:
+                return JsonResponse({"error": str(e)}, status=500)
+
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
 @login_required
