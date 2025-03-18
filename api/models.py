@@ -5,6 +5,7 @@ import json
 
 # Create your models here.
 
+
 class Genre(models.Model):
 
     name = models.CharField(max_length=30, unique=True)
@@ -46,6 +47,10 @@ class User(AbstractUser):
         }
     
 
+class BookRating(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    book_id = models.CharField(max_length=255)
+    rating= models.IntegerField()
 
-
-
+    def __str__(self):
+        return f"{self.user} - {self.book_title} - {self.rating}"

@@ -5,7 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sentence_transformers import SentenceTransformer, util
 from surprise import SVD, Dataset, Reader
 from surprise.model_selection import train_test_split
-
+from .models import BookRating
 import os
 from dotenv import load_dotenv
 
@@ -123,15 +123,56 @@ def extract_keywords(text, n=5):
 
     return [feature_arr[i] for i in tfIdf_sorting[:n]]
 
+def get_collaborative_filtering_recommendations():
+
+    user_ratings = BookRating.objects.all()
+
+    if not user_ratings:
+        return []
+
+    reader = Reader(rating_scale=(1,5))
+
+    data = Dataset.load_from_df(
+        pd.DataFrame(list(user_ratings.values("user", "book_title", "rating"))),
+        reader
+    )
+
+    train_set = train_test_split(data, test_size=0.2)
+    test_set = train_test_split(data, test_size=0.2)
+
+    model = SVD()
+    model.fit(train_set)
+
+    predictions = model.test(test_set)
+
+    book_predictions = {}
+
+    for uid, iid, true_r, est, _ in predictions:
+        if iid not in book_predictions:
+            book_predictions[iid] = est
+        else:
+            book_predictions[iid] += est
+    
+    recommended_books = sorted(book_predictions.items(), key=lambda x : x[1], reverse=True)
+
+    top_recommended_books= [book[0] for book in recommended_books[:10]]
+
+    return top_recommended_books
+
+
+
+
+
+
 def rank_books_by_cosine_similarity(media_query, books):
      
-    movie_embedding = model.encode(media_query["description"], convert_to_tensor=True)
+    media_embedding = model.encode(media_query["description"], convert_to_tensor=True)
 
     ranked_books = []
 
     for book in books:
         book_embedding = model.encode(book["description"], convert_to_tensor=True)
-        similarity_score = util.pytorch_cos_sim(movie_embedding, book_embedding)
+        similarity_score = util.pytorch_cos_sim(media_embedding, book_embedding)
         ranked_books.append((book,similarity_score))
     
     ranked_books.sort(key=lambda x: x[1], reverse=True)
@@ -143,6 +184,10 @@ def get_recommended_books(media_query):
     media_query["keywords"] = extract_keywords(media_query["description"])
 
     books = fetch_books_from_google_api(media_query)
+
+    print(get_collaborative_filtering_recommendations())
+
+    books += get_collaborative_filtering_recommendations()
 
     ranked_book_recommendations = rank_books_by_cosine_similarity(media_query, books)
 
