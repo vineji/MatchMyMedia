@@ -277,6 +277,8 @@ export default{
     flex-direction: column;
     align-items: flex-start;
     justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.5rem;
     margin: 0;
     padding: 0;
 }

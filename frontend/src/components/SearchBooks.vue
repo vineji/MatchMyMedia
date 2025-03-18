@@ -97,12 +97,22 @@
                     <p class="chosen_media_info_title"><b>Title: </b>{{ chosenMedia.volumeInfo['title'] || "Title unavailable"}}</p>
                     <button class="fav_btn" @click="addToFavourites(chosenMedia)">Add to Favourites</button>
                 </div>
-                <ul class="authors">
-                    <p><b>Authors: </b></p>
-                    <li v-for="(author,index) in chosenMedia.volumeInfo?.authors" :key="index">
-                        <span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}
-                    </li>
-                </ul>
+                <div class="chosen_author_div">
+                    <ul class="authors">
+                        <p><b>Authors: </b></p>
+                        <li v-for="(author,index) in chosenMedia.volumeInfo?.authors" :key="index">
+                            <span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}
+                        </li>
+                    </ul>
+                    <div class="star_rating_div">
+                        <button
+                        v-for="star in stars"
+                        :key="star"
+                        @click="rateBook(star)"
+                        class="star"
+                        >&#9734;</button>
+                    </div>
+                </div>
                 <p><b>Published Date: </b> {{ chosenMedia.volumeInfo['publishedDate']|| "Not specified" }}</p>
                 <ul v-if="chosenMedia.volumeInfo?.categories?.length > 0" class="chosen_genre_list">
                     <p><b>Categories: </b> </p>
@@ -139,6 +149,8 @@ export default {
             isModalVisible : false,
             rcmndBooks : [],
             csrfToken : '',
+            stars : [1,2,3,4,5],
+            currentRating : 0
         };
     },
     setup(){
@@ -337,6 +349,35 @@ export default {
             }
             else{
                 alert("You have to have an account to favourite a book.");
+            }
+
+        },
+        async rateBook(rating){
+
+            if (this.loggedUser.online_id){
+                try
+                {
+                    const response = await fetch("http://127.0.0.1:8000/book-rating/",
+                    {    
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": this.csrfToken,
+                        },
+                        body: JSON.stringify({ book_id: this.chosenMedia?.id, book_rating: rating }),
+                        credentials: "include", 
+                    })
+                    if (!response.ok) {
+                            throw new Error(`Failed to add book: ${response.status}`);
+                        }
+                }
+                catch (error){
+                    console.error("Error adding book:", error);
+                }
+
+            }
+            else{
+                alert("You need an account to rate a book");
             }
 
         },
@@ -880,18 +921,35 @@ li{
     border-radius: 0.5rem;
     color: white;
 }
+.chosen_author_div{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
 .authors{
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     flex-wrap: wrap;
     align-items: center;
-    width: 40rem;
-    max-width: 40rem;
+    width: 30rem;
+    max-width: 30rem;
     padding: 0;
     gap: 0.5rem;
-    margin-top: 1rem;
 }
+.star_rating_div{
+    display: flex;
+    flex-direction: row;
+    background-color: #41ceaa;
+}
+.star{
+    all: unset;
+}
+
 
 
 

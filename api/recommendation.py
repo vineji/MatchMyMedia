@@ -123,6 +123,31 @@ def extract_keywords(text, n=5):
 
     return [feature_arr[i] for i in tfIdf_sorting[:n]]
 
+
+def fetch_books_from_google_api_using_id(id):
+        
+        url = f"https://www.googleapis.com/books/v1/volumes/{id}"
+
+        response = requests.get(url)
+
+        response.raise_for_status()
+        book_data = response.json()
+        
+        volumeInfo = book_data.get("volumeInfo", {})
+        categories = volumeInfo.get("categories", [])
+
+        return {
+            "title" : volumeInfo.get("title", "Unknown Title"),
+            "authors" : volumeInfo.get("authors", ["Unknown Author"]),
+            "published_date" : volumeInfo.get("publishedDate", "Unknown"),
+            "description" : volumeInfo.get("description", "No Description Available"),
+            "categories" : categories,
+            "image" : volumeInfo.get("imageLinks", {}).get("thumbnail")
+        }
+
+
+
+
 def get_collaborative_filtering_recommendations():
 
     user_ratings = BookRating.objects.all()
@@ -133,12 +158,11 @@ def get_collaborative_filtering_recommendations():
     reader = Reader(rating_scale=(1,5))
 
     data = Dataset.load_from_df(
-        pd.DataFrame(list(user_ratings.values("user", "book_title", "rating"))),
+        pd.DataFrame(list(user_ratings.values("user_id", "book_id", "rating"))),
         reader
     )
 
-    train_set = train_test_split(data, test_size=0.2)
-    test_set = train_test_split(data, test_size=0.2)
+    train_set, test_set = train_test_split(data, test_size=0.2)
 
     model = SVD()
     model.fit(train_set)
@@ -153,9 +177,12 @@ def get_collaborative_filtering_recommendations():
         else:
             book_predictions[iid] += est
     
+    
     recommended_books = sorted(book_predictions.items(), key=lambda x : x[1], reverse=True)
 
-    top_recommended_books= [book[0] for book in recommended_books[:10]]
+    print([book[0] for book in recommended_books[:10]])
+
+    top_recommended_books= [ fetch_books_from_google_api_using_id(book[0]) for book in recommended_books[:10]]
 
     return top_recommended_books
 
@@ -184,8 +211,6 @@ def get_recommended_books(media_query):
     media_query["keywords"] = extract_keywords(media_query["description"])
 
     books = fetch_books_from_google_api(media_query)
-
-    print(get_collaborative_filtering_recommendations())
 
     books += get_collaborative_filtering_recommendations()
 

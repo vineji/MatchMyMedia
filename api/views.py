@@ -17,7 +17,7 @@ from django.middleware.csrf import get_token
 
 from .forms import CustomUserCreationForm, CustomUserUpdateForm
 
-from .models import Genre
+from .models import Genre, BookRating
 
 load_dotenv()
 
@@ -248,6 +248,41 @@ def genre_view(request):
         
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+@login_required
+def book_rating_view(request):
+
+    if request.method == "POST":
+
+        data = json.loads(request.body)
+        book_id = data.get('book_id')
+        rating = float(data.get('book_rating'))
+        
+        book_rating = BookRating.objects.filter(
+            user_id = request.user.id,
+            book_id = book_id,
+        ).first()
+
+        if book_rating:
+            book_rating.rating = rating
+            book_rating.save()
+        else:
+            book_rating = BookRating.objects.create(
+            user_id = request.user.id,
+            book_id = book_id,
+            rating = rating
+        )
+        
+        return JsonResponse({'message': 'Book rating added/updated successfully'})
+    
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+
+
+
+
+
 
 
 

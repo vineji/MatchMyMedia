@@ -48,9 +48,9 @@ class User(AbstractUser):
     
 
 class BookRating(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_id = models.IntegerField(default=0)
     book_id = models.CharField(max_length=255)
-    rating= models.IntegerField()
+    rating = models.FloatField()
 
     def __str__(self):
-        return f"{self.user} - {self.book_title} - {self.rating}"
+        return f"{self.user_id} - {self.book_id} - {self.rating}"
