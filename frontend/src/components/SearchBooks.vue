@@ -105,12 +105,17 @@
                         </li>
                     </ul>
                     <div class="star_rating_div">
+                        <p>Your rating: </p>
                         <button
                         v-for="star in stars"
                         :key="star"
                         @click="rateBook(star)"
-                        class="star"
-                        >&#9734;</button>
+                        @mouseover="hoverStar(star)"
+                        @mouseleave="resetHover"
+                        :class="['star',{hovered: hoveredStar >= star, filled: rating >= star}]"
+                        >
+                        <span v-html="hoveredStar >= star || rating >= star ? '&#9733;' : '&#9734;'"></span>
+                        </button>
                     </div>
                 </div>
                 <p><b>Published Date: </b> {{ chosenMedia.volumeInfo['publishedDate']|| "Not specified" }}</p>
@@ -150,7 +155,8 @@ export default {
             rcmndBooks : [],
             csrfToken : '',
             stars : [1,2,3,4,5],
-            currentRating : 0
+            rating : 0,
+            hoveredStar : 0,
         };
     },
     setup(){
@@ -348,13 +354,39 @@ export default {
                 }
             }
             else{
-                alert("You have to have an account to favourite a book.");
+                alert("You have to login to favourite a book.");
             }
 
+        },
+        async fetch_book_rating(){
+            if (this.loggedUser.online_id && this.searchMedia == "Books"){
+                try
+                {
+                    const response = await fetch(`http://127.0.0.1:8000/book-rating/?book_id=${this.chosenMedia.id}`,
+                    {    
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": this.csrfToken,
+                        },
+                        credentials: "include", 
+                    })
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch book: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    this.rating = data.book_rating || 0;
+                }
+                catch (error){
+                    console.error("Error fetching book:", error);
+                }
+
+            }
         },
         async rateBook(rating){
 
             if (this.loggedUser.online_id){
+                this.rating = rating;
                 try
                 {
                     const response = await fetch("http://127.0.0.1:8000/book-rating/",
@@ -377,9 +409,15 @@ export default {
 
             }
             else{
-                alert("You need an account to rate a book");
+                alert("You need to login to rate a book");
             }
 
+        },
+        hoverStar(star){
+            this.hoveredStar= star;
+        },
+        resetHover(){
+            this.hoveredStar = 0;
         },
         openModal(){
             this.isModalVisible =  true;
@@ -403,6 +441,7 @@ export default {
         select(media){
             this.show_ChosenMedia = true;
             this.chosenMedia = media;
+            this.fetch_book_rating();
             this.mediaList = [];
             this.query = media.title || media.name || media.volumeInfo['title'];
             this.currentPage = 1;
@@ -924,6 +963,7 @@ li{
 .chosen_author_div{
     margin: 0;
     padding: 0;
+    margin-top: 0.2rem;
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -931,23 +971,46 @@ li{
     align-items: center;
 }
 .authors{
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
     flex-wrap: wrap;
     align-items: center;
-    width: 30rem;
-    max-width: 30rem;
+    width: 25rem;
+    max-width: 25rem;
     padding: 0;
     gap: 0.5rem;
 }
 .star_rating_div{
+    padding: 0;
+    margin: 0;
     display: flex;
     flex-direction: row;
-    background-color: #41ceaa;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 14rem;
+}
+.star_rating_div p{
+    font-size: 1rem;
+    margin-right: 0.5rem;
+    font-weight: 501;
 }
 .star{
     all: unset;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    font-weight: 601;
+    cursor: pointer;
+    color: #FAA916;
+}
+.star:hover{
+    color: #FAA916;
+}
+.star.filled{
+    color: #FAA916;
 }
 
 

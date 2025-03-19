@@ -253,7 +253,22 @@ def genre_view(request):
 @login_required
 def book_rating_view(request):
 
-    if request.method == "POST":
+
+    if request.method == "GET":
+        book_id = request.GET.get('book_id')
+
+        book_rating = BookRating.objects.filter(
+            user_id = request.user.id,
+            book_id = book_id,
+        ).first()
+
+        if book_rating:
+            return JsonResponse({"book_rating" : book_rating.rating}, status=201)
+        else:
+            return JsonResponse({"book_rating" : 0}, status=201)
+
+
+    elif request.method == "POST":
 
         data = json.loads(request.body)
         book_id = data.get('book_id')
