@@ -294,15 +294,6 @@ def book_rating_view(request):
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
-
-
-
-
-
-
-
-
-
 def movie_search_view(request):
     
     if request.method == 'GET':

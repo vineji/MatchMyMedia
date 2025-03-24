@@ -34,7 +34,7 @@ def fetch_books_from_google_api(query):
         while len(recommendations) < max_results:
 
             url = "https://www.googleapis.com/books/v1/volumes"
-            query_string = f"{query['title']} {' '.join(query['keywords'])} {query['genre']}"
+            query_string = f"{' '.join(query['keywords'])} {query['genre']}"
             query_string_title = f"{query['title']}"
 
             param_list = {
@@ -110,7 +110,7 @@ def fetch_books_from_google_api(query):
         return []
 
 
-def extract_keywords(text, n=5):
+def extract_keywords(text, n=7):
     
     doc = nlp(text)
     words = [token.lemma_ for token in doc if token.is_alpha and not token.is_stop]
@@ -182,7 +182,7 @@ def get_collaborative_filtering_recommendations():
 
     print([book[0] for book in recommended_books[:10]])
 
-    top_recommended_books= [ fetch_books_from_google_api_using_id(book[0]) for book in recommended_books[:10]]
+    top_recommended_books= [fetch_books_from_google_api_using_id(book[0]) for book in recommended_books[:10]]
 
     return top_recommended_books
 
@@ -203,7 +203,7 @@ def rank_books_by_cosine_similarity(media_query, books):
         ranked_books.append((book,similarity_score))
     
     ranked_books.sort(key=lambda x: x[1], reverse=True)
-    return [book[0] for book in ranked_books][:42]
+    return [book[0] for book in ranked_books][:39]
     
 
 def get_recommended_books(media_query):
