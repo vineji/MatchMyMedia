@@ -9,6 +9,10 @@ from .models import BookRating
 import os
 from dotenv import load_dotenv
 
+import redis
+import json
+
+redis_client = redis.Redis(host='127.0.0.1', port=6379, db=0, decode_responses=True)
 load_dotenv()
 
 
@@ -188,10 +192,6 @@ def get_collaborative_filtering_recommendations():
     return top_recommended_books
 
 
-
-
-
-
 def rank_books_by_cosine_similarity(media_query, books):
      
     media_embedding = model.encode(media_query["description"], convert_to_tensor=True)
@@ -209,6 +209,20 @@ def rank_books_by_cosine_similarity(media_query, books):
 
 def get_recommended_books(media_query):
 
+    cache_key = f"final_recommendations:{json.dumps(media_query, sort_keys=True)}"
+
+
+    try:
+
+        cached_recommendations = redis_client.get(cache_key)
+
+        if cached_recommendations:
+            print("Fetching final recommendations from cache")
+            return json.loads(cached_recommendations)
+    except ConnectionError:
+        print("Redis connect error. Provide recommendations without caching")
+
+
     media_query["keywords"] = extract_keywords(media_query["description"])
 
     books = fetch_books_from_google_api(media_query)
@@ -216,6 +230,12 @@ def get_recommended_books(media_query):
     books += get_collaborative_filtering_recommendations()
 
     ranked_book_recommendations = rank_books_by_cosine_similarity(media_query, books)
+
+    try:
+        redis_client.setex(cache_key, 600, json.dumps(ranked_book_recommendations))
+
+    except ConnectionError:
+        print("Redis connect error. Skip cache writing")
 
     return ranked_book_recommendations
 
