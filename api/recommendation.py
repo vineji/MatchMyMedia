@@ -34,6 +34,7 @@ def fetch_books_from_google_api(query):
         while len(recommendations) < max_results:
 
             url = "https://www.googleapis.com/books/v1/volumes"
+            
             query_string = f"{' '.join(query['keywords'])} {query['genre']}"
             query_string_title = f"{query['title']}"
 
