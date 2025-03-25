@@ -43,14 +43,29 @@
                     <div class="chosen_book_div1">
                         <div class="div1_title">
                             <p class="chosen_book_div1_title"><b>Title: </b>{{ chosen_book.title || "Unavailable" }}</p>
-                            <button class="fav_btn_modal" @click="addToFavourites(chosen_book)">Add to Favourites</button>
+                            <button class="fav_btn_modal" @click="addToFavourites()">Add to Favourites</button>
                         </div>
                         <ul class="chosen_book_authors">
-                            <p><b>Authors: </b></p>
-                            <li style="padding-right: 0.3rem;" v-if="chosen_book?.authors?.length == 0">Unknown</li>
-                            <li v-for="(author,index) in chosen_book?.authors" :key="index">
-                                <span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}
-                            </li>
+                            <div class="chosen_book_authors_div">
+                                <p><b>Authors: </b></p>
+                                <li style="padding-right: 0.3rem;" v-if="chosen_book?.authors?.length == 0">Unknown</li>
+                                <li v-for="(author,index) in chosen_book?.authors" :key="index">
+                                    <span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}
+                                </li>
+                            </div>
+                            <div class="star_rating_div_modal">
+                                <p>Your rating: </p>
+                                <button
+                                v-for="star in stars"
+                                :key="star"
+                                @click="rateBook(star)"
+                                @mouseover="hoverStar(star)"
+                                @mouseleave="resetHover"
+                                :class="['star_modal',{hovered: hoveredStar >= star, filled: rating >= star}]"
+                                >
+                                <span v-html="hoveredStar >= star || rating >= star ? '&#9733;' : '&#9734;'"></span>
+                                </button>
+                            </div>
                         </ul>
                         <p><b>Published Date: </b>{{ chosen_book.published_date || "Unavailable" }}</p>
                         <ul v-if="chosen_book.categories.length > 0" class="chosen_genre_list">
@@ -77,7 +92,10 @@ export default{
         return{
             show_list : true,
             chosen_book : null,
-            csrfToken : ""
+            csrfToken : "",
+            stars : [1,2,3,4,5],
+            rating : 0,
+            hoveredStar : 0,
         }
 
     },
@@ -111,7 +129,7 @@ export default{
                 console.error(`Error fetching token, ${error}`)
             }
             },
-        async addToFavourites(book){
+        async addToFavourites(){
             if (this.loggedUser){
                 try
                 {
@@ -122,7 +140,7 @@ export default{
                             "Content-Type": "application/json",
                             "X-CSRFToken": this.csrfToken,
                         },
-                        body: JSON.stringify({ book: book, action: "add_book" }),
+                        body: JSON.stringify({ book: this.chosen_book, action: "add_book" }),
                         credentials: "include", 
                     })
                     const data = await response.json();
@@ -145,12 +163,71 @@ export default{
             }
 
         },
+        async fetch_book_rating(){
+            if (this.loggedUser){
+                try
+                {
+                    const response = await fetch(`http://127.0.0.1:8000/book-rating/?book_id=${this.chosen_book.id}`,
+                    {    
+                        method: "GET",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": this.csrfToken,
+                        },
+                        credentials: "include", 
+                    })
+                    if (!response.ok) {
+                        throw new Error(`Failed to fetch book: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    this.rating = data.book_rating || 0;
+                }
+                catch (error){
+                    console.error("Error fetching book:", error);
+                }
+            }
+        },
+        async rateBook(rating){
+
+            if (this.loggedUser){
+                this.rating = rating;
+                try
+                {
+                    const response = await fetch("http://127.0.0.1:8000/book-rating/",
+                    {    
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": this.csrfToken,
+                        },
+                        body: JSON.stringify({ book_id: this.chosen_book.id, book_rating: rating }),
+                        credentials: "include", 
+                    })
+                    if (!response.ok) {
+                            throw new Error(`Failed to add book: ${response.status}`);
+                        }
+                }
+                catch (error){
+                    console.error("Error adding book:", error);
+                }
+            }
+            else{
+                alert("You need to login to rate a book");
+            }
+        },
+        hoverStar(star){
+            this.hoveredStar= star;
+        },
+        resetHover(){
+            this.hoveredStar = 0;
+        },
         close(){
             this.$emit('update:isVisible', false);
         },
         more_info(book){
             this.show_list = false;
             this.chosen_book = book;
+            this.fetch_book_rating();
         },
         back(){
             this.show_list = true;
@@ -411,7 +488,7 @@ export default{
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
 }
 .chosen_book_div::-webkit-scrollbar{
     width: 0.5rem;
@@ -484,11 +561,18 @@ export default{
     display: flex;
     flex-direction: row;
     align-items: center;
-    justify-content: flex-start;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    justify-content: space-between;
     padding: 0;
     width: 40rem;
+}
+.chosen_book_authors_div{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 0;
+    gap: 0.5rem;
+    width: 25rem;
 }
 .chosen_book_image{
     height: 21rem;
@@ -521,5 +605,35 @@ export default{
     font-size: 5rem;
     margin-bottom: 3rem;
     text-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.star_rating_div_modal{
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 14rem;
+}
+.star_rating_div_modal p{
+    font-size: 1rem;
+    margin-right: 0.5rem;
+    font-weight: 501;
+}
+.star_modal{
+    all: unset;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    font-weight: 601;
+    cursor: pointer;
+    color: #FAA916;
+}
+.star_modal:hover{
+    color: #FAA916;
+}
+.star_modal.filled{
+    color: #FAA916;
 }
 </style>

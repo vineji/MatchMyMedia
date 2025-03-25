@@ -319,6 +319,7 @@ export default {
         async addToFavourites(book){
             if (this.loggedUser.online_id){
                 const book_object = {}
+                book_object.id = book.id;
                 book_object.image = book.volumeInfo?.imageLinks?.thumbnail;
                 book_object.title = book.volumeInfo?.title;
                 book_object.authors = book.volumeInfo?.authors;

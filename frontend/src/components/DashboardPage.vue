@@ -189,11 +189,26 @@
                                     <button class="favourite_book_btn" v-if="isBookInFavourites(chosen_book) == true" @click="deleteFavouriteBook">Unfavourite</button>
                                     <button class="favourite_book_btn" v-else-if="isBookInFavourites(chosen_book) == false" @click="addFavouriteBook">Add to Favourites</button>
                                 </div>
-                                <ul class="chosen_book_authors">
-                                    <p><b>Authors: </b></p>
-                                    <li v-for="(author,index) in chosen_book?.authors" :key="index">
-                                        <span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}
-                                    </li>
+                                <ul class="chosen_book_authors_dashboard">
+                                    <div class="chosen_book_authors_dashboard_div">
+                                        <p><b>Authors: </b></p>
+                                        <li v-for="(author,index) in chosen_book?.authors" :key="index">
+                                            <span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}
+                                        </li>
+                                    </div>
+                                    <div class="star_rating_div_dashboard">
+                                        <p>Your rating: </p>
+                                        <button
+                                        v-for="star in stars"
+                                        :key="star"
+                                        @click="rateBook(star)"
+                                        @mouseover="hoverStar(star)"
+                                        @mouseleave="resetHover"
+                                        :class="['star_dashboard',{hovered: hoveredStar >= star, filled: rating >= star}]"
+                                        >
+                                        <span v-html="hoveredStar >= star || rating >= star ? '&#9733;' : '&#9734;'"></span>
+                                        </button>
+                                    </div>
                                 </ul>
                                 <p><b>Published Date: </b>{{ chosen_book?.published_date }}</p>
                                 <ul v-if="chosen_book?.categories?.length > 0" class="chosen_genre_list">
@@ -242,6 +257,9 @@ export default{
             showList: true,
             chosen_book: {},
             showPageMultiplier: 1,
+            rating: 0,
+            stars: [1,2,3,4,5],
+            hoveredStar: 0,
         }
     },
     computed: {
@@ -405,6 +423,7 @@ export default{
         },
         moreInfo(book_object, inFavourite){
             if (inFavourite == false){
+                this.chosen_book.id = book_object.id;
                 this.chosen_book.image = book_object.volumeInfo?.imageLinks?.thumbnail;
                 this.chosen_book.title = book_object.volumeInfo?.title;
                 this.chosen_book.authors = book_object.volumeInfo?.authors;
@@ -416,6 +435,7 @@ export default{
                 this.chosen_book = book_object;
                 this.openAddBook = true;
             }
+            this.fetch_book_rating();
             this.showList = false;
 
         },
@@ -739,7 +759,58 @@ export default{
         },
         cancelAddGenre(){
             this.openAddGenre = false;
-        }
+        },
+        async fetch_book_rating(){
+            try
+            {
+                const response = await fetch(`http://127.0.0.1:8000/book-rating/?book_id=${this.chosen_book.id}`,
+                {    
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    credentials: "include", 
+                })
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch book: ${response.status}`);
+                }
+                const data = await response.json();
+                this.rating = data.book_rating || 0;
+            }
+            catch (error){
+                console.error("Error fetching book:", error);
+            } 
+        },
+        async rateBook(rating){
+
+            this.rating = rating;
+            try
+            {
+                const response = await fetch("http://127.0.0.1:8000/book-rating/",
+                {    
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    body: JSON.stringify({ book_id: this.chosen_book.id, book_rating: rating }),
+                    credentials: "include", 
+                })
+                if (!response.ok) {
+                        throw new Error(`Failed to add book: ${response.status}`);
+                    }
+            }
+            catch (error){
+                console.error("Error adding book:", error);
+            }
+        },
+        hoverStar(star){
+            this.hoveredStar= star;
+        },
+        resetHover(){
+            this.hoveredStar = 0;
+        },
 
     },
     async mounted() {
@@ -1038,6 +1109,23 @@ body{
     padding-right: 2rem;
     border-radius: 1.5rem;
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+}
+.chosen_book_authors_dashboard{
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    width: 55rem;
+    justify-content: space-between;
+    align-items: center;
+}
+.chosen_book_authors_dashboard_div{
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    width: 40rem;
+    max-width: 40rem;
+    flex-wrap: wrap;
 }
 .genre_book_container{
     width: 43.5rem;
@@ -1883,5 +1971,35 @@ body{
     transition: 0.2s ease;
     font-weight: bold;
     box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.star_rating_div_dashboard{
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    width: 14rem;
+}
+.star_rating_div_dashboard p{
+    font-size: 1rem;
+    margin-right: 0.5rem;
+    font-weight: 501;
+}
+.star_dashboard{
+    all: unset;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    font-weight: 601;
+    cursor: pointer;
+    color: #FAA916;
+}
+.star_dashboard:hover{
+    color: #FAA916;
+}
+.star_dashboard.filled{
+    color: #FAA916;
 }
 </style>

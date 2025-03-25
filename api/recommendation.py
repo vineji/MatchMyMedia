@@ -68,6 +68,7 @@ def fetch_books_from_google_api(query):
                     continue
             
                 recommendations.append({
+                    "id" : book.get("id"),
                     "title" : volumeInfo.get("title", "Unknown Title"),
                     "authors" : volumeInfo.get("authors", ["Unknown Author"]),
                     "published_date" : volumeInfo.get("publishedDate", "Unknown"),
@@ -88,6 +89,7 @@ def fetch_books_from_google_api(query):
                     continue
             
                 recommendations.append({
+                    "id" : book.get("id"),
                     "title" : volumeInfo.get("title", "Unknown Title"),
                     "authors" : volumeInfo.get("authors", ["Unknown Author"]),
                     "published_date" : volumeInfo.get("publishedDate", "Unknown"),
@@ -142,6 +144,7 @@ def fetch_books_from_google_api_using_id(id):
         categories = volumeInfo.get("categories", [])
 
         return {
+            "id" : book_data.get("id"),
             "title" : volumeInfo.get("title", "Unknown Title"),
             "authors" : volumeInfo.get("authors", ["Unknown Author"]),
             "published_date" : volumeInfo.get("publishedDate", "Unknown"),
