@@ -1,7 +1,6 @@
 <template>
     <div class="social_container">
         <div class="other_container">
-            {{ userList }}
         </div>
         <div class="user_list_container">
             <h1>Other Users</h1>
@@ -9,8 +8,8 @@
                 <div class="sort_by_container">
                     <button class="sort_button" @click="fetch_all_user">Sort by</button>
                     <select class="sort_select" v-model="sortBy">
-                        <option value="Most Common" >Most Common</option>
-                        <option value="Least Common" >Least Common</option>
+                        <option value="Most Common" >Most Common Genres</option>
+                        <option value="Least Common" >Least Common Genres </option>
                     </select>
                 </div>
                 <div class="filter_by_container">
@@ -18,7 +17,7 @@
                 </div>
             </div>
             
-            <li v-for="user in this.userList" :key="user" class="user_box">
+            <li v-for="user in userList" :key="user" class="user_box">
                 <div class="user_box_header">
                     <p><b>Online ID: </b>{{user.online_id}}</p>
                     <button class="add_friend_btn">Add Friend</button>
@@ -40,7 +39,7 @@ import { useUserStore } from '@/stores/userStore';
 export default {
     data() {
         return {
-            userList : {},
+            userList : [],
             sortBy : "Most Common"
         }
     },
@@ -82,7 +81,7 @@ export default {
         },
         async fetch_all_user(){
             try{
-                const response = await fetch("http://127.0.0.1:8000/user-list/",
+                const response = await fetch(`http://127.0.0.1:8000/user-list/?sort=${this.sortBy}`,
                 {    
                     method: "GET",
                     credentials: "include", 
@@ -229,7 +228,6 @@ export default {
     width: 19rem;
     display: flex;
     flex-direction: row;
-    background-color: aqua;
 }
 .sort_button{
     all: unset;
@@ -250,11 +248,11 @@ export default {
     color: #1b1b1eb0;
 }
 .sort_select{
-
     display: flex;
     align-items: center;
     background-color: #FBFFFE;
     font-size: 1.2rem;
+    width: 10.5rem;
     height: 2.5rem;
     padding-right: 1rem;
     padding-left: 1rem;

@@ -215,7 +215,11 @@ def user_view(request):
 
 @login_required
 def user_list_view(request):
+
     if request.method == "GET":
+
+
+        sort = request.GET.get("sort", "Most Common")
 
         all_users = get_user_model().objects.exclude(id = request.user.id)
 
@@ -246,6 +250,10 @@ def user_list_view(request):
                     all_users[j] = user
         
         all_users = [x.user_list_to_dict() for x in all_users]
+
+        if sort == "Least Common":
+            all_users = all_users[::-1]
+
 
         response_data = {
             "user_list" : all_users
