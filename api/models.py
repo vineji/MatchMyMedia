@@ -45,6 +45,17 @@ class User(AbstractUser):
             'favourite_books': self.favourite_books
 
         }
+    def user_list_to_dict(self):
+        return {
+            'online_id': self.online_id,
+            'favourite_genres': self.get_genres(),
+        }
+    def user_list_friend_to_dict(self):
+        return {
+            'online_id': self.online_id,
+            'favourite_genres': self.get_genres(),
+            'favourite_books': self.favourite_books
+        }
     
 
 class BookRating(models.Model):

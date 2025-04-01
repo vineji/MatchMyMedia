@@ -14,6 +14,7 @@ urlpatterns = [
     path('search-show/', views.show_search_view, name='search-show'),
     path('search-book/', views.book_search_view, name='search-book'),
     path('get-recommendations/', views.get_book_recommendations_view, name='get-recommendations'),
-    path('book-rating/', views.book_rating_view, name='book-rating')
+    path('book-rating/', views.book_rating_view, name='book-rating'),
+    path('user-list/', views.user_list_view, name='user-list'),
 ]
 

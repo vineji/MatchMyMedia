@@ -23,7 +23,6 @@ export const useUserStore = defineStore('userStore',{
                 this.username = parsedUser.username;
                 this.online_id = parsedUser.online_id;
                 this.favourite_genres = parsedUser.favourite_genres;
-
             }
         },
         updateUsername(username){

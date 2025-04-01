@@ -142,7 +142,6 @@ export default {
     components: {RecommendModal},
     data() {
         return {
-            userData: {},
             query : '',
             mediaList : [],
             searchMedia : 'Movies',
@@ -291,7 +290,7 @@ export default {
                     genres.push(this.getGenreName(media.genre_ids[i]))
                 }
                 media_map.set("title", media.title || media.name);
-                media_map.set("description",media.overview);
+                media_map.set("description", media.overview);
                 media_map.set("genre", genres);
             }
             else if(this.searchMedia == "Books"){

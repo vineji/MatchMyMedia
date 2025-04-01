@@ -19,6 +19,10 @@ from .forms import CustomUserCreationForm, CustomUserUpdateForm
 
 from .models import Genre, BookRating
 
+from datetime import date
+from django.utils.timezone import now
+from datetime import timedelta
+
 load_dotenv()
 
 
@@ -208,6 +212,46 @@ def user_view(request):
                 return JsonResponse({"error": str(e)}, status=500)
 
     return JsonResponse({"error": "Invalid request method"}, status=405)
+
+@login_required
+def user_list_view(request):
+    if request.method == "GET":
+
+        all_users = get_user_model().objects.exclude(id = request.user.id)
+
+        min_age = 0
+        max_age = 100
+
+        today = now().date()
+
+        if min_age:
+            min_age_date = today - timedelta(days=int(min_age)*365)
+            all_users = [x for x in all_users if x.DOB is not None and x.DOB <= min_age_date]
+        if max_age:
+            max_age_date = today - timedelta(days=int(max_age)*365)
+            all_users = [x for x in all_users if x.DOB is not None and x.DOB >= max_age_date]
+
+
+        logged_user_genres = set(request.user.favourite_genres.all())
+
+        def get_common_genre_count(user):
+            user_genres = set(user.favourite_genres.all())
+            return len(logged_user_genres & user_genres)
+        
+        for i in range(len(all_users)):
+            for j in range(i + 1, len(all_users)):
+                if get_common_genre_count(all_users[j]) > get_common_genre_count(all_users[i]):
+                    user = all_users[i]
+                    all_users[i] = all_users[j]
+                    all_users[j] = user
+        
+        all_users = [x.user_list_to_dict() for x in all_users]
+
+        response_data = {
+            "user_list" : all_users
+        }
+
+        return JsonResponse(response_data)
 
 @login_required
 def genre_view(request):

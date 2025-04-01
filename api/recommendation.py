@@ -42,6 +42,8 @@ def fetch_books_from_google_api(query):
             query_string = f"{' '.join(query['keywords'])} {query['genre']}"
             query_string_title = f"{query['title']}"
 
+            
+
             param_list = {
                 "q" : query_string,
                 "maxResults" : 40,
@@ -51,7 +53,7 @@ def fetch_books_from_google_api(query):
 
             param_list_title = {
                 "q" : query_string_title,
-                "maxResults" : 3,
+                "maxResults" : 5,
                 "startIndex" : start_index,
                 "key" : api_key
             }
@@ -59,6 +61,7 @@ def fetch_books_from_google_api(query):
             response_title = requests.get(url, params=param_list_title)
             response_title.raise_for_status()
             books_title_data = response_title.json()
+
 
             for book in books_title_data.get("items", []):
                 volumeInfo = book.get("volumeInfo", {})
@@ -143,13 +146,20 @@ def fetch_books_from_google_api_using_id(id):
         volumeInfo = book_data.get("volumeInfo", {})
         categories = volumeInfo.get("categories", [])
 
+        phrases_to_remove = ["<p>","</p>","<br>","</br>","<b>","</b>","<i>","</i>"]
+
+        description = volumeInfo.get("description", "No Description Available")
+
+        for x in phrases_to_remove:
+            description = description.replace(x, "")
+
         return {
             "id" : book_data.get("id"),
             "title" : volumeInfo.get("title", "Unknown Title"),
             "authors" : volumeInfo.get("authors", ["Unknown Author"]),
             "published_date" : volumeInfo.get("publishedDate", "Unknown"),
-            "description" : volumeInfo.get("description", "No Description Available"),
-            "categories" : categories,
+            "description" : description,
+            "categories" : categories[:3],
             "image" : volumeInfo.get("imageLinks", {}).get("thumbnail")
         }
 
@@ -188,7 +198,6 @@ def get_collaborative_filtering_recommendations():
     
     recommended_books = sorted(book_predictions.items(), key=lambda x : x[1], reverse=True)
 
-    print([book[0] for book in recommended_books[:10]])
 
     top_recommended_books= [fetch_books_from_google_api_using_id(book[0]) for book in recommended_books[:10]]
 
@@ -214,7 +223,6 @@ def get_recommended_books(media_query):
 
     cache_key = f"final_recommendations:{json.dumps(media_query, sort_keys=True)}"
 
-
     try:
 
         cached_recommendations = redis_client.get(cache_key)
@@ -235,7 +243,7 @@ def get_recommended_books(media_query):
     ranked_book_recommendations = rank_books_by_cosine_similarity(media_query, books)
 
     try:
-        redis_client.setex(cache_key, 600, json.dumps(ranked_book_recommendations))
+        redis_client.setex(cache_key, 1200, json.dumps(ranked_book_recommendations))
 
     except ConnectionError:
         print("Redis connect error. Skip cache writing")

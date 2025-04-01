@@ -3,6 +3,7 @@
         <h1>User Dashboard</h1>
         <router-link :to="{name: 'Main Page'}">Home</router-link>
         <button @click="logout">Logout</button>
+        <router-link :to="{name: 'Social Page'}">Community</router-link>
         <div class="dashboard_container">   
             <div class="user_info">
                 <h2 class="user_info_header">User Information</h2>
@@ -281,9 +282,7 @@ export default{
     },
     methods: {
         async fetch_csrf_token(){
-
             try{
-
                 const response = await fetch("http://127.0.0.1:8000/csrf/",
                 {    
                     method: "GET",
