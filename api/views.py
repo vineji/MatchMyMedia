@@ -220,11 +220,10 @@ def user_list_view(request):
 
 
         sort = request.GET.get("sort", "Most Common")
+        min_age = request.GET.get("minAge")
+        max_age = request.GET.get("maxAge")
 
         all_users = get_user_model().objects.exclude(id = request.user.id)
-
-        min_age = 0
-        max_age = 100
 
         today = now().date()
 
@@ -234,6 +233,9 @@ def user_list_view(request):
         if max_age:
             max_age_date = today - timedelta(days=int(max_age)*365)
             all_users = [x for x in all_users if x.DOB is not None and x.DOB >= max_age_date]
+        
+        if not min_age and not max_age:
+            all_users = list(all_users)
 
 
         logged_user_genres = set(request.user.favourite_genres.all())
@@ -310,7 +312,7 @@ def book_rating_view(request):
         book_id = request.GET.get('book_id')
 
         book_rating = BookRating.objects.filter(
-            user_id = request.user.id,
+            user = request.user,
             book_id = book_id,
         ).first()
 
@@ -327,7 +329,7 @@ def book_rating_view(request):
         rating = float(data.get('book_rating'))
         
         book_rating = BookRating.objects.filter(
-            user_id = request.user.id,
+            user = request.user,
             book_id = book_id,
         ).first()
 
@@ -336,7 +338,7 @@ def book_rating_view(request):
             book_rating.save()
         else:
             book_rating = BookRating.objects.create(
-            user_id = request.user.id,
+            user = request.user,
             book_id = book_id,
             rating = rating
         )

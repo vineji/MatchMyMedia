@@ -39,7 +39,7 @@ def fetch_books_from_google_api(query):
 
             url = "https://www.googleapis.com/books/v1/volumes"
             
-            query_string = f"{' '.join(query['keywords'])} {query['genre']}"
+            query_string = f"{query['keywords']} {query['genre']}"
             query_string_title = f"{query['title']}"
 
             
@@ -136,32 +136,34 @@ def extract_keywords(text, n=7):
 
 def fetch_books_from_google_api_using_id(id):
         
-        url = f"https://www.googleapis.com/books/v1/volumes/{id}"
 
-        response = requests.get(url)
-
-        response.raise_for_status()
-        book_data = response.json()
         
-        volumeInfo = book_data.get("volumeInfo", {})
-        categories = volumeInfo.get("categories", [])
+    url = f"https://www.googleapis.com/books/v1/volumes/{id}"
 
-        phrases_to_remove = ["<p>","</p>","<br>","</br>","<b>","</b>","<i>","</i>"]
+    response = requests.get(url)
 
-        description = volumeInfo.get("description", "No Description Available")
+    response.raise_for_status()
+    book_data = response.json()
+    
+    volumeInfo = book_data.get("volumeInfo", {})
+    categories = volumeInfo.get("categories", [])
 
-        for x in phrases_to_remove:
-            description = description.replace(x, "")
+    phrases_to_remove = ["<p>","</p>","<br>","</br>","<b>","</b>","<i>","</i>"]
 
-        return {
-            "id" : book_data.get("id"),
-            "title" : volumeInfo.get("title", "Unknown Title"),
-            "authors" : volumeInfo.get("authors", ["Unknown Author"]),
-            "published_date" : volumeInfo.get("publishedDate", "Unknown"),
-            "description" : description,
-            "categories" : categories[:3],
-            "image" : volumeInfo.get("imageLinks", {}).get("thumbnail")
-        }
+    description = volumeInfo.get("description", "No Description Available")
+
+    for x in phrases_to_remove:
+        description = description.replace(x, "")
+
+    return {
+        "id" : book_data.get("id"),
+        "title" : volumeInfo.get("title", "Unknown Title"),
+        "authors" : volumeInfo.get("authors", ["Unknown Author"]),
+        "published_date" : volumeInfo.get("publishedDate", "Unknown"),
+        "description" : description,
+        "categories" : categories[:3],
+        "image" : volumeInfo.get("imageLinks", {}).get("thumbnail")
+    }
 
 
 
@@ -172,11 +174,13 @@ def get_collaborative_filtering_recommendations():
 
     if not user_ratings:
         return []
+    
+    print(user_ratings)
 
     reader = Reader(rating_scale=(1,5))
 
     data = Dataset.load_from_df(
-        pd.DataFrame(list(user_ratings.values("user_id", "book_id", "rating"))),
+        pd.DataFrame(list(user_ratings.values("user__id", "book_id", "rating"))),
         reader
     )
 
@@ -205,17 +209,21 @@ def get_collaborative_filtering_recommendations():
 
 
 def rank_books_by_cosine_similarity(media_query, books):
+
+    book_descriptions = [book.get("description","") for book in books]
+
+    book_embeddings = model.encode(book_descriptions, convert_to_tensor=True)
      
     media_embedding = model.encode(media_query["description"], convert_to_tensor=True)
 
-    ranked_books = []
+    similarity_scores = util.pytorch_cos_sim(media_embedding, book_embeddings)
 
-    for book in books:
-        book_embedding = model.encode(book["description"], convert_to_tensor=True)
-        similarity_score = util.pytorch_cos_sim(media_embedding, book_embedding)
-        ranked_books.append((book,similarity_score))
+    similarity_scores = similarity_scores.squeeze(0).tolist()
+
+    ranked_books = list(zip(books, similarity_scores))
     
     ranked_books.sort(key=lambda x: x[1], reverse=True)
+
     return [book[0] for book in ranked_books][:39]
     
 

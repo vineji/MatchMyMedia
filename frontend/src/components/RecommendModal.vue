@@ -279,6 +279,8 @@ export default{
     flex-wrap: wrap;
     justify-content: flex-start;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
     gap: 1rem;
     padding-bottom: 1rem;
     padding-top: 0.5rem;
@@ -362,6 +364,8 @@ export default{
 .book_div_title{
     max-height: 6rem;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
     width: 9.5rem;
     padding-right: 0.1rem;
 }
@@ -382,6 +386,8 @@ export default{
     width: 9.6rem;
     max-height: 2.3rem;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -411,6 +417,8 @@ export default{
     justify-content: flex-start;
     max-height: 5rem;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
 }
 .books_li_categories::-webkit-scrollbar{
     width: 3px;
@@ -485,6 +493,8 @@ export default{
     width: 67.5rem;
     margin: 1rem;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
     display: flex;
     flex-direction: column;
     align-items: center;

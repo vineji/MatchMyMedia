@@ -220,7 +220,7 @@
                                     <p><b>Categories: </b> </p>
                                     <li class="chosen_genre" style="background-color: #9b9a9a;">Unknown</li>
                                 </ul>
-                                <p><b>Description: </b>{{ chosen_book?.description }}</p>
+                                <p><b>Description: </b>{{ chosen_book?.description || 'Description unavailable' }}</p>
                             </div>
                         </div>
                     </div>
@@ -1178,6 +1178,8 @@ body{
     height: 40rem;
     max-height: 40rem;
     overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
 }
 .books_ul::-webkit-scrollbar{
     width: 7px;
@@ -1200,6 +1202,8 @@ body{
 .book_div_title_modal{
     max-height: 6rem;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
     width: 8rem;
     max-width: 8rem;
     font-size: 0.8rem;
@@ -1280,6 +1284,8 @@ body{
     justify-content: flex-start;
     max-height: 10rem;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
     padding-right: 0.1rem;
     font-size: 0.8rem;
 }
@@ -1306,6 +1312,8 @@ body{
     width: 8rem;
     max-height: 2.3rem;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -1425,6 +1433,8 @@ body{
     height: 5rem;
     max-height: 5rem;
     overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
     overflow-x: hidden;
     display: flex;
     flex-direction: row;
@@ -1489,6 +1499,8 @@ body{
     max-width: 37rem;
     max-height: 15rem;
     overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
     overflow-x: hidden;
     display: flex;
     flex-direction: row;
@@ -1624,6 +1636,8 @@ body{
     width: 80rem;
     max-height: 32rem;
     overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
 }
 .chosen_book_div_modal::-webkit-scrollbar{
     width: 7px;
@@ -1812,6 +1826,8 @@ body{
     flex-wrap: wrap;
     gap: 1rem;
     overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
     padding-left: 0.2rem;
     padding-bottom: 1rem;
     padding-top: 0.5rem;
@@ -1877,6 +1893,8 @@ body{
     font-size: 0.8rem;
     max-height: 4rem;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
 }
 .favourite_book_div_title::-webkit-scrollbar{
     width: 3px;
@@ -1899,6 +1917,8 @@ body{
     max-width: 9.5rem;
     max-height: 2.3rem;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -1930,6 +1950,8 @@ body{
     justify-content: flex-start;
     max-height: 10rem;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
     font-size: 0.8rem;
 }
 .favourite_books_li_categories::-webkit-scrollbar{

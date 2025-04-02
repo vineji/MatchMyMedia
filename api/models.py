@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.contrib.postgres.fields import JSONField
 import json
+from django.contrib.auth import get_user_model
+
 
 # Create your models here.
 
@@ -59,9 +61,9 @@ class User(AbstractUser):
     
 
 class BookRating(models.Model):
-    user_id = models.IntegerField(default=0)
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
     book_id = models.CharField(max_length=255)
     rating = models.FloatField()
 
     def __str__(self):
-        return f"{self.user_id} - {self.book_id} - {self.rating}"
+        return f"{self.user.id} - {self.book_id} - {self.rating}"

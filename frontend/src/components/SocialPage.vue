@@ -13,10 +13,15 @@
                     </select>
                 </div>
                 <div class="filter_by_container">
-
+                    <button class="filter_button" @click="fetch_all_user">Filter</button>
+                    <label>Min age:</label>
+                    <input type="number" min="10" max="100" v-model.number="minAge">
+                    <label>Max age:</label>
+                    <input type="number" v-model.number="maxAge" min="10" max="100">
+                    <button class="reset_button" @click="reset">Reset</button>
                 </div>
             </div>
-            
+            <li class="user_box_not_found" v-if="userList.length == 0"> No users found</li>
             <li v-for="user in userList" :key="user" class="user_box">
                 <div class="user_box_header">
                     <p><b>Online ID: </b>{{user.online_id}}</p>
@@ -40,7 +45,9 @@ export default {
     data() {
         return {
             userList : [],
-            sortBy : "Most Common"
+            sortBy : "Most Common",
+            minAge : null,
+            maxAge : null,
         }
     },
     setup(){
@@ -81,7 +88,17 @@ export default {
         },
         async fetch_all_user(){
             try{
-                const response = await fetch(`http://127.0.0.1:8000/user-list/?sort=${this.sortBy}`,
+                const params = new URLSearchParams();
+                params.append('sort', this.sortBy);
+
+                if (this.minAge !== null){
+                    params.append('minAge', this.minAge);
+                }
+                if (this.maxAge !== null){
+                    params.append('maxAge', this.maxAge);
+                }
+
+                const response = await fetch(`http://127.0.0.1:8000/user-list/?${params.toString()}`,
                 {    
                     method: "GET",
                     credentials: "include", 
@@ -98,6 +115,12 @@ export default {
             catch (error){
                 console.error(`Error fetching user list, ${error}`)
             }
+        },
+        reset(){
+            this.minAge = null;
+            this.maxAge = null;
+            this.sortBy = "Most Common";
+            this.fetch_all_user();
         }
     },
     mounted(){
@@ -123,6 +146,21 @@ export default {
     gap: 1.5rem;
     width: 60rem;
 
+}
+.user_box_not_found{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 1.3rem;
+    width: 39rem;
+    padding-top: 1.5rem;
+    padding-right: 1.5rem;
+    padding-left: 1.5rem;
+    padding-bottom: 1.5rem;
+    background-color: #FBFFFE;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    font-size: 2rem;
+    gap: 1rem;
 }
 .user_box{
     display: flex;
@@ -167,6 +205,8 @@ export default {
     flex-direction: row;
     flex-wrap: wrap;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
     max-height: 5rem;
     gap: 0.8rem;
     width: 100%;
@@ -218,17 +258,13 @@ export default {
     width: 42rem;
 }
 .sort_by_container{
-    width: 18rem;
+    width: 16rem;
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
 }
-.filter_by_container{
-    width: 19rem;
-    display: flex;
-    flex-direction: row;
-}
+
 .sort_button{
     all: unset;
     background-color: #FAA916;
@@ -251,12 +287,67 @@ export default {
     display: flex;
     align-items: center;
     background-color: #FBFFFE;
-    font-size: 1.2rem;
-    width: 10.5rem;
+    font-size: 1.1rem;
+    width: 9rem;
     height: 2.5rem;
-    padding-right: 1rem;
-    padding-left: 1rem;
+    border-radius: 0.5rem;
     border: 2px solid #1B1B1E;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.filter_by_container{
+    width: 24rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.filter_by_container input{
+    all: unset;
+    background-color: #FBFFFE;
+    align-items: center;
+    width: 3rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.filter_by_container label{
+    font-weight: 500;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.reset_button{
+    all: unset;
+    margin-left: 0.9rem;
+    background-color: #e51635;
+    color: #FBFFFE;
+    font-size: 1.3rem;
+    font-weight: 700;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: 0.3s ease;
+
+}
+.reset_button:hover{
+    background-color: #e51635ca;
+    color: #fbfffed1;
+}
+.filter_button{
+    all: unset;
+    background-color: #41ceaa;
+    color: #1B1B1E;
+    font-size: 1.3rem;
+    font-weight: 700;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: 0.3s ease;
+}
+.filter_button:hover{
+    background-color: #41ceabd3;
+    color: #1b1b1eb0;
 }
 </style>

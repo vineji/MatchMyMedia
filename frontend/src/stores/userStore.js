@@ -36,6 +36,7 @@ export const useUserStore = defineStore('userStore',{
         },
         clearUser(){
             localStorage.removeItem("user");
+            sessionStorage.removeItem("user");
             this.user_id = null;
             this.username = null;
             this.online_id = null;
