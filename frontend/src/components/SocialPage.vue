@@ -27,13 +27,17 @@
                     <p><b>Online ID: </b>{{user.online_id}}</p>
                     <button class="add_friend_btn">Add Friend</button>
                 </div>
-                <p><b>Genres:</b></p>
+                <p><b>Favourite genres:</b></p>
                 <ul class="user_list_genre_container">
                     <li v-if="user.favourite_genres.length == 0"  class="user_list_genre" >No genres added yet</li>
                     <li v-for="genre in user.favourite_genres" :key="genre" :style="{backgroundColor: genre[1]}"  class="user_list_genre" >{{genre[0]}}</li>
                 </ul>
                 <button class="view_more_btn">View More</button>
             </li>
+            <div class="pagination_container">
+                <button :disabled="hasPrevious == false" @click="fetch_all_user(currentPage - 1)" class="pagination_button">Previous</button>
+                <button :disabled="hasNext == false" @click="fetch_all_user(currentPage + 1)" class="pagination_button">Next</button>
+            </div>
         </div>
         
     </div>
@@ -45,9 +49,14 @@ export default {
     data() {
         return {
             userList : [],
+            csrfToken : "",
             sortBy : "Most Common",
             minAge : null,
             maxAge : null,
+            currentPage: 1,
+            totalPages: 1,
+            hasNext: false,
+            hasPrevious: false,
         }
     },
     setup(){
@@ -86,10 +95,11 @@ export default {
                 console.error(`Error fetching token, ${error}`)
             }
         },
-        async fetch_all_user(){
+        async fetch_all_user(page = 1){
             try{
                 const params = new URLSearchParams();
-                params.append('sort', this.sortBy);
+                params.append('sort', this.sortBy.toString());
+                params.append('page', page.toString())
 
                 if (this.minAge !== null){
                     params.append('minAge', this.minAge);
@@ -107,6 +117,10 @@ export default {
                 if (response.ok){
                     const data = await response.json();
                     this.userList = data.user_list;
+                    this.currentPage = data.current_page;
+                    this.totalPages = data.total_pages;
+                    this.hasNext = data.has_next;
+                    this.hasPrevious = data.has_previous;
                 }
                 else{
                 console.log(`Failed to fetch user list, ${response.statusText}`)
@@ -182,10 +196,10 @@ export default {
     margin: 0;
 }
 .user_box_header{
-    margin-top: 1rem;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
     width: 100%;
 }
 .user_box_header p{
@@ -193,7 +207,7 @@ export default {
     padding: 0;
     text-align: left;
     font-size: 1.2rem;
-    width: 30rem;
+    width: 28rem;
 }
 .user_box_header b{
     padding-right: 1rem;
@@ -244,6 +258,16 @@ export default {
     margin: 0;
     padding: 0;
     all: unset;
+    background-color: #248eff;
+    color: #1B1B1E;
+    font-weight: 700;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-radius: 0.3rem;
+    font-size: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 .view_more_btn{
     all: unset;
@@ -349,5 +373,35 @@ export default {
 .filter_button:hover{
     background-color: #41ceabd3;
     color: #1b1b1eb0;
+}
+.pagination_container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 42rem;
+}
+.pagination_button{
+    all: unset;
+    font-weight: 500;
+    font-size: 1.2rem;
+    background-color: #FBFFFE;
+    color: #1B1B1E;
+    border: 3px solid #1B1B1E;
+    border-radius: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: 0.3s ease;
+}
+.pagination_button:hover{
+    background-color: #1B1B1E;
+    color: #FBFFFE;
+}
+.pagination_button:disabled{
+    background-color: #fbfffeb6;
+    color: #1b1b1e74;
+    border: 3px solid #1b1b1e74;
 }
 </style>

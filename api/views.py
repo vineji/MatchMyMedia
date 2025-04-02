@@ -23,6 +23,9 @@ from datetime import date
 from django.utils.timezone import now
 from datetime import timedelta
 
+from django.core.paginator import Paginator, Page
+
+
 load_dotenv()
 
 
@@ -218,7 +221,6 @@ def user_list_view(request):
 
     if request.method == "GET":
 
-
         sort = request.GET.get("sort", "Most Common")
         min_age = request.GET.get("minAge")
         max_age = request.GET.get("maxAge")
@@ -250,15 +252,24 @@ def user_list_view(request):
                     user = all_users[i]
                     all_users[i] = all_users[j]
                     all_users[j] = user
-        
-        all_users = [x.user_list_to_dict() for x in all_users]
+
 
         if sort == "Least Common":
             all_users = all_users[::-1]
+        
+        page_number = request.GET.get('page', 1)
+        paginator = Paginator(all_users, 5)
+        page_object = paginator.get_page(page_number)
 
+                
+        all_users = [x.user_list_to_dict() for x in page_object]
 
         response_data = {
-            "user_list" : all_users
+            "user_list" : all_users,
+            'total_pages': paginator.num_pages,
+            'current_page': page_object.number,
+            'has_next': page_object.has_next(),
+            'has_previous': page_object.has_previous(),
         }
 
         return JsonResponse(response_data)

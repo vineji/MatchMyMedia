@@ -734,6 +734,8 @@ li{
 .book_title{
     max-height: 5rem;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
     width: 9.1rem;
     padding-right: 0.1rem;
 }
@@ -836,8 +838,8 @@ li{
     margin: 0;
     font-size: 0.8rem;
     overflow-y: auto;
-    scrollbar-width: 1px;
-    scrollbar-color:  #1B1B1E #dcdcdc;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
 }
 
 .genre_list::-webkit-scrollbar{
