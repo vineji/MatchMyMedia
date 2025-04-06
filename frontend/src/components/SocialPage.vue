@@ -1,15 +1,5 @@
 <template>
     <div class="social_container">
-        <div class="other_container">
-            <li v-for="request in friendRequestList" :key="request" class="friend_request_container">
-                <p>ID: {{ request.id }}</p>
-                <p>From: {{ request.from_user_online_id }}</p>
-                <p>From ID: {{ request.from_user_id }}</p>
-                <p>me: {{ request.to_user_id }}</p>
-                <p>status: {{ request.status }}</p>
-                <button @click="acceptRequest(request.id)"> Accept</button>
-            </li>
-        </div>
         <div class="user_list_container">
             <h1>Other Users</h1>
             <div class="sort_filter_container">
@@ -64,7 +54,9 @@
                                 <li v-for="book in user.favourite_books" :key="book" class="other_user_book_li">
                                     <img :src="book.image" class="other_user_book_img"/>
                                     <div class="other_user_book_info_div">
-                                        <li><b>Title: </b>{{ book.title }}</li>
+                                        <p class="other_user_book_info_title"><b>Title: </b>{{ book.title }}</p>
+                                        <p><b>Published: </b>{{ book.published_date }}</p>
+                                        <ul class="other_user_book_info_authors" ><p style="padding-right: 0.5rem;"><b>Authors: </b></p><li v-for="author in book.authors" :key="author"><span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}</li></ul>
 
                                     </div>
                                 </li>
@@ -81,7 +73,20 @@
                 <button :disabled="hasNext == false" @click="fetch_all_user(currentPage + 1)" class="pagination_button">Next</button>
             </div>
         </div>
-        
+        <div class="other_container">
+            <nav>
+                <router-link :to="{name: 'Main Page'}">Home</router-link>
+                <router-link :to="{name: 'Dashboard Page'}">Dashboard</router-link>
+                
+            </nav>
+            <li v-for="request in friendRequestList" :key="request" class="friend_request_container">
+                <p>ID: {{ request.id }}</p>
+                <p v-if="request.type == 'incoming request'">From: {{ request.from_user_online_id }}</p>
+                <p v-if="request.type == 'outgoing request'">To: {{ request.to_user_online_id }}</p>
+                <p>status: {{ request.status }}</p>
+                <button @click="acceptRequest(request.id)" v-if="request.type == 'incoming request'"> Accept</button>
+            </li>
+        </div>
     </div>
 
 </template>
@@ -242,27 +247,6 @@ export default {
                 console.error("Error sending request:", error);
             }
         },
-        async fetch_friendships(){
-            try{
-                const response = await fetch(`http://127.0.0.1:8000/friendship/`,
-                {    
-                    method: "GET",
-                    credentials: "include", 
-                });
-
-                if (response.ok){
-                    const data = await response.json();
-                    
-                    this.friendshipList = data.map(friend => friend.friend_id);
-                }
-                else{
-                console.log(`Failed to fetch friend requests, ${response.statusText}`)
-                }
-            }
-            catch (error){
-                console.error(`Error fetching friend requests, ${error}`)
-            }
-        },
         viewMore(user){
             if (user.is_friend == false){
                 alert("You needs to be friends to view more info");
@@ -282,7 +266,6 @@ export default {
         this.fetch_csrf_token();
         this.fetch_all_user();
         this.fetch_friend_requests();
-        this.fetch_friendships();
     }
 }
 
@@ -662,13 +645,46 @@ export default {
 .other_user_book_img{
     width: 7.3rem;
     height: 11rem;
+    border-radius: 0.3rem;
 }
 .other_user_book_info_div{
     width: 12rem;
-    background-color: #248eff;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    font-size: 1.1rem;
+    font-size: 1rem;
+    gap: 0.3rem;
+}
+.other_user_book_info_div p{
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+.other_user_book_info_title{
+    max-height: 3rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
+}
+.other_user_book_info_title::-webkit-scrollbar{
+    width: 3px;
+}
+
+.other_user_book_info_title::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.other_user_book_info_title::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
+}
+.other_user_book_info_authors{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: wrap;
 }
 </style>

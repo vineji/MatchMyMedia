@@ -27,6 +27,8 @@ from datetime import timedelta
 
 from django.core.paginator import Paginator, Page
 
+from django.db.models import Q
+
 
 load_dotenv()
 
@@ -501,9 +503,17 @@ def friend_request_view(request):
     
     elif request.method == "GET":
 
-        friend_request_list = FriendRequest.objects.filter(to_user = request.user, status='pending')
+        friend_request_recieved_list = FriendRequest.objects.filter(to_user = request.user, status='pending')
+        friend_request_sent_list = FriendRequest.objects.filter(Q(from_user = request.user) & Q(status='pending') | Q(status='declined'))
 
-        friend_request_list = [x.to_dict() for x in friend_request_list]
+        friend_request_list = []
+
+        for x in friend_request_recieved_list:
+            friend_request_list.append(x.to_dict_recieved())
+        
+        for x in friend_request_sent_list:
+            friend_request_list.append(x.to_dict_sent())
+
 
         return JsonResponse(friend_request_list, safe=False)
     

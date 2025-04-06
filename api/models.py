@@ -94,13 +94,20 @@ class FriendRequest(models.Model):
     class Meta:
         unique_together = ('from_user','to_user')
     
-    def to_dict(self):
+    def to_dict_recieved(self):
         return {
             'id' : self.id,
             'from_user_online_id': self.from_user.online_id,
-            'from_user_id': self.from_user.id,
-            'to_user_id': self.to_user.id,
             'status': self.status,
+            'type' : "incoming request"
+        }
+    
+    def to_dict_sent(self):
+        return {
+            'id' : self.id,
+            'to_user_online_id': self.to_user.online_id,
+            'status': self.status,
+            'type' : "outgoing request"
         }
 
 
