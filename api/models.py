@@ -45,18 +45,22 @@ class User(AbstractUser):
             'DOB': self.DOB,
             'favourite_genres': self.get_genres(),
             'favourite_books': self.favourite_books
-
         }
+    
     def user_list_to_dict(self):
         return {
+            'id': self.id,
             'online_id': self.online_id,
             'favourite_genres': self.get_genres(),
+            'is_friend': False
         }
     def user_list_friend_to_dict(self):
         return {
+            'id': self.id,
             'online_id': self.online_id,
             'favourite_genres': self.get_genres(),
-            'favourite_books': self.favourite_books
+            'favourite_books': self.favourite_books,
+            'is_friend': True
         }
     
 
@@ -67,3 +71,36 @@ class BookRating(models.Model):
 
     def __str__(self):
         return f"{self.user.id} - {self.book_id} - {self.rating}"
+
+class Friendship(models.Model):
+
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="logged_user")
+    friend = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="friends_of_logged_user")
+
+    class Meta:
+        unique_together = ('user','friend')
+    
+    def get_friend(self):
+        return {
+            "friend_id" : self.friend.id
+        }
+
+class FriendRequest(models.Model):
+
+    from_user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="sender")
+    to_user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="reciever")
+    status = models.CharField(max_length=10, choices=[('pending','Pending'),('accepted','Accepted'),('declined','Declined')], default='pending')
+
+    class Meta:
+        unique_together = ('from_user','to_user')
+    
+    def to_dict(self):
+        return {
+            'id' : self.id,
+            'from_user_online_id': self.from_user.online_id,
+            'from_user_id': self.from_user.id,
+            'to_user_id': self.to_user.id,
+            'status': self.status,
+        }
+
+

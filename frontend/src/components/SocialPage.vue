@@ -1,6 +1,14 @@
 <template>
     <div class="social_container">
         <div class="other_container">
+            <li v-for="request in friendRequestList" :key="request" class="friend_request_container">
+                <p>ID: {{ request.id }}</p>
+                <p>From: {{ request.from_user_online_id }}</p>
+                <p>From ID: {{ request.from_user_id }}</p>
+                <p>me: {{ request.to_user_id }}</p>
+                <p>status: {{ request.status }}</p>
+                <button @click="acceptRequest(request.id)"> Accept</button>
+            </li>
         </div>
         <div class="user_list_container">
             <h1>Other Users</h1>
@@ -25,14 +33,16 @@
             <li v-for="user in userList" :key="user" class="user_box">
                 <div class="user_box_header">
                     <p><b>Online ID: </b>{{user.online_id}}</p>
-                    <button class="add_friend_btn">Add Friend</button>
+                    <button class="add_friend_btn" v-if="user.is_friend == true">Friend</button>
+                    <button class="add_friend_btn" v-if="user.is_friend == false" @click="sendFriendRequest(user.id)">Add Friend</button>
                 </div>
                 <p><b>Favourite genres:</b></p>
                 <ul class="user_list_genre_container">
                     <li v-if="user.favourite_genres.length == 0"  class="user_list_genre" >No genres added yet</li>
                     <li v-for="genre in user.favourite_genres" :key="genre" :style="{backgroundColor: genre[1]}"  class="user_list_genre" >{{genre[0]}}</li>
                 </ul>
-                <button class="view_more_btn">View More</button>
+                <ul v-if="user.showMore == true">More information right here</ul>
+                <button class="view_more_btn" @click="viewMore(user)">View More</button>
             </li>
             <div class="pagination_container">
                 <button :disabled="hasPrevious == false" @click="fetch_all_user(currentPage - 1)" class="pagination_button">Previous</button>
@@ -57,6 +67,8 @@ export default {
             totalPages: 1,
             hasNext: false,
             hasPrevious: false,
+            friendRequestList: [],
+            friendshipList: [],
         }
     },
     setup(){
@@ -116,7 +128,10 @@ export default {
 
                 if (response.ok){
                     const data = await response.json();
-                    this.userList = data.user_list;
+                    this.userList = data.user_list.map(user => ({
+                        ...user,
+                        showMore : false,
+                    }));
                     this.currentPage = data.current_page;
                     this.totalPages = data.total_pages;
                     this.hasNext = data.has_next;
@@ -130,6 +145,100 @@ export default {
                 console.error(`Error fetching user list, ${error}`)
             }
         },
+        async sendFriendRequest(friend_id){
+            try
+            {
+                const response = await fetch("http://127.0.0.1:8000/friend-request/",
+                {    
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    body: JSON.stringify({ friend_id : friend_id }),
+                    credentials: "include", 
+                })
+
+                const data = await response.json();
+
+                alert(data.message);
+            }
+            catch (error){
+                console.error("Error sending request:", error);
+            }
+        },
+        async fetch_friend_requests(){
+            try{
+                const response = await fetch(`http://127.0.0.1:8000/friend-request/`,
+                {    
+                    method: "GET",
+                    credentials: "include", 
+                });
+
+                if (response.ok){
+                    const data = await response.json();
+                    this.friendRequestList = data;
+                }
+                else{
+                console.log(`Failed to fetch friend requests, ${response.statusText}`)
+                }
+            }
+            catch (error){
+                console.error(`Error fetching friend requests, ${error}`)
+            }
+        },
+        async acceptRequest(request_id){
+            try
+            {
+                const response = await fetch("http://127.0.0.1:8000/friend-request/",
+                {    
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    body: JSON.stringify({ request_id : request_id }),
+                    credentials: "include", 
+                })
+                this.fetch_friend_requests();
+                this.fetch_all_user();
+                const data = await response.json();
+
+                alert(data.message);
+            }
+            catch (error){
+                console.error("Error sending request:", error);
+            }
+        },
+        async fetch_friendships(){
+            try{
+                const response = await fetch(`http://127.0.0.1:8000/friendship/`,
+                {    
+                    method: "GET",
+                    credentials: "include", 
+                });
+
+                if (response.ok){
+                    const data = await response.json();
+                    
+                    this.friendshipList = data.map(friend => friend.friend_id);
+                }
+                else{
+                console.log(`Failed to fetch friend requests, ${response.statusText}`)
+                }
+            }
+            catch (error){
+                console.error(`Error fetching friend requests, ${error}`)
+            }
+        },
+        viewMore(user){
+            if (user.is_friend == false){
+                alert("You needs to be friends to view more info");
+            }
+            else{
+                user.showMore = !user.showMore;
+            }
+        },
         reset(){
             this.minAge = null;
             this.maxAge = null;
@@ -138,7 +247,10 @@ export default {
         }
     },
     mounted(){
+        this.fetch_csrf_token();
         this.fetch_all_user();
+        this.fetch_friend_requests();
+        this.fetch_friendships();
     }
 }
 
@@ -403,5 +515,11 @@ export default {
     background-color: #fbfffeb6;
     color: #1b1b1e74;
     border: 3px solid #1b1b1e74;
+}
+.friend_request_container{
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    justify-content: center;
 }
 </style>

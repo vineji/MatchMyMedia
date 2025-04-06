@@ -1,3 +1,4 @@
+from sqlite3 import IntegrityError
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.urls import reverse
@@ -17,7 +18,7 @@ from django.middleware.csrf import get_token
 
 from .forms import CustomUserCreationForm, CustomUserUpdateForm
 
-from .models import Genre, BookRating
+from .models import Genre, BookRating, FriendRequest, Friendship
 
 from datetime import date
 from django.utils.timezone import now
@@ -261,11 +262,19 @@ def user_list_view(request):
         paginator = Paginator(all_users, 5)
         page_object = paginator.get_page(page_number)
 
-                
-        all_users = [x.user_list_to_dict() for x in page_object]
+        friend_ids= set(Friendship.objects.filter(user=request.user).values_list('friend_id', flat=True))
+
+        final_all_users = []
+
+        for user in page_object:
+            if user.id in friend_ids:
+                final_all_users.append(user.user_list_friend_to_dict())
+            else:
+                final_all_users.append(user.user_list_to_dict())
+
 
         response_data = {
-            "user_list" : all_users,
+            "user_list" : final_all_users,
             'total_pages': paginator.num_pages,
             'current_page': page_object.number,
             'has_next': page_object.has_next(),
@@ -460,5 +469,83 @@ def get_book_recommendations_view(request):
         recommendations = recommendation.get_recommended_books(data) 
 
         return JsonResponse({"recommendations": recommendations})
+
+
+@login_required
+def friend_request_view(request):
+
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            from_user = request.user
+            to_user_id = data.get("friend_id")
+            to_user = get_user_model().objects.get(id = to_user_id)
+
+
+            if FriendRequest.objects.filter(from_user = from_user, to_user = to_user).exists():
+                return JsonResponse({"message" : "Already Sent"}, status = 400)
+            
+            elif FriendRequest.objects.filter(from_user = to_user, to_user = from_user).exists():
+                return JsonResponse({"message" : "This person has already sent a friend request to you"}, status = 400)
+            
+            FriendRequest.objects.create(from_user = from_user, to_user = to_user)
+            return JsonResponse({"message" : "Friend Request Sent"})
+            
+        except get_user_model().DoesNotExist:
+            return JsonResponse({"message" : " User Does Not Exists"}, status = 404)
+        
+        except Exception as e:
+            return JsonResponse({"message" : str(e)}, status = 500)
+    
+    elif request.method == "GET":
+
+        friend_request_list = FriendRequest.objects.filter(to_user = request.user, status='pending')
+
+        friend_request_list = [x.to_dict() for x in friend_request_list]
+
+        return JsonResponse(friend_request_list, safe=False)
+    
+    elif request.method == "PUT":
+
+        try:
+
+            data = json.loads(request.body)
+
+            friend_request_id = data.get("request_id")
+
+            friend_request = FriendRequest.objects.filter(id = friend_request_id, to_user = request.user).first()
+
+            friend_request.status = "accepted"
+            friend_request.save()
+
+            from_user = friend_request.from_user
+
+            try:
+                Friendship.objects.create(user=from_user, friend=request.user)
+                Friendship.objects.create(user=request.user, friend=from_user)
+
+            except IntegrityError:
+                return JsonResponse({"message" : "Friendship already exists"})
+
+            return JsonResponse({"message" : "Friend request accepted"})
+                
+        except get_user_model().DoesNotExist:
+            return JsonResponse({"message" : " User Does Not Exists"}, status = 404)
+
+@login_required
+def friendship_view(request):
+
+    if request.method== "GET":
+
+        friendship_list = Friendship.objects.filter(user = request.user)
+
+        friendship_list = [x.get_friend() for x in friendship_list]
+
+        return JsonResponse(friendship_list, safe=False)
+
+
+
+
+
 
 
