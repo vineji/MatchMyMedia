@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group, Permission
-from django.contrib.postgres.fields import JSONField
+from django.contrib.postgres.fields import JSONField 
 import json
 from django.contrib.auth import get_user_model
 

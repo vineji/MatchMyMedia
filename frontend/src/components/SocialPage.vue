@@ -41,8 +41,40 @@
                     <li v-if="user.favourite_genres.length == 0"  class="user_list_genre" >No genres added yet</li>
                     <li v-for="genre in user.favourite_genres" :key="genre" :style="{backgroundColor: genre[1]}"  class="user_list_genre" >{{genre[0]}}</li>
                 </ul>
-                <ul v-if="user.showMore == true">More information right here</ul>
                 <button class="view_more_btn" @click="viewMore(user)">View More</button>
+                <div v-if="user.showMore == true" class="other_user_modal">
+                    <div class="other_user_modal_container">
+                        <div class="other_user_modal_header">
+                            <h1>User Profile</h1>
+                            <div class="header_button_div">
+                                <button>Back</button>
+                                <button @click="user.showMore = false">Close</button>
+                            </div>
+                        </div>
+                        <div class="other_user_info_div">
+                            <p><b>Online ID: </b>{{user.online_id}}</p>
+                            <p><b>Favourite Genres:</b></p>
+                            <ul class="other_user_genre_container">
+                                <li v-if="user.favourite_genres.length == 0"  class="other_user_genre" >No genres added yet</li>
+                                <li v-for="genre in user.favourite_genres" :key="genre" :style="{backgroundColor: genre[1]}"  class="other_user_genre" >{{genre[0]}}</li>
+                            </ul>
+                            <p><b>Favourite Books:</b></p>
+                            <ul class="other_user_book_container">
+                                <li v-if="user.favourite_books.length == 0"> User has not favourited any books yet</li>
+                                <li v-for="book in user.favourite_books" :key="book" class="other_user_book_li">
+                                    <img :src="book.image" class="other_user_book_img"/>
+                                    <div class="other_user_book_info_div">
+                                        <li><b>Title: </b>{{ book.title }}</li>
+
+                                    </div>
+                                </li>
+                            </ul>
+
+                        </div>
+
+                    </div>
+
+                </div>
             </li>
             <div class="pagination_container">
                 <button :disabled="hasPrevious == false" @click="fetch_all_user(currentPage - 1)" class="pagination_button">Previous</button>
@@ -521,5 +553,122 @@ export default {
     flex-direction: row;
     gap: 2rem;
     justify-content: center;
+}
+.other_user_modal{
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    background: rgba(0,0,0,0.5);
+    width: 100%;
+    height: 100%;
+}
+.other_user_modal_container{
+    background-color: #FBFFFE;
+    width: 48rem;
+    height: 38rem;
+    padding: 3rem;
+    padding-top: 2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.other_user_modal_header{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+.other_user_modal_header h1{
+    margin: 0;
+}
+.other_user_info_div{
+    margin-top: 2rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 1.5rem;
+    gap: 1rem;
+}
+.other_user_genre_container{
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
+    max-height: 7rem;
+    gap: 0.8rem;
+    width: 100%;
+    padding-left: 0.1rem;
+    padding-bottom: 0.3rem;
+
+}
+.other_user_genre{
+    color: #FBFFFE;
+    background-color: grey;
+    font-size: 1.4rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    padding-left: 0.9rem;
+    padding-right: 0.9rem;
+    border-radius: 0.6rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.other_user_book_container{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    justify-content: flex-start;
+    height: 14rem;
+    max-height: 14rem;
+    overflow-y: auto;
+    padding-left: 0.5rem;
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+}
+.other_user_book_li{
+    width: 42%;
+    padding: 1rem;
+    background-color: #FBFFFE;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: 0.3s ease;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 11rem;
+    max-height: 11rem;
+}
+.other_user_book_li:hover{
+    transform: scale(1.06);
+}
+.other_user_book_img{
+    width: 7.3rem;
+    height: 11rem;
+}
+.other_user_book_info_div{
+    width: 12rem;
+    background-color: #248eff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    font-size: 1.1rem;
 }
 </style>

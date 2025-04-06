@@ -36,6 +36,10 @@
         :loggedUser="loggedUser.online_id"
         @close="isModalVisible = false"
         />
+        <div v-if="mediaList.length == 0 && isLoading == false && searchMedia == 'Books'" class="no_more_books">
+            <p>No more book results</p>
+            <button @click="search(true)">Go Back</button>
+        </div>
         <div v-if="mediaList.length > 0" class="media_list">
             <ul class="media_list_ul">
                 <li class="media_list_li" v-for="media in mediaList" :key="media.id">
@@ -156,6 +160,7 @@ export default {
             stars : [1,2,3,4,5],
             rating : 0,
             hoveredStar : 0,
+            isLoading : false,
         };
     },
     setup(){
@@ -212,6 +217,7 @@ export default {
             }
         },
         async search(newSearch){
+            this.isLoading = true;
 
             this.show_ChosenMedia = false;
             this.chosenMedia = null;
@@ -271,6 +277,7 @@ export default {
                     console.error('error catching data', error)
                 }
             }
+            this.isLoading = false;
 
         },
         async recommendBooks(media){
@@ -514,6 +521,43 @@ li{
     display: flex;
     flex-direction: row;
     gap: 1rem;
+}
+.no_more_books{
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 26rem;
+    justify-content: space-between;
+}
+.no_more_books p{
+    border-radius: 0.8rem;
+    background: #FBFFFE;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    font-size: 1.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.7rem;
+    padding-bottom: 0.7rem;
+}
+.no_more_books button{
+    all: unset;
+    background-color: #e51635;
+    color: #FBFFFE;
+    font-weight: 400;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    height: 2.4rem;
+    font-size: 1.5rem;
+    border-radius: 0.8rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: 0.3s ease;
+}
+.no_more_books button:hover{
+    background-color: #e51635c5;
+
 }
 .searchbar {
     display: flex;

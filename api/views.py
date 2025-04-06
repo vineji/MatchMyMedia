@@ -1,3 +1,4 @@
+import math
 from sqlite3 import IntegrityError
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
@@ -433,8 +434,8 @@ def book_search_view(request):
 
         title = request.GET.get('title', '')
         page_number = request.GET.get('page', 1)
-        startIndex = 10 * (int(page_number) - 1)
         maxItemsPerPage = 20
+        startIndex = maxItemsPerPage * (int(page_number) - 1)
 
         api_key = os.getenv("GOOGLE_BOOKS_API_KEY")
 
@@ -447,8 +448,9 @@ def book_search_view(request):
 
         if response.status_code == 200:
             data = response.json()
-            books = data['items']
-            total_pages = data['totalItems'] // maxItemsPerPage
+            books = data.get('items', [])
+            total_items = data.get('totalItems', 0)
+            total_pages = math.ceil(total_items / maxItemsPerPage) if books else 0
             current_page = page_number
 
             response_data = {
