@@ -35,13 +35,14 @@
                 <div v-if="user.showMore == true" class="other_user_modal">
                     <div class="other_user_modal_container">
                         <div class="other_user_modal_header">
-                            <h1>User Profile</h1>
+                            <h1 v-if="showMoreInfo == false">User Profile</h1>
+                            <h1 v-if="showMoreInfo == true">Book Information</h1>
                             <div class="header_button_div">
-                                <button>Back</button>
-                                <button @click="user.showMore = false">Close</button>
+                                <button v-if="showMoreInfo == true" @click="backPage" class="back_btn">Back</button>
+                                <button @click="closeViewMore(user)" class="close_btn">Close</button>
                             </div>
                         </div>
-                        <div class="other_user_info_div">
+                        <div class="other_user_info_div" v-if="showMoreInfo == false">
                             <p><b>Online ID: </b>{{user.online_id}}</p>
                             <p><b>Favourite Genres:</b></p>
                             <ul class="other_user_genre_container">
@@ -54,30 +55,57 @@
                                 <li v-for="book in user.favourite_books" :key="book" class="other_user_book_li">
                                     <img :src="book.image" class="other_user_book_img"/>
                                     <div class="other_user_book_info_div">
-                                        <p class="other_user_book_info_title"><b>Title: </b>{{ book.title }}</p>
-                                        <p><b>Published: </b>{{ book.published_date }}</p>
-                                        <ul class="other_user_book_info_authors" ><p style="padding-right: 0.5rem;"><b>Authors: </b></p><li v-for="author in book.authors" :key="author"><span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}</li></ul>
-
+                                        <p class="other_user_book_info_title"><b>Title: </b>{{ book.title || "Unavailable" }}</p>
+                                        <p><b>Published: </b>{{ book.published_date || "Unavailable" }}</p>
+                                        <ul class="other_user_book_info_authors" >
+                                            <p style="padding-right: 0.5rem;"><b>Authors: </b></p>
+                                            <li v-if="!book.authors || book.authors.length === 0">Unavailable</li>
+                                            <li style="text-align: left;" v-for="(author,index) in book?.authors" :key="index">
+                                                <span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}
+                                            </li>
+                                        </ul>
+                                        <ul class="other_user_book_info_genres">
+                                            <p style="padding-right: 0.5rem;"><b>Genres: </b></p>
+                                            <li v-if="!book.categories || book.categories.length === 0" style="background-color: grey;" class="other_book_genre">Unavailable</li>
+                                            <li v-for="category in book.categories" :key="category" class="other_book_genre">{{ category }}</li>
+                                        </ul>
+                                        <button @click="moreInfo(book)" class="other_book_more_info_btn" >More Info</button>
                                     </div>
                                 </li>
                             </ul>
-
                         </div>
-
+                        <div v-if="showMoreInfo == true" class="more_info_book_div" >
+                            <img :src="moreInfoBook.image" class="more_info_book_img">
+                            <div class="more_info_info_div">
+                                <p><b>Title: </b>{{ moreInfoBook.title || "Unavailable" }}</p>
+                                <p><b>Published: </b>{{ moreInfoBook.published_date || "Unavailable" }}</p>
+                                <ul class="more_info_info_authors" >
+                                    <p style="padding-right: 0.5rem;"><b>Authors: </b></p>
+                                    <li v-if="!moreInfoBook.authors || moreInfoBook.authors.length === 0">Unavailable</li>
+                                    <li style="text-align: left;" v-for="(author,index) in moreInfoBook?.authors" :key="index">
+                                        <span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}
+                                    </li>
+                                </ul>
+                                <ul class="more_info_info_genres_container">
+                                    <p style="padding-right: 0.5rem;"><b>Genres: </b></p>
+                                    <li v-if="!moreInfoBook.categories || moreInfoBook.categories.length === 0" style="background-color: grey;" class="more_info_info_genre">Unavailable</li>
+                                    <li v-for="category in moreInfoBook.categories" :key="category" class="more_info_info_genre">{{ category }}</li>
+                                </ul>
+                                <p style="margin-top: 0.5rem;"><b>Description: </b>{{ moreInfoBook.description || "Unavailable" }}</p>
+                            </div>
+                        </div>
                     </div>
-
                 </div>
             </li>
             <div class="pagination_container">
-                <button :disabled="hasPrevious == false" @click="fetch_all_user(currentPage - 1)" class="pagination_button">Previous</button>
-                <button :disabled="hasNext == false" @click="fetch_all_user(currentPage + 1)" class="pagination_button">Next</button>
+                <button :disabled="hasPrevious == false" @click="prevPage()" class="pagination_button">Previous</button>
+                <button :disabled="hasNext == false" @click="nextPage()" class="pagination_button">Next</button>
             </div>
         </div>
         <div class="other_container">
-            <nav>
-                <router-link :to="{name: 'Main Page'}">Home</router-link>
-                <router-link :to="{name: 'Dashboard Page'}">Dashboard</router-link>
-                
+            <nav class="social_page_nav">
+                <router-link class="nav_btn_dashboard" :to="{name: 'Dashboard Page'}">Dashboard</router-link>
+                <router-link class="nav_btn_search_books" :to="{name: 'Main Page'}">Search Books</router-link>
             </nav>
             <li v-for="request in friendRequestList" :key="request" class="friend_request_container">
                 <p>ID: {{ request.id }}</p>
@@ -106,6 +134,8 @@ export default {
             hasPrevious: false,
             friendRequestList: [],
             friendshipList: [],
+            showMoreInfo: false,
+            moreInfoBook: {},
         }
     },
     setup(){
@@ -197,7 +227,7 @@ export default {
                 })
 
                 const data = await response.json();
-
+                this.fetch_friend_requests();
                 alert(data.message);
             }
             catch (error){
@@ -260,7 +290,29 @@ export default {
             this.maxAge = null;
             this.sortBy = "Most Common";
             this.fetch_all_user();
+        },
+        moreInfo(book){
+            this.showMoreInfo = true;
+            this.moreInfoBook = book;
+        },
+        backPage(){
+            this.showMoreInfo = false;
+            this.moreInfoBook = null;
+        },
+        closeViewMore(user){
+            user.showMore = false;
+            this.showMoreInfo = false;
+            this.moreInfoBook = null;
+        },
+        prevPage(){
+            this.fetch_all_user(this.currentPage - 1);
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        },
+        nextPage(){
+            this.fetch_all_user(this.currentPage + 1);
+            window.scrollTo({top: 0, behavior: 'smooth'});
         }
+
     },
     mounted(){
         this.fetch_csrf_token();
@@ -385,16 +437,15 @@ export default {
     margin: 0;
     padding: 0;
     all: unset;
-    background-color: #248eff;
-    color: #1B1B1E;
+    background-color: #03b1d4;
+    color: #FBFFFE;
     font-weight: 700;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
     padding-left: 1rem;
     padding-right: 1rem;
-    border-radius: 0.3rem;
+    border-radius: 0.4rem;
     font-size: 1rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 .view_more_btn{
     all: unset;
@@ -592,11 +643,11 @@ export default {
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: #1B1B1E #f0efef;
-    max-height: 7rem;
+    max-height: 8rem;
     gap: 0.8rem;
     width: 100%;
     padding-left: 0.1rem;
-    padding-bottom: 0.3rem;
+    padding-bottom: 0.2rem;
 
 }
 .other_user_genre{
@@ -619,12 +670,26 @@ export default {
     flex-wrap: wrap;
     gap: 1.5rem;
     justify-content: flex-start;
-    height: 14rem;
-    max-height: 14rem;
+    height: 15rem;
+    max-height: 15rem;
     overflow-y: auto;
-    padding-left: 0.5rem;
+    padding-left: 1rem;
     padding-top: 0.3rem;
-    padding-bottom: 0.3rem;
+    padding-bottom: 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
+}
+.other_user_book_container::-webkit-scrollbar{
+    width: 3px;
+}
+
+.other_user_book_container::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.other_user_book_container::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
 }
 .other_user_book_li{
     width: 42%;
@@ -652,8 +717,9 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    font-size: 1rem;
-    gap: 0.3rem;
+    justify-content: flex-start;
+    font-size: 0.9rem;
+    gap: 0.1rem;
 }
 .other_user_book_info_div p{
     margin: 0;
@@ -661,7 +727,7 @@ export default {
     text-align: left;
 }
 .other_user_book_info_title{
-    max-height: 3rem;
+    max-height: 4rem;
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: #1B1B1E #f0efef;
@@ -686,5 +752,230 @@ export default {
     flex-direction: row;
     justify-content: flex-start;
     flex-wrap: wrap;
+    overflow-y: auto;
+    max-height: 2.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
 }
+.other_user_book_info_authors::-webkit-scrollbar{
+    width: 3px;
+}
+
+.other_user_book_info_authors::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.other_user_book_info_authors::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
+}
+.other_user_book_info_genres{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    max-height: 5rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
+}
+.other_user_book_info_genres::-webkit-scrollbar{
+    width: 3px;
+}
+
+.other_user_book_info_genres::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.other_user_book_info_genres::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
+}
+.other_book_genre{
+    font-size: 0.85rem;
+    color: #FBFFFE;
+    background-color: darkblue;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+    border-radius: 0.3rem;
+}
+.other_book_more_info_btn{
+    all: unset;
+    margin: 0;
+    padding: 0;
+    align-self: center;
+    margin-top: auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    padding-right: 2rem;
+    padding-left: 2rem;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+    border-radius: 0.3rem;
+    font-weight: 400;
+    transition: 0.3s ease;
+}
+.other_book_more_info_btn:hover{
+    transform: scale(1.05);
+    background-color: #41ceaa;
+    font-weight: 500;
+}
+.more_info_book_div{
+    margin-top: 1rem;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding-right: 1rem;
+    overflow-y: auto;
+    font-size: 1.05rem;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
+}
+.more_info_book_div::-webkit-scrollbar{
+    width: 3px;
+}
+
+.more_info_book_div::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.more_info_book_div::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
+}
+.more_info_book_img{
+    width: 11rem;
+    height: 16.6rem;
+    border-radius: 0.5rem;
+}
+.more_info_info_div{
+    width: 35rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+    text-align: left;
+}
+.more_info_info_authors{
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+}
+
+.more_info_info_genres_container{
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.more_info_info_genre{
+    padding: 0;
+    margin: 0;
+    background-color: darkblue;
+    color: #FBFFFE;
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+    padding-right: 0.6rem;
+    padding-left: 0.6rem;
+    border-radius: 0.4rem;
+}
+
+.back_btn{
+    all: unset;
+    margin-right: 1rem;
+    background-color: #FAA916;
+    color: #1B1B1E;
+    font-weight: 500;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+    border-radius: 0.4rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: 0.3s ease;
+}
+.back_btn:hover{
+    background-color: #faaa16be;
+    color: #1b1b1e8f;
+}
+.close_btn{
+    all: unset;
+    background-color: #e51635;
+    color: #FBFFFE;
+    font-weight: 500;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+    border-radius: 0.4rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: 0.3s ease;
+}
+
+.close_btn:hover{
+    background-color: #e51635ba;
+    color: #fbfffec9;
+}
+.social_page_nav{
+    width: 38rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    height: 5rem;
+}
+.nav_btn_dashboard{
+    all: unset;
+    background-color: #FBFFFE;
+    border: 3px solid #1B1B1E;
+    font-weight: 500;
+    color: #1B1B1E;
+    font-size: 1.1rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+    border-radius: 0.6rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: 0.3s ease;
+    cursor: pointer;
+}
+.nav_btn_dashboard:hover{
+    background-color: #1B1B1E;
+    color: #FBFFFE;
+}
+.nav_btn_search_books{
+    all: unset;
+    background-color: #FBFFFE;
+    border: 3px solid #41ceaa;
+    font-weight: 500;
+    color: #41ceaa;
+    font-size: 1.1rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+    border-radius: 0.6rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: 0.3s ease;
+    cursor: pointer;
+}
+.nav_btn_search_books:hover{
+    background-color: #41ceaa;
+    color: #FBFFFE;
+}
+
 </style>

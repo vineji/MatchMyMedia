@@ -36,7 +36,7 @@
         :loggedUser="loggedUser.online_id"
         @close="isModalVisible = false"
         />
-        <div v-if="mediaList.length == 0 && isLoading == false && searchMedia == 'Books'" class="no_more_books">
+        <div v-if="mediaList.length == 0 && isLoading == false && searchMedia == 'Books' && chosenMedia == null" class="no_more_books">
             <p>No more book results</p>
             <button @click="search(true)">Go Back</button>
         </div>

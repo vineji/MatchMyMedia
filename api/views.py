@@ -504,7 +504,7 @@ def friend_request_view(request):
     elif request.method == "GET":
 
         friend_request_recieved_list = FriendRequest.objects.filter(to_user = request.user, status='pending')
-        friend_request_sent_list = FriendRequest.objects.filter(Q(from_user = request.user) & Q(status='pending') | Q(status='declined'))
+        friend_request_sent_list = FriendRequest.objects.filter(Q(from_user = request.user) & Q(status='pending'))
 
         friend_request_list = []
 
