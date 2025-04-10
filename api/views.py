@@ -485,12 +485,14 @@ def friend_request_view(request):
             to_user_id = data.get("friend_id")
             to_user = get_user_model().objects.get(id = to_user_id)
 
+            existing_request= FriendRequest.objects.filter(Q(from_user = from_user, to_user=to_user) | Q(from_user=to_user, to_user=from_user)).first()
 
-            if FriendRequest.objects.filter(from_user = from_user, to_user = to_user).exists():
-                return JsonResponse({"message" : "Already Sent"}, status = 400)
-            
-            elif FriendRequest.objects.filter(from_user = to_user, to_user = from_user).exists():
-                return JsonResponse({"message" : "This person has already sent a friend request to you"}, status = 400)
+            if existing_request:
+                if existing_request.status == "pending":
+                    return JsonResponse({"message" : "There is already a pending request between you two"})
+                elif existing_request.status == "declined":
+                    return JsonResponse({"message" : "Friend request was declined between you two"})
+
             
             FriendRequest.objects.create(from_user = from_user, to_user = to_user)
             return JsonResponse({"message" : "Friend Request Sent"})
@@ -503,8 +505,8 @@ def friend_request_view(request):
     
     elif request.method == "GET":
 
-        friend_request_recieved_list = FriendRequest.objects.filter(to_user = request.user, status='pending')
-        friend_request_sent_list = FriendRequest.objects.filter(Q(from_user = request.user) & Q(status='pending'))
+        friend_request_recieved_list = FriendRequest.objects.filter(to_user = request.user)
+        friend_request_sent_list = FriendRequest.objects.filter(from_user = request.user)
 
         friend_request_list = []
 
@@ -519,30 +521,51 @@ def friend_request_view(request):
     
     elif request.method == "PUT":
 
-        try:
+        data = json.loads(request.body)
 
-            data = json.loads(request.body)
+        action = data.get("action")
 
-            friend_request_id = data.get("request_id")
-
-            friend_request = FriendRequest.objects.filter(id = friend_request_id, to_user = request.user).first()
-
-            friend_request.status = "accepted"
-            friend_request.save()
-
-            from_user = friend_request.from_user
+        if action == "accept":
 
             try:
-                Friendship.objects.create(user=from_user, friend=request.user)
-                Friendship.objects.create(user=request.user, friend=from_user)
 
-            except IntegrityError:
-                return JsonResponse({"message" : "Friendship already exists"})
+                friend_request_id = data.get("request_id")
 
-            return JsonResponse({"message" : "Friend request accepted"})
-                
-        except get_user_model().DoesNotExist:
-            return JsonResponse({"message" : " User Does Not Exists"}, status = 404)
+                friend_request = FriendRequest.objects.filter(id = friend_request_id, to_user = request.user).first()
+
+                friend_request.status = "accepted"
+                friend_request.save()
+
+                from_user = friend_request.from_user
+
+                try:
+                    Friendship.objects.create(user=from_user, friend=request.user)
+                    Friendship.objects.create(user=request.user, friend=from_user)
+
+                except IntegrityError:
+                    return JsonResponse({"message" : "Friendship already exists"})
+
+                return JsonResponse({"message" : "Friend request accepted"})
+                    
+            except get_user_model().DoesNotExist:
+                return JsonResponse({"message" : " User Does Not Exists"}, status = 404)
+            
+        elif action == "decline":
+            try:
+
+                friend_request_id = data.get("request_id")
+
+                friend_request = FriendRequest.objects.filter(id = friend_request_id, to_user = request.user).first()
+
+                friend_request.status = "declined"
+                friend_request.save()
+
+                return JsonResponse({"message" : "Friend request declined"})
+            
+            except get_user_model().DoesNotExist:
+                return JsonResponse({"message" : " User Does Not Exists"}, status = 404)
+
+
 
 @login_required
 def friendship_view(request):

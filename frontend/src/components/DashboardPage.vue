@@ -11,7 +11,7 @@
                     <li class="user_info_li">
                         <p><b>Username</b></p>
                         <div class="user_info_div">
-                            <input class="user_info_div_input" v-model="user_data.username" :placeholder="user_data.username" :readonly="readUsername">
+                            <input class="user_info_div_input" v-model="user_data.username" :placeholder="user_data.username" :readonly="readUsername" maxlength="15">
                             <button v-if="readUsername == true" class="change_btn" @click="changeUsername">Change</button>
                             <div class="change_div" v-else-if="readUsername == false">
                                 <button @click="saveUsername" class="save_btn">Save</button>
@@ -22,7 +22,7 @@
                     <li class="user_info_li">
                         <p><b>Online ID</b></p>
                         <div class="user_info_div">
-                            <input class="user_info_div_input" v-model="user_data.online_id" :placeholder="user_data.online_id" :readonly="readOnlineId">
+                            <input class="user_info_div_input" v-model="user_data.online_id" :placeholder="user_data.online_id" :readonly="readOnlineId" maxlength="15">
                             <button v-if="readOnlineId == true" class="change_btn" @click="changeOnlineId">Change</button>
                             <div class="change_div" v-else-if="readOnlineId == false">
                                 <button @click="saveOnlineId" class="save_btn">Save</button>

@@ -107,13 +107,32 @@
                 <router-link class="nav_btn_dashboard" :to="{name: 'Dashboard Page'}">Dashboard</router-link>
                 <router-link class="nav_btn_search_books" :to="{name: 'Main Page'}">Search Books</router-link>
             </nav>
-            <li v-for="request in friendRequestList" :key="request" class="friend_request_container">
-                <p>ID: {{ request.id }}</p>
-                <p v-if="request.type == 'incoming request'">From: {{ request.from_user_online_id }}</p>
-                <p v-if="request.type == 'outgoing request'">To: {{ request.to_user_online_id }}</p>
-                <p>status: {{ request.status }}</p>
-                <button @click="acceptRequest(request.id)" v-if="request.type == 'incoming request'"> Accept</button>
-            </li>
+            <div class="friend_request_container">
+                <h2>Your Inbox</h2>
+                <div class="friend_request_btn_container">
+                    <div class="friend_request_type_btns">
+                        <button class="friend_request_type_button1" :disabled="showRequestType === 'incoming request'" :class="{active: showRequestType === 'incoming request'}" @click="showRequestType = 'incoming request'">Incoming</button>
+                        <button class="friend_request_type_button2" :disabled="showRequestType === 'outgoing request'" :class="{active: showRequestType === 'outgoing request'}" @click="showRequestType = 'outgoing request'">Outgoing</button>
+                    </div>
+                    <div class="friend_request_status_btns">
+                        <button class="friend_request_status_button1" :disabled="showRequestStatus === 'pending'" :class="{active: showRequestStatus === 'pending'}" @click="showRequestStatus = 'pending'">Pending</button>
+                        <button class="friend_request_status_button2" :disabled="showRequestStatus === 'declined'" :class="{active: showRequestStatus === 'declined'}"  @click="showRequestStatus = 'declined'">Declined</button>
+                    </div>
+                </div>
+                <ul class="friend_request_ul" v-if="showRequestType === 'incoming request' && showRequestStatus === 'pending'">
+                    <li class="friend_request_li" v-for="request in friendRequestList.filter(r => r.type == showRequestType && r.status == showRequestStatus)" :key="request">
+                        <p v-if="request.type == 'incoming request'"><b>From: </b>{{ request.from_user_online_id }}</p>
+                        <p><b>Status: </b>{{ request.status }}</p>
+                        <div class="request_action_btns" v-if="request.type == 'incoming request' && request.status == 'pending'">
+                            <button @click="acceptRequest(request.id)" class="accept_btn" > Accept</button>
+                            <button @click="declineRequest(request.id)" class="decline_btn" > Decline</button>
+                        </div>
+                    </li>
+                    <li v-if="friendRequestList.filter(r => r.type == showRequestType && r.status == showRequestStatus).length == 0" class="no_request_li">
+                        No Requests
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -136,6 +155,8 @@ export default {
             friendshipList: [],
             showMoreInfo: false,
             moreInfoBook: {},
+            showRequestType: "incoming request",
+            showRequestStatus: "pending",
         }
     },
     setup(){
@@ -150,7 +171,7 @@ export default {
                 online_id: this.userStore.online_id || null,
                 favourite_genres: this.userStore.favourite_genres || [],
             }
-        },
+        }
     },
     methods: {
         async fetch_csrf_token(){
@@ -264,7 +285,30 @@ export default {
                         "Content-Type": "application/json",
                         "X-CSRFToken": this.csrfToken,
                     },
-                    body: JSON.stringify({ request_id : request_id }),
+                    body: JSON.stringify({ request_id : request_id, action : "accept" }),
+                    credentials: "include", 
+                })
+                this.fetch_friend_requests();
+                this.fetch_all_user();
+                const data = await response.json();
+
+                alert(data.message);
+            }
+            catch (error){
+                console.error("Error sending request:", error);
+            }
+        },
+        async declineRequest(request_id){
+            try
+            {
+                const response = await fetch("http://127.0.0.1:8000/friend-request/",
+                {    
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    body: JSON.stringify({ request_id : request_id, action : "decline" }),
                     credentials: "include", 
                 })
                 this.fetch_friend_requests();
@@ -431,21 +475,23 @@ export default {
     padding-left: 0.8rem;
     padding-right: 0.8rem;
     border-radius: 0.6rem;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.4);
 }
 .add_friend_btn{
     margin: 0;
     padding: 0;
     all: unset;
-    background-color: #03b1d4;
-    color: #FBFFFE;
+    background-color: #FBFFFE;
+    color: #1B1B1E;
+    border: 3px solid #1B1B1E;
     font-weight: 700;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+    padding-left: 0.7rem;
+    padding-right: 0.7rem;
     border-radius: 0.4rem;
     font-size: 1rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 .view_more_btn{
     all: unset;
@@ -582,12 +628,7 @@ export default {
     color: #1b1b1e74;
     border: 3px solid #1b1b1e74;
 }
-.friend_request_container{
-    display: flex;
-    flex-direction: row;
-    gap: 2rem;
-    justify-content: center;
-}
+
 .other_user_modal{
     margin: 0;
     padding: 0;
@@ -960,9 +1001,9 @@ export default {
 .nav_btn_search_books{
     all: unset;
     background-color: #FBFFFE;
-    border: 3px solid #41ceaa;
+    border: 3px solid #1B1B1E;
     font-weight: 500;
-    color: #41ceaa;
+    color: #1B1B1E;
     font-size: 1.1rem;
     padding-top: 0.4rem;
     padding-bottom: 0.4rem;
@@ -974,8 +1015,283 @@ export default {
     cursor: pointer;
 }
 .nav_btn_search_books:hover{
+    background-color: #1B1B1E;
+    color: #FBFFFE;
+}
+.friend_request_container{
+    margin-top: 2rem;
+    padding: 0;
+    padding: 2rem;
+    padding-top: 0;
+    width: 34rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    background-color: #FBFFFE;
+    border-radius: 1rem;
+}
+.friend_request_btn_container{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+.friend_request_type_btns{
+    display: flex;
+    flex-direction: row;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 0.5rem;
+}
+.friend_request_type_button1{
+    all: unset;
+    height: 1.9rem;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    color: #FAA916;
+    border: 3px solid #FAA916;
+    border-right: none;
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+    background-color: #FBFFFE;
+    transition: 0.3s ease;
+    font-weight: 500;
+}
+.friend_request_type_button1:hover{
+    border: 3px solid #ffc75f;
+    border-right: none;
+    color: #ffc75f;
+}
+.friend_request_type_button1:disabled{
+    all: unset;
+    height: 1.9rem;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    color: #FAA916;
+    border: 3px solid #FAA916;
+    border-right: none;
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+    background-color: #FBFFFE;
+    transition: 0.3s ease;
+    font-weight: 500;
+}
+
+.friend_request_type_button1.active{
+    background-color: #FAA916;
+    color: #FBFFFE;
+}
+.friend_request_type_button2{
+    all: unset;
+    height: 1.9rem;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    color: #FAA916;
+    border: 3px solid #FAA916;
+    border-left: none;
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+    background-color: #FBFFFE;
+    transition: 0.3s ease;
+    font-weight: 500;
+}
+.friend_request_type_button2.active{
+    background-color: #FAA916;
+    color: #FBFFFE;
+}
+.friend_request_type_button2:hover{
+    border: 3px solid #ffc75f;
+    border-left: none;
+    color: #ffc75f;
+}
+.friend_request_type_button2:disabled{
+    all: unset;
+    height: 1.9rem;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    color: #FBFFFE;
+    border: 3px solid #FAA916;
+    border-left: none;
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+    background-color: #FAA916;
+    transition: 0.3s ease;
+    font-weight: 500;
+}
+
+.friend_request_status_btns{
+    display: flex;
+    flex-direction: row;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 0.5rem;
+}
+.friend_request_status_button1{
+    all: unset;
+    height: 1.9rem;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    color: #41ceaa;
+    border: 3px solid #41ceaa;
+    border-right: none;
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+    background-color: #FBFFFE;
+    transition: 0.3s ease;
+    font-weight: 500;
+}
+.friend_request_status_button1:hover{
+    border: 3px solid #67dec0;
+    border-right: none;
+    color: #67dec0;
+}
+.friend_request_status_button1:disabled{
+    all: unset;
+    height: 1.9rem;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    color: #41ceaa;
+    border: 3px solid #41ceaa;
+    border-right: none;
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+    background-color: #FBFFFE;
+    transition: 0.3s ease;
+    font-weight: 500;
+}
+
+.friend_request_status_button1.active{
     background-color: #41ceaa;
     color: #FBFFFE;
 }
+.friend_request_status_button2{
+    all: unset;
+    height: 1.9rem;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    color: #41ceaa;
+    border: 3px solid #41ceaa;
+    border-left: none;
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+    background-color: #FBFFFE;
+    transition: 0.3s ease;
+    font-weight: 500;
+}
+.friend_request_status_button2.active{
+    background-color: #41ceaa;
+    color: #FBFFFE;
+}
+.friend_request_status_button2:hover{
+    border: 3px solid #67dec0;
+    border-left: none;
+    color: #67dec0;
+}
+.friend_request_status_button2:disabled{
+    all: unset;
+    height: 1.9rem;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    color: #FBFFFE;
+    border: 3px solid #41ceaa;
+    border-left: none;
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+    background-color: #41ceaa;
+    transition: 0.3s ease;
+    font-weight: 500;
+}
+.friend_request_ul{
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    margin-top: 1rem;
+    padding-left: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    height: 13rem;
+    max-height: 13rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
+}
+.friend_request_ul::-webkit-scrollbar{
+    width: 5px;
+}
+
+.friend_request_ul::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.friend_request_ul::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
+}
+.friend_request_li{
+    width: 30rem;
+    border-radius: 0.4rem;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.no_request_li{
+    width: 16rem;
+    font-size: 1.1rem;
+    font-weight: 500;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-radius: 0.4rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.request_action_btns{
+    width: 9rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+.accept_btn{
+    all: unset;
+    background-color: rgb(7, 196, 7);
+    color: #FBFFFE;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+    padding-right: 0.6rem;
+    padding-left: 0.6rem;
+    border-radius: 0.3rem;
+    font-weight: 400;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    transition: 0.3s ease;
+}
+.accept_btn:hover{
+    background-color: rgba(7, 196, 7, 0.713);
+    color: #fbfffecd;
+}
+.decline_btn{
+    all: unset;
+    background-color: #e51635;
+    color: #FBFFFE;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+    padding-right: 0.4rem;
+    padding-left: 0.4rem;
+    border-radius: 0.3rem;
+    font-weight: 400;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+    transition: 0.3s ease;
+}
+.decline_btn:hover{
+    background-color: #e51635ab;
+    color: #fbfffecd;
+}
+
 
 </style>
