@@ -132,6 +132,17 @@
                         No Requests
                     </li>
                 </ul>
+                <ul class="friend_request_ul1" v-if="!(showRequestType == 'incoming request' && showRequestStatus == 'pending')">
+                    <li class="friend_request_li1" v-for="request in friendRequestList.filter(r => r.type == showRequestType && r.status == showRequestStatus)" :key="request">
+                        <p v-if="request.type == 'incoming request'"><b>From: </b>{{ request.from_user_online_id }}</p>
+                        <p v-if="request.type == 'outgoing request'"><b>To: </b>{{ request.to_user_online_id }}</p>
+                        <p><b>Status: </b>{{ request.status }}</p>
+                    </li>
+                    <li v-if="friendRequestList.filter(r => r.type == showRequestType && r.status == showRequestStatus).length == 0" class="no_request_li">
+                        No Requests
+                    </li>
+
+                </ul>
             </div>
         </div>
     </div>
@@ -1211,7 +1222,6 @@ export default {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    height: 13rem;
     max-height: 13rem;
     overflow-y: auto;
     scrollbar-width: thin;
@@ -1231,6 +1241,7 @@ export default {
 }
 .friend_request_li{
     width: 30rem;
+    height: 3rem;
     border-radius: 0.4rem;
     padding-right: 1rem;
     padding-left: 1rem;
@@ -1240,9 +1251,55 @@ export default {
     justify-content: space-between;
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
+.friend_request_ul1{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    padding-left: 0.5rem;
+    padding-top: 0.3rem;
+    padding-bottom: 0.5rem;
+    margin-top: 1.2rem;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    gap: 1rem;
+    max-height: 13rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
+}
+.friend_request_ul1::-webkit-scrollbar{
+    width: 5px;
+}
+
+.friend_request_ul1::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.friend_request_ul1::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
+}
+.friend_request_li1{
+    padding: 0;
+    margin: 0;
+    width: 14.5rem;
+    height: 3rem;
+    border-radius: 0.4rem;
+    padding-right: 0.7rem;
+    padding-left: 0.7rem;
+    font-size: 1rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
 .no_request_li{
-    width: 16rem;
-    font-size: 1.1rem;
+    width: 14.5rem;
+    font-size: 1.2rem;
     font-weight: 500;
     padding-top: 0.4rem;
     padding-bottom: 0.4rem;
