@@ -40,6 +40,9 @@
             <p>No more book results</p>
             <button @click="search(true)">Go Back</button>
         </div>
+        <div v-if="mediaList.length == 0 && isLoading == false && searchMedia !== 'Books' && chosenMedia == null" class="no_more_books">
+            <p>No results</p>
+        </div>
         <div v-if="mediaList.length > 0" class="media_list">
             <ul class="media_list_ul">
                 <li class="media_list_li" v-for="media in mediaList" :key="media.id">
