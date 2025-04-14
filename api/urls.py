@@ -18,5 +18,14 @@ urlpatterns = [
     path('user-list/', views.user_list_view, name='user-list'),
     path('friend-request/', views.friend_request_view, name='friend-request'),
     path('friendship/', views.friendship_view, name='friendship'),
+
+
+    re_path(r'^dashboard/?', views.main_spa),
+    re_path(r'^community/?', views.main_spa),
+
+    path('', views.main_spa, name="main page"),
+    re_path(r'^.*$', views.main_spa)
+
+
 ]
 

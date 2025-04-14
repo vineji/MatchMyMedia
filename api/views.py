@@ -47,7 +47,7 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             print(request.session.items())
-            return redirect("http://127.0.0.1:8080/dashboard/")
+            return redirect("/dashboard/")
         else:
             return render(request, "login.html", {"form": form, "error": "Invalid username or password."})
     form = AuthenticationForm()
@@ -65,7 +65,7 @@ def sign_up_view(request):
             user = form.save()
             print(user)
             login(request, user)
-            return redirect("http://127.0.0.1:8080/dashboard/")
+            return redirect("/dashboard/")
         else:
             print(form.errors)
             return render(request, "signup.html", {"form": form})
