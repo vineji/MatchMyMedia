@@ -230,7 +230,6 @@ export default {
                 this.currentPage = 1;
                 this.showPageMultiplier = 1;
             }
-            
 
             if (this.searchMedia == "Movies"){
                 try{

@@ -37,7 +37,7 @@
                         <div class="other_user_modal_header">
                             <h1 v-if="showMoreInfo == false && showShareBooks == false">User Profile</h1>
                             <h1 v-if="showMoreInfo == true">Book Information</h1>
-                            <h1 v-if="showShareBooks == true">Share Books</h1>
+                            <h1 v-if="showShareBooks == true">Share books with {{ user.online_id }}</h1>
                             <div class="header_button_div">
                                 <button v-if="showMoreInfo == true || showShareBooks == true" @click="backPage" class="back_btn">Back</button>
                                 <button @click="closeViewMore(user)" class="close_btn">Close</button>
@@ -98,16 +98,40 @@
                                 <p style="margin-top: 0.5rem;"><b>Description: </b>{{ moreInfoBook.description || "Unavailable" }}</p>
                             </div>
                         </div>
-                        <div v-if="showShareBooks == true">
-                            <div class="searchbar">
+                        <div v-if="showShareBooks == true" class="sharebooks_div">
+                            <div class="searchbar_share">
                                 <input
                                 type="text"
                                 :placeholder="'Search Books - Trending Books'"
                                 v-model="query"
                                 @input="search(true)"
                                 />
-                                <button @click="clearQuery" class="clear_button">&times;</button>
+                                <button @click="clearQuery" class="clear_button_share">&times;</button>
                             </div>
+                            <ul class="search_sharebooks_ul">
+                                <li v-if="isLoading == true && mediaList.length == 0">Loading</li>
+                                <li v-if="mediaList.length == 0 && isLoading == false"> No results</li>
+                                <li v-for="book in mediaList" :key="book" class="other_user_book_li">
+                                    <img :src="book.volumeInfo?.imageLinks?.thumbnail" class="other_user_book_img"/>
+                                    <div class="other_user_book_info_div">
+                                        <p class="other_user_book_info_title"><b>Title: </b>{{ book?.volumeInfo?.title || 'No title available'}}</p>
+                                        <p><b>Published: </b>{{book?.volumeInfo?.publishedDate || "Not specified"}}</p>
+                                        <ul class="other_user_book_info_authors" >
+                                            <p style="padding-right: 0.5rem;"><b>Authors: </b></p>
+                                            <li v-if="!book.volumeInfo?.authors || book.volumeInfo?.authors.length === 0">Unavailable</li>
+                                            <li style="text-align: left;" v-for="(author,index) in book.volumeInfo?.authors" :key="index">
+                                                <span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}
+                                            </li>
+                                        </ul>
+                                        <ul class="other_user_book_info_genres">
+                                            <p style="padding-right: 0.5rem;"><b>Genres: </b></p>
+                                            <li v-if="!book.volumeInfo?.categories || book.volumeInfo.categories.length === 0" style="background-color: grey;" class="other_book_genre">Unavailable</li>
+                                            <li v-for="category in book.volumeInfo?.categories" :key="category" class="other_book_genre">{{ category }}</li>
+                                        </ul>
+                                        <button @click="moreInfo(book)" class="other_book_more_info_btn" >More Info</button>
+                                    </div>
+                                </li>
+                            </ul>
                             
                         </div>
                     </div>
@@ -169,6 +193,7 @@ import { useUserStore } from '@/stores/userStore';
 export default {
     data() {
         return {
+            query : '',
             userList : [],
             csrfToken : "",
             sortBy : "Most Common",
@@ -185,6 +210,13 @@ export default {
             moreInfoBook: {},
             showRequestType: "incoming request",
             showRequestStatus: "pending",
+            isLoading : false,
+            show_ChosenMedia : false,
+            chosenMedia : null,
+            currentPage_book : 1,
+            showPageMultiplier : 1,
+            mediaList : [],
+            totalPages_book : 1,
         }
     },
     setup(){
@@ -222,6 +254,32 @@ export default {
             catch (error){
                 console.error(`Error fetching token, ${error}`)
             }
+        },
+        async search(newSearch){
+            this.isLoading = true;
+            this.show_ChosenMedia = false;
+            this.chosenMedia = null;
+
+            if (newSearch == true){
+                this.currentPage = 1;
+                this.showPageMultiplier = 1;
+            }
+            try{
+                const response = await fetch(`http://127.0.0.1:8000/search-book/?title=${this.query}&page=${this.currentPage}`);
+                if (!response.ok){
+                    throw new Error('Failed to fetch data');
+                }
+                const data = await response.json();
+                this.mediaList = data.books || [];
+                this.currentPage_book = data.current_page || 1;
+                this.totalPages_book = data.total_pages || 1;
+                console.log(data);
+            }
+
+            catch (error){
+                console.error('error catching data', error)
+            }
+            this.isLoading = false;
         },
         async fetch_all_user(page = 1){
             try{
@@ -389,6 +447,15 @@ export default {
         openShareBook(){
             this.showShareBooks = true;
             this.showMoreInfo = false;
+            this.search(true);
+        },
+        clearQuery(){
+            this.currentPage_book = 1;
+            this.query = '';
+            this.mediaList = [];
+            this.chosenMedia = null;
+            this.show_ChosenMedia = false;
+            this.search(true);
         }
 
     },
@@ -727,6 +794,7 @@ export default {
     border: 3px solid #41ceaa;
     border-radius: 0.5rem;
     background-color: #FBFFFE;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     transition: 0.3s ease;
     font-weight: 600;
 }
@@ -1404,6 +1472,79 @@ export default {
 .decline_btn:hover{
     background-color: #e51635ab;
     color: #fbfffecd;
+}
+.sharebooks_div{
+    margin-top: 2rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.searchbar_share {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    width: 32rem;
+    height: 3rem;
+    border-radius: 0.8rem;
+    font-size: 1.2rem;
+    border: #1B1B1E solid 3px;
+    border-right: none;
+    color: #6D676E;
+    background-color: #FBFFFE;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.searchbar_share input{
+    width: 28rem;
+    height: 2.8rem;
+    border-radius: 1rem;
+    font-size: 1.2rem;
+    border: none;
+    padding-left: 1rem;
+    outline: none;
+
+}
+.clear_button_share{
+    all: unset;
+    font-weight: 500;
+    font-size: 2rem;
+    width: 3.5rem;
+    border-radius: 0.8rem;
+    height: 3.4rem;
+    color: #FBFFFE;
+    background-color: #e51635;
+}
+.clear_button_share:hover{
+    font-weight: 600;
+    background-color: #ff1538;
+    transition: ease 0.3s;
+}
+.search_sharebooks_ul{
+    width: 100%;
+    height: 28rem;
+    max-height: 28rem;
+    padding-top: 0.5rem;
+    padding-bottom: 1rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
+}
+.search_sharebooks_ul::-webkit-scrollbar{
+    width: 5px;
+}
+
+.search_sharebooks_ul::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.search_sharebooks_ul::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
 }
 
 
