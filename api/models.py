@@ -111,3 +111,23 @@ class FriendRequest(models.Model):
         }
 
 
+class SharedBooks(models.Model):
+
+    from_user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="book_sender")
+    to_user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="book_reciever")
+    shared_books = models.JSONField(default=list, blank=True)
+    shared_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-shared_at']
+    
+    def to_dict(self):
+        return {
+            "from_user" : self.from_user,
+            "to_user" : self.to_user,
+            "shared_books" : self.shared_books,
+            "shared_at" : self.shared_at.isoformat(),
+        }
+
+
+

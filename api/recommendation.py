@@ -30,7 +30,7 @@ def fetch_books_from_google_api(query):
     
     max_results = 40
     
-    filtered_categories = ["fiction", "drama", "adventure", "fantasy", "horror", "action", "comedy", "history", "western"
+    filtered_categories = ["fiction", "drama", "adventure", "fantasy", "horror", "action", "comedy", "western"
                            , "crime", "mystery", "romance", "magic", "family", "war", "kids", "children", "sci-fi", "comic", "novel", "graphic"]
 
     try:
@@ -135,8 +135,6 @@ def extract_keywords(text, n=7):
 
 
 def fetch_books_from_google_api_using_id(id):
-        
-
         
     url = f"https://www.googleapis.com/books/v1/volumes/{id}"
 

@@ -35,15 +35,19 @@
                 <div v-if="user.showMore == true" class="other_user_modal">
                     <div class="other_user_modal_container">
                         <div class="other_user_modal_header">
-                            <h1 v-if="showMoreInfo == false">User Profile</h1>
+                            <h1 v-if="showMoreInfo == false && showShareBooks == false">User Profile</h1>
                             <h1 v-if="showMoreInfo == true">Book Information</h1>
+                            <h1 v-if="showShareBooks == true">Share Books</h1>
                             <div class="header_button_div">
-                                <button v-if="showMoreInfo == true" @click="backPage" class="back_btn">Back</button>
+                                <button v-if="showMoreInfo == true || showShareBooks == true" @click="backPage" class="back_btn">Back</button>
                                 <button @click="closeViewMore(user)" class="close_btn">Close</button>
                             </div>
                         </div>
-                        <div class="other_user_info_div" v-if="showMoreInfo == false">
-                            <p><b>Online ID: </b>{{user.online_id}}</p>
+                        <div class="other_user_info_div" v-if="showMoreInfo == false && showShareBooks == false">
+                            <div class="other_user_info_div_header">
+                                <p><b>Online ID: </b>{{user.online_id}}</p>
+                                <button class="share_book_btn" @click="openShareBook">Share Books</button>
+                            </div>
                             <p><b>Favourite Genres:</b></p>
                             <ul class="other_user_genre_container">
                                 <li v-if="user.favourite_genres.length == 0"  class="other_user_genre" >No genres added yet</li>
@@ -93,6 +97,18 @@
                                 </ul>
                                 <p style="margin-top: 0.5rem;"><b>Description: </b>{{ moreInfoBook.description || "Unavailable" }}</p>
                             </div>
+                        </div>
+                        <div v-if="showShareBooks == true">
+                            <div class="searchbar">
+                                <input
+                                type="text"
+                                :placeholder="'Search Books - Trending Books'"
+                                v-model="query"
+                                @input="search(true)"
+                                />
+                                <button @click="clearQuery" class="clear_button">&times;</button>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -165,6 +181,7 @@ export default {
             friendRequestList: [],
             friendshipList: [],
             showMoreInfo: false,
+            showShareBooks: false,
             moreInfoBook: {},
             showRequestType: "incoming request",
             showRequestStatus: "pending",
@@ -348,10 +365,12 @@ export default {
         },
         moreInfo(book){
             this.showMoreInfo = true;
+            this.showShareBooks = false;
             this.moreInfoBook = book;
         },
         backPage(){
             this.showMoreInfo = false;
+            this.showShareBooks = false;
             this.moreInfoBook = null;
         },
         closeViewMore(user){
@@ -366,6 +385,10 @@ export default {
         nextPage(){
             this.fetch_all_user(this.currentPage + 1);
             window.scrollTo({top: 0, behavior: 'smooth'});
+        },
+        openShareBook(){
+            this.showShareBooks = true;
+            this.showMoreInfo = false;
         }
 
     },
@@ -686,6 +709,31 @@ export default {
     font-size: 1.5rem;
     gap: 1rem;
 }
+.other_user_info_div_header{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+.share_book_btn{
+    all: unset;
+    font-size: 1.2rem;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+    color: #41ceaa;
+    border: 3px solid #41ceaa;
+    border-radius: 0.5rem;
+    background-color: #FBFFFE;
+    transition: 0.3s ease;
+    font-weight: 600;
+}
+.share_book_btn:hover{
+    background-color: #41ceaa;
+    color: #FBFFFE;
+}
 .other_user_genre_container{
     margin: 0;
     padding: 0;
@@ -809,6 +857,9 @@ export default {
     scrollbar-width: thin;
     scrollbar-color: #1B1B1E #f0efef;
 }
+.other_user_book_info_authors li{
+    margin-left: 0.5rem;
+}
 .other_user_book_info_authors::-webkit-scrollbar{
     width: 3px;
 }
@@ -914,12 +965,17 @@ export default {
     gap: 0.3rem;
     text-align: left;
 }
+
 .more_info_info_authors{
     width: 100%;
     padding: 0;
     margin: 0;
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
+}
+.more_info_info_authors li{
+    margin-left: 0.9rem;
 }
 
 .more_info_info_genres_container{
