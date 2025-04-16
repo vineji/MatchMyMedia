@@ -17,6 +17,6 @@ urlpatterns = [
     path('book-rating/', views.book_rating_view, name='book-rating'),
     path('user-list/', views.user_list_view, name='user-list'),
     path('friend-request/', views.friend_request_view, name='friend-request'),
-    path('friendship/', views.friendship_view, name='friendship'),
+    path('share-book/', views.share_book_view, name='share-books'),
 ]
 

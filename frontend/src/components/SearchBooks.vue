@@ -349,14 +349,18 @@ export default {
                     })
                     const data = await response.json();
                     if (!response.ok) {
-                        if (data.error === 'Book is already added to favourites'){
+                        if (data.error){
 
-                            alert("You have already added this book to your favourites");
+                            alert(data.error);
                         }
                         else{
                             throw new Error(`Failed to add book: ${response.status}`);
                         }
                     }
+                    else{
+                        alert(data.message);
+                    }
+                    
                 }
                 catch (error){
                     console.error("Error adding book:", error);

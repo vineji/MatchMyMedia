@@ -77,6 +77,33 @@
                                     </div>
                                 </li>
                             </ul>
+                            <p><b>Books you have shared with {{ user.online_id }}:</b></p>
+                            <ul class="other_user_book_container">
+                                <li v-if="sharedBooks.length == 0" class="not_shared_books"> You have not shared books yet</li>
+                                <li v-for="book in sharedBooks" :key="book" class="other_user_book_li">
+                                    <img :src="book.image" class="other_user_book_img"/>
+                                    <div class="other_user_book_info_div">
+                                        <p class="other_user_book_info_title"><b>Title: </b>{{ book.title || "Unavailable" }}</p>
+                                        <p><b>Published: </b>{{ book.published_date || "Unavailable" }}</p>
+                                        <ul class="other_user_book_info_authors" >
+                                            <p style="padding-right: 0.5rem;"><b>Authors: </b></p>
+                                            <li v-if="!book.authors || book.authors.length === 0">Unavailable</li>
+                                            <li style="text-align: left;" v-for="(author,index) in book?.authors" :key="index">
+                                                <span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}
+                                            </li>
+                                        </ul>
+                                        <ul class="other_user_book_info_genres">
+                                            <p style="padding-right: 0.5rem;"><b>Genres: </b></p>
+                                            <li v-if="!book.categories || book.categories.length === 0" style="background-color: grey;" class="other_book_genre">Unavailable</li>
+                                            <li v-for="category in book.categories" :key="category" class="other_book_genre">{{ category }}</li>
+                                        </ul>
+                                        <div class="share_btn_div">
+                                            <button @click="moreInfo(book)" class="other_book_share_more_info_btn" >More Info</button>
+                                            <button class="unshare_btn" @click="unshare(user.id, book)">Unshare</button>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
                         </div>
                         <div v-if="showMoreInfo == true" class="more_info_book_div" >
                             <img :src="moreInfoBook.image" class="more_info_book_img">
@@ -102,15 +129,15 @@
                             <div class="searchbar_share">
                                 <input
                                 type="text"
-                                :placeholder="'Search Books - Trending Books'"
+                                :placeholder="'Search books to share - Trending Books'"
                                 v-model="query"
                                 @input="search(true)"
                                 />
                                 <button @click="clearQuery" class="clear_button_share">&times;</button>
                             </div>
                             <ul class="search_sharebooks_ul">
-                                <li v-if="isLoading == true && mediaList.length == 0">Loading</li>
-                                <li v-if="mediaList.length == 0 && isLoading == false"> No results</li>
+                                <li v-if="isLoading == true && mediaList.length == 0" class="loading_li">Loading...</li>
+                                <li v-if="mediaList.length == 0 && isLoading == false" class="loading_li"> No results</li>
                                 <li v-for="book in mediaList" :key="book" class="other_user_book_li">
                                     <img :src="book.volumeInfo?.imageLinks?.thumbnail" class="other_user_book_img"/>
                                     <div class="other_user_book_info_div">
@@ -128,13 +155,15 @@
                                             <li v-if="!book.volumeInfo?.categories || book.volumeInfo.categories.length === 0" style="background-color: grey;" class="other_book_genre">Unavailable</li>
                                             <li v-for="category in book.volumeInfo?.categories" :key="category" class="other_book_genre">{{ category }}</li>
                                         </ul>
-                                        <button @click="moreInfo(book)" class="other_book_more_info_btn" >More Info</button>
+                                        <button @click="share(user.id, book)" class="other_book_more_info_btn" >Share Book</button>
                                     </div>
                                 </li>
                             </ul>
-                            
                         </div>
                     </div>
+                </div>
+                <div v-if="showReceivedBook == true" class="other_user_modal">
+                    
                 </div>
             </li>
             <div class="pagination_container">
@@ -181,9 +210,35 @@
                     <li v-if="friendRequestList.filter(r => r.type == showRequestType && r.status == showRequestStatus).length == 0" class="no_request_li">
                         No Requests
                     </li>
-
                 </ul>
             </div>
+            <div class="received_books_container">
+                <h2>What your friends shared</h2>
+                <ul class="received_books_ul">
+                    <li v-if="receivedBooks.length == 0" class="not_shared_books">N one has shred books with you yet</li>
+                    <li v-for="book in receivedBooks" :key="book" class="received_book_li">
+                        <img :src="book.image" class="received_user_book_img"/>
+                        <div class="received_user_book_info_div">
+                            <p class="received_user_book_info_title"><b>Title: </b>{{ book.title || "Unavailable" }}</p>
+                            <p><b>Published: </b>{{ book.published_date || "Unavailable" }}</p>
+                            <ul class="received_user_book_info_authors" >
+                                <p style="padding-right: 0.5rem;"><b>Authors: </b></p>
+                                <li v-if="!book.authors || book.authors.length === 0">Unavailable</li>
+                                <li style="text-align: left;" v-for="(author,index) in book?.authors" :key="index">
+                                    <span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}
+                                </li>
+                            </ul>
+                            <ul class="received_user_book_info_genres">
+                                <p style="padding-right: 0.5rem;"><b>Genres: </b></p>
+                                <li v-if="!book.categories || book.categories.length === 0" style="background-color: grey;" class="received_book_genre">Unavailable</li>
+                                <li v-for="category in book.categories" :key="category" class="received_book_genre">{{ category }}</li>
+                            </ul>
+                            <button @click="moreInfo(book)" class="other_book_share_more_info_btn" >More Info</button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            
         </div>
     </div>
 
@@ -213,10 +268,10 @@ export default {
             isLoading : false,
             show_ChosenMedia : false,
             chosenMedia : null,
-            currentPage_book : 1,
-            showPageMultiplier : 1,
             mediaList : [],
-            totalPages_book : 1,
+            sharedBooks : [],
+            receivedBooks : [],
+            showReceivedBook : false,
         }
     },
     setup(){
@@ -413,6 +468,7 @@ export default {
             }
             else{
                 user.showMore = !user.showMore;
+                this.fetch_shared_books_with_user(user.id);
             }
         },
         reset(){
@@ -427,6 +483,7 @@ export default {
             this.moreInfoBook = book;
         },
         backPage(){
+            this.query = '';
             this.showMoreInfo = false;
             this.showShareBooks = false;
             this.moreInfoBook = null;
@@ -434,6 +491,8 @@ export default {
         closeViewMore(user){
             user.showMore = false;
             this.showMoreInfo = false;
+            this.showShareBooks = false;
+            this.sharedBooks = [];
             this.moreInfoBook = null;
         },
         prevPage(){
@@ -456,26 +515,140 @@ export default {
             this.chosenMedia = null;
             this.show_ChosenMedia = false;
             this.search(true);
-        }
+        },
+        async share(user_id, book){
+            let book_dict = {};
+            book_dict.id = book.id;
+            book_dict.image = book.volumeInfo?.imageLinks?.thumbnail;
+            book_dict.title = book.volumeInfo?.title;
+            book_dict.authors = book.volumeInfo?.authors;
+            book_dict.published_date = book.volumeInfo['publishedDate']|| "Not specified";
+            book_dict.categories = book.volumeInfo?.categories;
+            book_dict.description = book.volumeInfo?.description;
+            book_dict.from_user = this.loggedUser.online_id;
+
+            try
+            {
+                const response = await fetch("http://127.0.0.1:8000/share-book/",
+                {    
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    body: JSON.stringify({ "to_user_id" : user_id, "book" : book_dict}),
+                    credentials: "include", 
+                })
+                const data = await response.json();
+                if (data.error){
+                    alert(data.error);
+                }
+                else{
+                    alert(data.message);
+                    this.fetch_shared_books_with_user(user_id);
+                }
+            }
+            catch (error){
+                console.error("Error sharing book:", error);
+            }
+        },
+        async unshare(user_id, book){
+
+            try
+            {
+                const response = await fetch("http://127.0.0.1:8000/share-book/",
+                {    
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    body: JSON.stringify({ "to_user_id" : user_id, "book" : book}),
+                    credentials: "include", 
+                })
+                const data = await response.json();
+                if (data.error){
+                    alert(data.error);
+                }
+                else{
+                    alert(data.message);
+                    this.fetch_shared_books_with_user(user_id);
+                }
+            }
+            catch (error){
+                console.error("Error sharing book:", error);
+            }
+        },
+        async fetch_shared_books_with_user(user_id){
+            const type = "sent books";
+            try
+            {
+                const response = await fetch(`http://127.0.0.1:8000/share-book/?user_id=${user_id}&type=${type}`,
+                {    
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    credentials: "include", 
+                })
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch books: ${response.status}`);
+                }
+                const data = await response.json();
+                this.sharedBooks = data.shared_books;
+            }
+            catch (error){
+                console.error("Error fetching book:", error);
+            } 
+        },
+        async fetch_received_books(){
+            const type = "received books";
+            try
+            {
+                const response = await fetch(`http://127.0.0.1:8000/share-book/?type=${type}`,
+                {    
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRFToken": this.csrfToken,
+                    },
+                    credentials: "include", 
+                })
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch books: ${response.status}`);
+                }
+                const data = await response.json();
+                this.receivedBooks = data.received_books;
+            }
+            catch (error){
+                console.error("Error fetching book:", error);
+            } 
+        },
+        
 
     },
     mounted(){
         this.fetch_csrf_token();
         this.fetch_all_user();
         this.fetch_friend_requests();
+        this.fetch_received_books();
     }
 }
 
 </script>
 <style>
 .social_container{
+    width: 87.5rem;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 
 }
 .other_container{
-    width: 50rem;
+    width: 42rem;
+    display: flex;
+    flex-direction: column;
 }
 .user_list_container{
     display: flex;
@@ -747,7 +920,7 @@ export default {
 }
 .other_user_modal_container{
     background-color: #FBFFFE;
-    width: 48rem;
+    width: 50rem;
     height: 38rem;
     padding: 3rem;
     padding-top: 2rem;
@@ -768,13 +941,21 @@ export default {
     margin: 0;
 }
 .other_user_info_div{
-    margin-top: 2rem;
+    margin-top: 1rem;
+    padding-right: 1rem;
     width: 100%;
+    min-height: 35rem;
+    height: 35rem;
+    max-height: 35rem;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
     font-size: 1.5rem;
-    gap: 1rem;
+    gap: 0.5rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
 }
 .other_user_info_div_header{
     width: 100%;
@@ -811,6 +992,8 @@ export default {
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: #1B1B1E #f0efef;
+    min-height: 7rem;
+    height: 8rem;
     max-height: 8rem;
     gap: 0.8rem;
     width: 100%;
@@ -819,6 +1002,7 @@ export default {
 
 }
 .other_user_genre{
+    height: 2rem;
     color: #FBFFFE;
     background-color: grey;
     font-size: 1.4rem;
@@ -832,14 +1016,15 @@ export default {
 .other_user_book_container{
     margin: 0;
     padding: 0;
-    width: 100%;
+    width: 47rem;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
     gap: 1.5rem;
     justify-content: flex-start;
-    height: 15rem;
-    max-height: 15rem;
+    min-height: 13rem;
+    height: 13rem;
+    max-height: 13rem;
     overflow-y: auto;
     padding-left: 1rem;
     padding-top: 0.3rem;
@@ -848,7 +1033,7 @@ export default {
     scrollbar-color: #1B1B1E #f0efef;
 }
 .other_user_book_container::-webkit-scrollbar{
-    width: 3px;
+    width: 5px;
 }
 
 .other_user_book_container::-webkit-scrollbar-thumb{
@@ -860,7 +1045,7 @@ export default {
     border-radius: 1rem;
 }
 .other_user_book_li{
-    width: 42%;
+    width: 20rem;
     padding: 1rem;
     background-color: #FBFFFE;
     border-radius: 1rem;
@@ -1105,7 +1290,7 @@ export default {
     color: #fbfffec9;
 }
 .social_page_nav{
-    width: 38rem;
+    width: 41.5rem;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -1158,7 +1343,7 @@ export default {
     padding: 0;
     padding: 2rem;
     padding-top: 0;
-    width: 34rem;
+    width: 37.5rem;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -1409,7 +1594,7 @@ export default {
 .friend_request_li1{
     padding: 0;
     margin: 0;
-    width: 14.5rem;
+    width: 15.5rem;
     height: 3rem;
     border-radius: 0.4rem;
     padding-right: 0.7rem;
@@ -1546,6 +1731,227 @@ export default {
     background-color: #dcdcdc;
     border-radius: 1rem;
 }
+.loading_li{
+    font-size: 5rem;
+    text-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    width: 100%;
+    padding-top: 8rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+.share_btn_div{
+    all: unset;
+    width: 100%;
+    margin-top: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.unshare_btn{
+    all: unset;
+    margin: 0;
+    padding: 0;
+    align-self: center;
+    margin-top: auto;
+    color: #1B1B1E;
+    background-color: #FAA916;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    padding-right: 1rem;
+    padding-left: 1rem;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+    border-radius: 0.3rem;
+    font-weight: 400;
+    transition: 0.3s ease;
+}
+.unshare_btn:hover{
+    transform: scale(1.05);
+    font-weight: 500;
+}
+.other_book_share_more_info_btn{
+    all: unset;
+    margin: 0;
+    padding: 0;
+    align-self: center;
+    margin-top: auto;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    padding-right: 1rem;
+    padding-left: 1rem;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+    border-radius: 0.3rem;
+    font-weight: 400;
+    transition: 0.3s ease;
+}
+.other_book_share_more_info_btn:hover{
+    transform: scale(1.05);
+    background-color: #41ceaa;
+    font-weight: 500;
+}
+.not_shared_books{
+    all: unset;
+    padding: 0;
+    margin: 0;
+    padding-top: 0.5rem;
+    height: 2.1rem;
+    padding-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    border-radius: 0.8rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+.received_books_container{
+    margin-top: 2rem;
+    padding: 0;
+    padding: 1rem;
+    padding-top: 0;
+    width: 39.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    background-color: #FBFFFE;
+    border-radius: 1rem;
+}
+.received_books_ul{
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 1rem;
+    max-height: 42rem;
+    overflow-y: auto;
+    padding-left: 0.4rem;
+    padding-top: 0.3;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
+}
+.received_books_ul::-webkit-scrollbar{
+    width: 5px;
+}
 
+.received_books_ul::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.received_books_ul::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
+}
+.received_book_li{
+    width: 16rem;
+    padding: 1rem;
+    background-color: #FBFFFE;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: 0.3s ease;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 11rem;
+    max-height: 11rem;
+}
+.received_books_li:hover{
+    transform: scale(1.06);
+}
+.received_user_book_img{
+    width: 6.9rem;
+    height: 10.7rem;
+    border-radius: 0.3rem;
+}
+.received_user_book_info_div{
+    width: 8.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    font-size: 0.85rem;
+    gap: 0.05rem;
+}
+.received_user_book_info_div p{
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+.received_user_book_info_title{
+    width: 100%;
+    min-height: 2.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
 
+.received_user_book_info_authors{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    overflow-y: auto;
+    max-height: 2.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
+    padding-right: 0.5rem;
+}
+.received_user_book_info_authors li{
+    margin-left: 0.2rem;
+}
+.received_user_book_info_authors::-webkit-scrollbar{
+    width: 3px;
+}
+
+.received_user_book_info_authors::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.received_user_book_info_authors::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
+}
+.received_user_book_info_genres{
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    max-height: 5rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #1B1B1E #f0efef;
+    padding-right: 0.5rem;
+}
+.received_user_book_info_genres::-webkit-scrollbar{
+    width: 3px;
+}
+
+.received_user_book_info_genres::-webkit-scrollbar-thumb{
+    background-color: #1B1B1E;
+    border-radius: 1rem;
+}
+.received_user_book_info_genres::-webkit-scrollbar-track{
+    background-color: #dcdcdc;
+    border-radius: 1rem;
+}
+.received_book_genre{
+    font-size: 0.85rem;
+    color: #FBFFFE;
+    background-color: darkblue;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+    padding-left: 0.3rem;
+    padding-right: 0.3rem;
+    border-radius: 0.3rem;
+}
 </style>

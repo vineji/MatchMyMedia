@@ -74,16 +74,22 @@ class BookRating(models.Model):
 
 class Friendship(models.Model):
 
-    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="logged_user")
-    friend = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="friends_of_logged_user")
+    from_user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="user")
+    to_user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="friend")
+    shared_books = models.JSONField(default=list, blank=True)
 
     class Meta:
-        unique_together = ('user','friend')
-    
-    def get_friend(self):
+        unique_together = ('from_user','to_user')
+
+    def to_dict(self):
         return {
-            "friend_id" : self.friend.id
+            "id" : self.id,
+            "from_user" : self.from_user.online_id,
+            "to_user" : self.to_user.online_id,
+            "shared_books" : self.shared_books,
         }
+    
+
 
 class FriendRequest(models.Model):
 
@@ -111,23 +117,7 @@ class FriendRequest(models.Model):
         }
 
 
-class SharedBooks(models.Model):
 
-    from_user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="book_sender")
-    to_user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name="book_reciever")
-    shared_books = models.JSONField(default=list, blank=True)
-    shared_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        ordering = ['-shared_at']
-    
-    def to_dict(self):
-        return {
-            "from_user" : self.from_user,
-            "to_user" : self.to_user,
-            "shared_books" : self.shared_books,
-            "shared_at" : self.shared_at.isoformat(),
-        }
 
 
 

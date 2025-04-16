@@ -265,7 +265,7 @@ def user_list_view(request):
         paginator = Paginator(all_users, 5)
         page_object = paginator.get_page(page_number)
 
-        friend_ids= set(Friendship.objects.filter(user=request.user).values_list('friend_id', flat=True))
+        friend_ids = set(Friendship.objects.filter(from_user=request.user).values_list('to_user_id', flat=True))
 
         final_all_users = []
 
@@ -539,8 +539,8 @@ def friend_request_view(request):
                 from_user = friend_request.from_user
 
                 try:
-                    Friendship.objects.create(user=from_user, friend=request.user)
-                    Friendship.objects.create(user=request.user, friend=from_user)
+                    Friendship.objects.create(from_user=from_user, to_user=request.user)
+                    Friendship.objects.create(from_user=request.user, to_user=from_user)
 
                 except IntegrityError:
                     return JsonResponse({"message" : "Friendship already exists"})
@@ -568,15 +568,106 @@ def friend_request_view(request):
 
 
 @login_required
-def friendship_view(request):
+def share_book_view(request):
 
-    if request.method== "GET":
+    if request.method == 'GET':
 
-        friendship_list = Friendship.objects.filter(user = request.user)
+        type = request.GET.get("type")
+        
 
-        friendship_list = [x.get_friend() for x in friendship_list]
+        if type == "sent books":
 
-        return JsonResponse(friendship_list, safe=False)
+            from_user = request.user
+            to_user_id = request.GET.get("user_id")
+            to_user = get_user_model().objects.get(id = to_user_id)
+
+            friendship_object = Friendship.objects.filter(from_user=from_user, to_user=to_user).first()
+
+            shared_books = friendship_object.shared_books
+
+
+            return JsonResponse({"shared_books" : shared_books}, safe=False)
+
+        
+        elif type == "received books":
+
+            to_user = request.user
+
+            friendships_objects = Friendship.objects.filter(to_user=to_user)
+
+            received_books = []
+
+            for x in friendships_objects:
+                for book in x.shared_books:
+                    received_books.append(book)
+
+
+            return JsonResponse({"received_books": received_books}, safe=False)
+    
+    elif request.method == "POST":
+
+        data = json.loads(request.body)
+
+        try:
+
+            from_user = request.user
+            to_user_id = data.get("to_user_id")
+            to_user = get_user_model().objects.get(id = to_user_id)
+            book = data.get("book")
+
+            friendship_object = Friendship.objects.filter(from_user=from_user, to_user=to_user).first()
+
+            if not book:
+                return JsonResponse({"error": "Book is required"}, status=400)
+            
+            if book in friendship_object.shared_books:
+                return JsonResponse({"error": "You have already shared this book with this person"}, status=400)
+
+            friendship_object.shared_books.append(book)
+            friendship_object.save()
+
+            return JsonResponse({"message": "Book shared successfully."}, status=200)
+        
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format"}, status=400)
+            
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+    
+    elif request.method == "DELETE":    
+        
+        data = json.loads(request.body)
+
+        try:
+
+            from_user = request.user
+            to_user_id = data.get("to_user_id")
+            to_user = get_user_model().objects.get(id = to_user_id)
+            book = data.get('book')
+
+            friendship_object = Friendship.objects.filter(from_user=from_user, to_user=to_user).first()
+
+            if not book:
+                return JsonResponse({"error": "Book is required"}, status=400)
+            
+            if book not in friendship_object.shared_books:
+                return JsonResponse({"error": "Book is already unshared"}, status=400)
+            
+            friendship_object.shared_books.remove(book)
+            friendship_object.save()
+
+            return JsonResponse({"message": "Book unshared successfully."}, status=200)
+        
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON format"}, status=400)
+            
+        except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+
+
+
+
 
 
 

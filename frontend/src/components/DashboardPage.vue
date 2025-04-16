@@ -1252,25 +1252,16 @@ body{
 .book_div_title_modal{
     max-height: 4rem;
     overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #1B1B1E #f0efef;
     width: 8rem;
     max-width: 8rem;
     font-size: 0.8rem;
     padding-right: 0.1rem;
-}
-.book_div_title_modal::-webkit-scrollbar{
-    width: 3px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
-.book_div_title_modal::-webkit-scrollbar-thumb{
-    background-color: #1B1B1E;
-    border-radius: 1rem;
-}
-.book_div_title_modal::-webkit-scrollbar-track{
-    background-color: #dcdcdc;
-    border-radius: 1rem;
-}
 .book_div_published_modal{
     width: 8rem;
     max-width: 8rem;
