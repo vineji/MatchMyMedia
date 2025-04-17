@@ -1116,21 +1116,13 @@ export default {
 .other_user_book_info_title{
     max-height: 4rem;
     overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #1B1B1E #f0efef;
-}
-.other_user_book_info_title::-webkit-scrollbar{
-    width: 3px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+
 }
 
-.other_user_book_info_title::-webkit-scrollbar-thumb{
-    background-color: #1B1B1E;
-    border-radius: 1rem;
-}
-.other_user_book_info_title::-webkit-scrollbar-track{
-    background-color: #dcdcdc;
-    border-radius: 1rem;
-}
 .other_user_book_info_authors{
     margin: 0;
     padding: 0;

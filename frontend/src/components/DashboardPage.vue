@@ -218,11 +218,11 @@
                                     </div>
                                 </ul>
                                 <p><b>Published Date: </b>{{ chosen_book?.published_date }}</p>
-                                <ul v-if="chosen_book?.categories?.length > 0" class="chosen_genre_list">
+                                <ul v-if="chosen_book?.categories?.length > 0" class="chosen_genre_list_modal">
                                     <p><b>Categories: </b> </p>
                                     <li class="chosen_genre" style="background-color: grey;" v-for="category in chosen_book?.categories" :key="category">{{ category}}</li>
                                 </ul>
-                                <ul v-else class="chosen_genre_list">
+                                <ul v-else class="chosen_genre_list_modal">
                                     <p><b>Categories: </b> </p>
                                     <li class="chosen_genre" style="background-color: #9b9a9a;">Unknown</li>
                                 </ul>
@@ -1132,7 +1132,7 @@ body{
 }
 .add_book_container{
     margin-top: 1rem;
-    width: 41.5rem;
+    width: 39.5rem;
     height: 22rem;
     background-color: #FBFFFE;
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
@@ -1141,6 +1141,7 @@ body{
     flex-direction: column;
     align-items: flex-start;
     padding-left: 2rem;
+    padding-right: 2rem;
 }
 .add_book_container h3{
     margin: 0;
@@ -1148,6 +1149,7 @@ body{
     margin-bottom: 0.6rem;
     align-self: center;
     margin-right: 2rem;
+    font-size: 1.5rem;
 
 }
 .book_modal_container{
@@ -1166,7 +1168,7 @@ body{
     padding: 0;
     display: flex;
     flex-direction: row;
-    width: 55rem;
+    width: 100%;
     justify-content: space-between;
     align-items: center;
 }
@@ -1179,11 +1181,24 @@ body{
     max-width: 40rem;
     flex-wrap: wrap;
 }
+.chosen_genre_list_modal{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
 .genre_book_container{
     width: 43.5rem;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    align-items: center;
 }
 .books_li_modal{
     display: flex;
@@ -1220,6 +1235,9 @@ body{
     overflow-wrap: break-word;
 }
 .books_ul_container{
+    padding: 0;
+    padding-left: 0.3rem;
+    width: 100%;
     display: flex;
     flex-direction: column;
     height: 40rem;
@@ -1227,13 +1245,14 @@ body{
     overflow-y: auto;
     overflow-x: hidden;
     align-items: center;
+
 }
 .books_ul{
     background-color: #FBFFFE;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    width: 77rem;
+    width: 100%;
     justify-content: flex-start;
     gap: 1rem;
     scrollbar-width: thin;
@@ -1388,7 +1407,7 @@ body{
 }
 
 .add_genre_container{
-    width: 41.5rem;
+    width: 39.5rem;
     height: 13rem;
     background-color: #FBFFFE;
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
@@ -1397,11 +1416,13 @@ body{
     flex-direction: column;
     align-items: flex-start;
     padding-left: 2rem;
+    padding-right: 2rem;
 }
 .add_genre_container h3{
     margin-bottom: 0.7rem;
     align-self: center;
     margin-right: 2rem;
+    font-size: 1.5rem;
 
 }
 
@@ -1427,7 +1448,7 @@ body{
     display: flex;
     flex-direction: row;
     align-items: center;
-    width: 39.5rem;
+    width: 100%;
     justify-content: space-between;
 }
 .genre_div p {
@@ -1477,8 +1498,8 @@ body{
 .user_genre_list{
     padding-left: 0;
     padding-top: 0.3rem;
-    width: 39.5rem;
-    max-width: 39.5rem;
+    width: 100%;
+    max-width: 100%;
     height: 5rem;
     max-height: 5rem;
     overflow-y: scroll;
@@ -1719,8 +1740,8 @@ body{
 }
 .chosen_book_div1_modal{
     display: flex;
-    width: 54rem;
-    max-width: 54rem;
+    width: 100%;
+    max-width: 100%;
     flex-direction: column;
     align-items: flex-start;
     margin-left: 1rem;
@@ -1745,14 +1766,13 @@ body{
 }
 .book_modal_container_header{
     margin-top: 2rem;
-    margin-left: 2.5rem;
     align-self: flex-start;
     display: flex;
     flex-direction: row;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     height: 2.5rem;
-    width: 77.5rem;
+    width: 100%;
 
 }
 .book_modal_container_header h4{
@@ -1865,8 +1885,8 @@ body{
 }
 .favourite_book_ul{
     padding: 0;
-    width: 40.3rem;
-    max-width: 40.3rem;
+    width: 100%;
+    max-width: 100%;
     height: 15rem;
     max-height: 15rem;
     display: flex;
@@ -2077,4 +2097,177 @@ body{
 .star_dashboard.filled{
     color: #FAA916;
 }
+
+@media (max-width: 1310px){
+    .dashboard_container{
+        width: 73rem;
+    }
+    .user_info_div{
+        width: 23rem;
+    }
+    .user_password_div{
+        width: 23rem;
+    }
+    .user_info_div_date{
+        width: 11rem;
+    }
+    .user_info_div_input{
+        width: 11rem;
+    }
+    .user_info{
+        padding: 1rem;
+        width: 25rem;
+    }
+}
+@media (max-width: 1300px){
+    .book_modal_container{
+        width: 60rem;
+
+    }
+    .book_modal_container_header input{
+        margin-left: 8rem;
+    }
+    .chosen_book_div_modal{
+        width: 62rem;
+    }
+    .chosen_book_container_modal{
+        width: 55rem;
+    }
+    .chosen_book_div1_modal{
+        width: 40rem;
+    }
+    .modal_title1{
+        width: 27rem;
+        max-width: 27rem;
+    }
+    .chosen_book_authors_dashboard_div{
+        background-color: #06b930;
+        width: 26rem;
+        max-width: 26rem;
+    }
+}
+
+@media (max-width: 1210px){
+    .dashboard_container{
+        flex-direction: column;
+        align-items: center;
+        gap: 1rem;
+    }
+    .user_info_div{
+        width: 30rem;
+    }
+    .user_password_div{
+        width: 30rem;
+    }
+    .user_info_div_date{
+        width: 18rem;
+    }
+    .user_info_div_input{
+        width: 18rem;
+    }
+    .user_info{
+        padding: 2rem;
+        width: 39.5rem;
+        align-items: center;
+    }
+}
+@media (max-width: 1000px){
+    .book_modal_container{
+        width: 40rem;
+
+    }
+    .book_modal_container_header input{
+        margin-left: 3rem;
+        font-size: 0.9rem;
+        width: 14rem;
+        height: 2rem;
+    }
+    .clear_book_btn{
+        height: 2.5rem;
+    }
+}
+@media (max-width: 750px){
+    .user_info{
+        padding: 2rem;
+        width: 30rem;
+    }
+    
+    .add_genre_container{
+        width: 30rem;
+    }
+    .add_book_container{
+        width: 30rem;
+    }
+    .favourite_book_ul{
+        justify-content: center;
+    }
+
+}
+@media (max-width: 690px){
+    .book_modal_container{
+        width: 25rem;
+
+    }
+    .book_modal_container_header h4{
+        font-size: 1rem;
+    }
+    .book_modal_container_header input{
+        margin-left: 2rem;
+        width: 8rem;
+    }
+    .clear_book_btn{
+        width: 2rem;
+    }
+    .books_ul{
+        justify-content: center;
+    }
+    .cancel_add_book_btn{
+        height: 2.5rem;
+        font-size: 1rem;
+        width: 4rem;
+    }
+    .pagination_control_modal{
+        width: 18rem;
+
+    }
+    .pagination_control_button_next_prev{
+        font-size: 1.2rem;
+        height: 2.5rem;
+
+    }
+    .pagination_control_button_page{
+        font-size: 1.5rem;
+        height: 3rem;
+
+    }
+}
+@media (max-width: 580px){
+    .user_info{
+        padding: 1rem;
+        width: 26rem;
+        align-items: flex-start;
+    }
+    
+    .add_genre_container{
+        width: 24rem;
+    }
+    .add_book_container{
+        width: 24rem;
+    }
+    .user_info_div{
+        width: 24rem;
+    }
+    .user_password_div{
+        width: 24rem;
+    }
+    .user_info_div_date{
+        width: 12rem;
+    }
+    .user_info_div_input{
+        width: 12rem;
+    }
+
+
+}
+
 </style>

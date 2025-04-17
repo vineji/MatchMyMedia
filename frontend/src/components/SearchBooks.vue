@@ -802,23 +802,14 @@ li{
 .book_title{
     max-height: 5rem;
     overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: #1B1B1E #f0efef;
     width: 9.1rem;
     padding-right: 0.1rem;
-}
-.book_title::-webkit-scrollbar{
-    width: 3px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
-.book_title::-webkit-scrollbar-thumb{
-    background-color: #1B1B1E;
-    border-radius: 1rem;
-}
-.book_title::-webkit-scrollbar-track{
-    background-color: #dcdcdc;
-    border-radius: 1rem;
-}
 
 .pagination_control{
     display: flex;
