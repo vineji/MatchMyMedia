@@ -8,19 +8,19 @@
         <title>Login</title>
     </head>
     <body>
-
-
         {% if error %}
-            <p>{{error}}</p>
+        <script>
+            alert("{{ error|escapejs }}");
+        </script>
         {% endif %}
         <a href="http://127.0.0.1:8080" class="main-page-btn">Main Page</a>
         <form method="post" class="signup-container">
             {% csrf_token %}
             <h1 class="signup-header">Sign Up</h1>
             <div class="input-container"> 
-                <input class="inputs" type="text" id="username" name="username" placeholder="Enter Username" required>
+                <input class="inputs" type="text" id="username" name="username" placeholder="Enter Username" required maxlength="20">
                 <div class="input-container-div">
-                    <input class="input_online_id" type="text" id="online_id" name="online_id" placeholder="Enter Online ID" value="{{ form.online_id.value|default:'' }}" required>
+                    <input class="input_online_id" type="text" id="online_id" name="online_id" placeholder="Enter Online ID" value="{{ form.online_id.value|default:'' }}" maxlength="12" required>
                     <input class="input_DOB" type="date" id="DOB" name="DOB" placeholder="Enter DOB" value="{{ form.DOB.value|default:'' }}"  max="2020-01-01" title="Date of Birth" required>
                 </div>
                 <input class="inputs" type="password" id="password1" name="password1" placeholder="Enter Password" required>

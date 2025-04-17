@@ -162,9 +162,6 @@
                         </div>
                     </div>
                 </div>
-                <div v-if="showReceivedBook == true" class="other_user_modal">
-                    
-                </div>
             </li>
             <div class="pagination_container">
                 <button :disabled="hasPrevious == false" @click="prevPage()" class="pagination_button">Previous</button>
@@ -213,9 +210,9 @@
                 </ul>
             </div>
             <div class="received_books_container">
-                <h2>What your friends shared</h2>
+                <h2>What your friends shared with you</h2>
                 <ul class="received_books_ul">
-                    <li v-if="receivedBooks.length == 0" class="not_shared_books">N one has shred books with you yet</li>
+                    <li v-if="receivedBooks.length == 0" class="not_shared_books">You have not been shared any books yet.</li>
                     <li v-for="book in receivedBooks" :key="book" class="received_book_li">
                         <img :src="book.image" class="received_user_book_img"/>
                         <div class="received_user_book_info_div">
@@ -233,10 +230,38 @@
                                 <li v-if="!book.categories || book.categories.length === 0" style="background-color: grey;" class="received_book_genre">Unavailable</li>
                                 <li v-for="category in book.categories" :key="category" class="received_book_genre">{{ category }}</li>
                             </ul>
-                            <button @click="moreInfo(book)" class="other_book_share_more_info_btn" >More Info</button>
+                            <button @click="moreInfoReceived(book)" class="other_book_share_more_info_btn" >More Info</button>
                         </div>
                     </li>
                 </ul>
+            </div>
+            <div v-if="showReceivedBook == true" class="other_user_modal">
+                <div class="other_user_modal_container">
+                    <div class="other_user_modal_header">
+                        <h1>Book shared from {{chosenReceivedBook.from_user}}</h1>
+                        <button @click="closeReceivedBook()" class="close_btn">Close</button>
+                    </div>
+                    <div class="more_info_book_div" >
+                        <img :src="chosenReceivedBook.image" class="more_info_book_img">
+                        <div class="more_info_info_div">
+                            <p><b>Title: </b>{{ chosenReceivedBook.title || "Unavailable" }}</p>
+                            <p><b>Published: </b>{{ chosenReceivedBook.published_date || "Unavailable" }}</p>
+                            <ul class="more_info_info_authors" >
+                                <p style="padding-right: 0.5rem;"><b>Authors: </b></p>
+                                <li v-if="!chosenReceivedBook.authors || chosenReceivedBook.authors.length === 0">Unavailable</li>
+                                <li style="text-align: left;" v-for="(author,index) in chosenReceivedBook?.authors" :key="index">
+                                    <span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}
+                                </li>
+                            </ul>
+                            <ul class="more_info_info_genres_container">
+                                <p style="padding-right: 0.5rem;"><b>Genres: </b></p>
+                                <li v-if="!chosenReceivedBook.categories || chosenReceivedBook.categories.length === 0" style="background-color: grey;" class="more_info_info_genre">Unavailable</li>
+                                <li v-for="category in chosenReceivedBook.categories" :key="category" class="more_info_info_genre">{{ category }}</li>
+                            </ul>
+                            <p style="margin-top: 0.5rem;"><b>Description: </b>{{ chosenReceivedBook.description || "Unavailable" }}</p>
+                        </div>
+                    </div>
+                </div>
             </div>
             
         </div>
@@ -272,6 +297,7 @@ export default {
             sharedBooks : [],
             receivedBooks : [],
             showReceivedBook : false,
+            chosenReceivedBook : {},
         }
     },
     setup(){
@@ -625,6 +651,14 @@ export default {
                 console.error("Error fetching book:", error);
             } 
         },
+        moreInfoReceived(book){
+            this.chosenReceivedBook = book;
+            this.showReceivedBook = true;
+        },
+        closeReceivedBook(){
+            this.chosenReceivedBook = {};
+            this.showReceivedBook = false;
+        }
         
 
     },
@@ -1211,7 +1245,7 @@ export default {
     border-radius: 0.5rem;
 }
 .more_info_info_div{
-    width: 35rem;
+    width: 37rem;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -1225,6 +1259,7 @@ export default {
     margin: 0;
     display: flex;
     flex-direction: row;
+    align-items: center;
     flex-wrap: wrap;
 }
 .more_info_info_authors li{
@@ -1954,4 +1989,43 @@ export default {
     padding-right: 0.3rem;
     border-radius: 0.3rem;
 }
+.other_user_modal_received{
+    all: unset;
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    background: rgba(0,0,0,0.5);
+    width: 100%;
+    height: 100%;
+}
+.other_user_modal_container_received{
+    background-color: #FBFFFE;
+    width: 50rem;
+    height: 38rem;
+    padding: 3rem;
+    padding-top: 2rem;
+    border-radius: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.other_user_modal_header_received{
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+}
+.other_user_modal_header_received h1{
+    margin: 0;
+}
+
 </style>

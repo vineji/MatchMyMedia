@@ -49,7 +49,7 @@
                             <div class="chosen_book_authors_div">
                                 <p><b>Authors: </b></p>
                                 <li style="padding-right: 0.3rem;" v-if="chosen_book?.authors?.length == 0">Unknown</li>
-                                <li v-for="(author,index) in chosen_book?.authors" :key="index">
+                                <li v-for="(author,index) in chosen_book?.authors" :key="index" style="margin-left: 0.3rem;">
                                     <span :style="{fontWeight : '900'}">{{ author.charAt(0) }}</span>{{ author.slice(1) }}
                                 </li>
                             </div>
@@ -645,5 +645,160 @@ export default{
 }
 .star_modal.filled{
     color: #FAA916;
+}
+@media (max-width: 1060px){
+    .list-container{
+        width: 45rem;
+        max-width: 50rem;
+
+    }
+}
+@media (max-width: 1030px){
+    .chosen_book_div{
+        width: 52rem;
+    }
+    .chosen_book_container{
+        width: 46rem;
+    }
+    .chosen_book_div1{
+        max-width: 32rem;
+    }
+    .div1_title{
+        max-width: 32rem;
+    }
+    .fav_btn_modal{
+        font-size: 0.9rem;
+    }
+    .chosen_book_div1_title{
+        width: 22rem;
+    }
+    .chosen_book_authors{
+        max-width: 32rem;
+    }
+    .chosen_book_authors_div{
+        max-width: 17rem;
+    }
+}
+@media (max-width: 860px){
+    .chosen_book_div{
+        width: 44rem;
+    }
+    .chosen_book_image{
+        width: 10rem;
+        height: 15rem;
+    }
+    .chosen_book_container{
+        width: 36rem;
+    }
+    .chosen_book_div1{
+        max-width: 26rem;
+    }
+    .div1_title{
+        max-width: 26rem;
+    }
+    .fav_btn_modal{
+        font-size: 0.9rem;
+    }
+    .chosen_book_div1_title{
+        width: 12rem;
+    }
+    .chosen_book_authors{
+        margin: 0;
+        flex-direction: column-reverse;
+        align-items: flex-start;
+        max-width: 26rem;
+    }
+    .chosen_book_authors_div{
+        max-width: 26rem;
+
+    }
+}
+@media (max-width: 820px){
+    .list-container{
+        width: 43rem;
+    }
+    
+}
+@media (max-width: 700px){
+    .list-container{
+        width: 25rem;
+    }
+}
+@media (max-width: 690px){
+    .chosen_book_div{
+        max-width: 34rem;
+    }
+    .div1_title{
+        margin: 0;
+        gap: 0.5rem;
+        flex-direction: column;
+        align-items: flex-start;
+        max-width: 17rem;
+    }
+    .chosen_book_container{
+        max-width: 26rem;
+        font-size: 0.9rem;
+    }
+    .chosen_book_div1{
+        max-width: 17rem;
+    }
+    .chosen_book_authors{
+        max-width: 17rem;
+    }
+    .chosen_book_authors_div{
+        max-width: 17rem;
+        gap: 0;
+    }
+    .modal-header p{
+        align-items: center;
+        max-width: 23rem;
+    }
+    .modal-header div{
+        margin-top: 1rem;
+    }
+}
+@media (max-width: 600px){
+    
+    .modal-header p{
+        align-items: center;
+        max-width: 19rem;
+    }
+    .modal-header div{
+        margin-top: 1rem;
+    }
+
+}
+@media (max-width: 550px){
+    .modal-header{
+        max-width: 30rem;
+    }
+    
+    .modal-header p{
+        align-items: center;
+        max-width: 12rem;
+    }
+    .modal-header div{
+        margin-top: 1rem;
+    }
+
+}
+@media (max-width: 530px){
+
+    .close-button{
+        margin-top: 0.5rem;
+        height: 2.5rem;
+    }
+    .back{
+        margin-top: 0.6rem;
+        height: 2.6rem;
+    }
+}
+@media (max-width: 500px){
+    .modal-header{
+        margin-top: 1rem;
+        max-width: 28rem;
+    }
+    
+
 }
 </style>

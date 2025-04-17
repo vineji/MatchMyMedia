@@ -67,8 +67,8 @@ def sign_up_view(request):
             login(request, user)
             return redirect("http://127.0.0.1:8080/dashboard/")
         else:
-            print(form.errors)
-            return render(request, "signup.html", {"form": form})
+            error_messages = " ".join([f"{'\n'.join(errors)}" for _, errors in form.errors.items()])
+            return render(request, "signup.html", {"error": error_messages})
     
     form = CustomUserCreationForm()
     return render(request, "signup.html", {"form": form})

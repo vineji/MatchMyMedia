@@ -976,6 +976,7 @@ body{
     padding-right: 1rem;
     border-radius: 0.5rem;
     transition: 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 .change_btn:hover{
     background-color: #0dc43bae;
@@ -995,6 +996,7 @@ body{
     padding-right: 0.7rem;
     border-radius: 0.5rem;
     transition: 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 .save_btn:hover{
     background-color: rgba(13, 196, 144, 0.823);
@@ -1009,6 +1011,7 @@ body{
     padding-right: 0.7rem;
     border-radius: 0.5rem;
     transition: 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 .cancel_btn:hover{
     background-color: #ff1538be;
@@ -1034,6 +1037,7 @@ body{
     padding-right: 1rem;
     border-radius: 0.5rem;
     transition: 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 .change_password_btn:hover{
@@ -1064,6 +1068,7 @@ body{
     padding-right: 1rem;
     border-radius: 0.5rem;
     transition: 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 .update_btn:hover{
     background-color: rgba(13, 196, 144, 0.823);
@@ -1079,6 +1084,7 @@ body{
     padding-right: 0.7rem;
     border-radius: 0.5rem;
     transition: 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 .cancel_password_btn:hover{
     background-color: #ff1538be;
@@ -1102,6 +1108,7 @@ body{
     border-radius: 0.5rem;
     margin-left: 0.3rem;
     transition: 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 .show_password_btn:hover{
     background-color: #faaa16b4;
@@ -1117,6 +1124,7 @@ body{
     border-radius: 0.5rem;
     margin-left: 0.3rem;
     transition: 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 
 }
 .clear_password_btn:hover{

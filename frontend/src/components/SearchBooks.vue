@@ -25,8 +25,10 @@
                 />
                 <button @click="clearQuery" class="clear_button">&times;</button>
             </div>
-            <button class="rcmnd-button" @click="recommendBooks(chosenMedia)" >Recommend Books</button>
-            <button class="login-btn" @click="redirectToLogin">{{loggedUser.online_id || 'Login'}}</button>
+            <div style="display: flex; flex-direction: row; gap: 0.7rem;">
+                <button class="rcmnd-button" @click="recommendBooks(chosenMedia)" >Recommend Books</button>
+                <button class="login-btn" @click="redirectToLogin">{{ loggedUser.online_id ?  'Dashboard' : 'Login'}}</button>
+            </div>
         </form>
         <RecommendModal
         v-model:isVisible="isModalVisible"
@@ -591,6 +593,9 @@ li{
 }
 
 .search_button_div{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
     background-color: #FBFFFE;
     border: #FAA916 solid 3px;
     height: 3rem;
@@ -609,6 +614,11 @@ li{
     cursor: pointer;
     font-weight: 500;
     font-size: 1.2rem;
+    transition: 0.2s ease;
+}
+
+.book_button:hover{
+    color: #faaa16aa;
 }
 
 .movie_button{
@@ -623,6 +633,10 @@ li{
     font-size: 1.2rem;
     border-right: 3px #FAA916 solid;
     border-left: 3px #FAA916 solid;
+    transition: 0.2s ease;
+}
+.movie_button:hover{
+    color: #faaa16aa;
 }
 .show_button{
     all: unset;
@@ -634,6 +648,10 @@ li{
     cursor: pointer;
     font-weight: 500;
     font-size: 1.2rem;
+    transition: 0.2s ease;
+}
+.show_button:hover{
+    color: #faaa16aa;
 }
 .rcmnd-button{
     all: unset;
@@ -998,8 +1016,8 @@ li{
     justify-content: flex-start;
     flex-wrap: wrap;
     align-items: center;
-    width: 40rem;
-    max-width: 40rem;
+    width: 100%;
+    max-width: 100%;
     padding: 0;
     gap: 0.5rem;
     margin-top: 1rem;
@@ -1063,6 +1081,247 @@ li{
 }
 .star.filled{
     color: #FAA916;
+}
+
+@media (max-width: 1330px){
+    .media_list_ul{
+        padding-left: 7rem;
+        width: 70rem;
+        max-width: 70rem;
+        gap: 1rem;
+    }
+}
+@media (max-width: 1230px){
+    .search_button_div{
+        width: 15rem;
+        height: 2.5rem;
+    }
+    .book_button{
+        padding: 0;
+        width: 5rem;
+        height: 2.5rem;
+        font-size: 1rem;
+
+    }
+    .movie_button{
+        padding: 0;
+        width: 5rem;
+        height: 2.5rem;
+        font-size: 1rem;
+
+    }
+    .show_button{
+        padding: 0;
+        width: 5rem;
+        height: 2.5rem;
+        font-size: 1rem;
+
+    }
+    .searchbar{
+        width: 21rem;
+        height: 2.5rem;
+    }
+    .searchbar input{
+        height: 2.3rem;
+        font-size: 1.1rem;
+        padding-left: 0.7rem;
+    }
+    .clear_button{
+        height: 2.9rem;
+        font-size: 1.5rem;
+    }
+    .rcmnd-button{
+        height: 2.9rem;
+        font-size: 1rem;
+    }
+    .login-btn{
+        padding: 0;
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+        height: 2.55rem;
+        font-size: 1rem;
+    }
+    .chosen_media{
+        margin-left: 5rem;
+    }
+
+}
+
+@media (max-width: 980px){
+    .media_list_ul{
+        padding-left: 20rem;
+        width: 60rem;
+        max-width: 60rem;
+        gap: 1rem;
+    }
+}
+@media (max-width: 940px){
+    .search{
+        margin-left: 8rem;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+    .chosen_media{
+        width: 45rem;
+        gap: 1rem;
+    }
+    .chosen_media_info{
+        width: 36rem;
+    }
+}
+@media (max-width: 845px){
+    .search{
+        margin-left: 6rem;
+
+    }
+}
+@media (max-width: 800px){
+    .chosen_media{
+        width: 35rem;
+        gap: 1rem;
+    }
+    .chosen_media_info{
+        width: 26rem;
+    }
+
+}
+@media (max-width: 770px){
+    .search{
+        margin-left: 4rem;
+
+    }
+}
+@media (max-width: 700px){
+    .search_button_div{
+        width: 13rem;
+        height: 2.5rem;
+    }
+    .book_button{
+        padding: 0;
+        width: 5rem;
+        height: 2.5rem;
+        font-size: 0.85rem;
+
+    }
+    .movie_button{
+        padding: 0;
+        width: 5rem;
+        height: 2.5rem;
+        font-size: 0.85rem;
+
+    }
+    .show_button{
+        padding: 0;
+        width: 5rem;
+        height: 2.5rem;
+        font-size: 0.85rem;
+
+    }
+
+}
+@media (max-width: 670px){
+    .search{
+        padding-left: 5rem;
+    }
+    .searchbar{
+        width: 15rem;
+        height: 2.5rem;
+    }
+    .searchbar input{
+        width: 12rem;
+        height: 2.3rem;
+        font-size: 1.1rem;
+        padding-left: 0.7rem;
+    }
+    .clear_button{
+        height: 2.9rem;
+        font-size: 1.5rem;
+    }
+    .media_list_ul{
+        padding-left: 22rem;
+        width: 40rem;
+        max-width: 40rem;
+        gap: 1rem;
+    }
+    .pagination_control{
+        width: 25rem;
+        padding-right: 2rem;
+
+    }
+    .pagination_control_button_next_prev{
+        height: 3rem;
+        width: 3rem;
+        
+
+    }
+    .pagination_control_button_page{
+        height: 3.7rem;
+        width: 3.7rem;
+    }
+}
+@media (max-width: 650px){
+    .search{
+        padding: 0;
+        justify-content: center;
+    }
+    .search_button_div{
+        width: 20rem;
+        height: 2.5rem;
+    }
+    .book_button{
+        padding: 0;
+        width: 6rem;
+        height: 2.5rem;
+ 
+        font-size: 1.15rem;
+
+    }
+    .movie_button{
+        padding: 0;
+        width: 6rem;
+        height: 2.5rem;
+        font-size: 1.15rem;
+
+    }
+    .show_button{
+        padding: 0;
+        width: 8rem;
+        height: 2.5rem;
+        font-size: 1.15rem;
+    }
+    .searchbar{
+        width: 20.2rem;
+        height: 2.5rem;
+    }
+    .searchbar input{
+        height: 2.3rem;
+        width: 19rem;
+        font-size: 1rem;
+        padding-left: 0.7rem;
+    }
+    .clear_button{
+        height: 2.9rem;
+        font-size: 1.5rem;
+    }
+    .rcmnd-button{
+        height: 2.7rem;
+        font-size: 1.1rem;
+    }
+    .login-btn{
+        padding: 0;
+        padding-left: 0.8rem;
+        padding-right: 0.8rem;
+        height: 2.3rem;
+        font-size: 1.1rem;
+    }
+    .chosen_media{
+        width: 25rem;
+        gap: 1rem;
+    }
+    .chosen_media_info{
+        width: 16rem;
+    }
+
 }
 
 
