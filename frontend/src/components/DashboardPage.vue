@@ -1254,7 +1254,7 @@ body{
     flex-wrap: wrap;
     width: 100%;
     justify-content: flex-start;
-    gap: 1rem;
+    gap: 0.5rem;
     scrollbar-width: thin;
     scrollbar-color: #1B1B1E #f0efef;
 }
@@ -1537,6 +1537,7 @@ body{
     padding-left: 0.7rem;
     padding-right: 0.7rem;
     border-radius: 0.3rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 .delete_genre_btn{
     padding: 0;
@@ -1565,8 +1566,8 @@ body{
     margin: 0;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
-    width: 37rem;
-    max-width: 37rem;
+    width: 100%;
+    max-width: 100%;
     max-height: 15rem;
     overflow-y: scroll;
     scrollbar-width: thin;
@@ -1603,7 +1604,7 @@ body{
     padding-right: 0.75rem;
     color: #FBFFFE;
     border-radius: 0.3rem;
-
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 .add_existing_genre_btn{
     padding: 0;
@@ -1636,7 +1637,7 @@ body{
     align-items: center;
     height: 3rem;
     padding-bottom: 1rem;
-    width: 37rem;
+    width: 100%;
 }
 .genre_modal_div p{
     margin: 0;
@@ -1650,7 +1651,7 @@ body{
 }
 .genre_modal_div input{
     all: unset;
-    margin-left: 5.5rem;
+    margin-left: auto;
     padding-left: 0.5rem;
     text-align: left;
     border: 3px solid #1B1B1E;
@@ -1734,7 +1735,7 @@ body{
 .chosen_book_image_modal{
     height: 25.2rem;
     max-height: 25.2rem;
-    width: 18rem;
+    width: 15rem;
     max-width: 15rem;
     border-radius: 0.8rem;
 }
@@ -1885,8 +1886,8 @@ body{
 }
 .favourite_book_ul{
     padding: 0;
-    width: 100%;
-    max-width: 100%;
+    width: 40.5rem;
+    max-width: 40.5rem;
     height: 15rem;
     max-height: 15rem;
     display: flex;
@@ -2141,9 +2142,12 @@ body{
         max-width: 27rem;
     }
     .chosen_book_authors_dashboard_div{
-        background-color: #06b930;
         width: 26rem;
         max-width: 26rem;
+    }
+    .book_back_btn{
+
+        margin-left: 5rem;
     }
 }
 
@@ -2185,6 +2189,43 @@ body{
     .clear_book_btn{
         height: 2.5rem;
     }
+    .chosen_book_image_modal{
+        width: 11rem;
+        height: 18.5rem;
+    }
+    .chosen_book_container_modal{
+        width: 37rem;
+    }
+    .modal_title_div{
+        margin: 0;
+        gap: 0.5rem;
+        flex-direction: column;
+        align-items: flex-start;
+        width: 24rem;
+    }
+    .modal_title1{
+        width: 24rem;
+    }
+    .chosen_book_authors_dashboard{
+        width: 24rem;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .chosen_genre_list_modal{
+        width: 24rem;
+    }
+    .book_back_btn{
+        height: 2.1rem;
+        width: 1.9rem;
+        margin-left: 1rem;
+        font-size: 1rem;
+    }
+    .cancel_add_book_btn{
+        height: 2.4rem;
+        font-size: 1rem;
+        width: 4rem;
+    }
+
 }
 @media (max-width: 750px){
     .user_info{
@@ -2197,8 +2238,10 @@ body{
     }
     .add_book_container{
         width: 30rem;
+        align-items: center;
     }
     .favourite_book_ul{
+        width: 32rem;
         justify-content: center;
     }
 
@@ -2221,11 +2264,6 @@ body{
     .books_ul{
         justify-content: center;
     }
-    .cancel_add_book_btn{
-        height: 2.5rem;
-        font-size: 1rem;
-        width: 4rem;
-    }
     .pagination_control_modal{
         width: 18rem;
 
@@ -2239,6 +2277,33 @@ body{
         font-size: 1.5rem;
         height: 3rem;
 
+    }
+    .chosen_book_image_modal{
+        width: 8rem;
+        height: 13.5rem;
+    }
+    .chosen_book_container_modal{
+        width: 21rem;
+        font-size: 1rem;
+    }
+    .chosen_book_div1_modal{
+        width: 12rem;
+    }
+    .modal_title_div{
+        width: 12rem;
+    }
+    .modal_title1{
+        width: 12rem;
+    }
+    .book_back_btn{
+        padding: 0;
+        height: 2.1rem;
+        width: 2.5rem;
+        margin-left: 1rem;
+        font-size: 1rem;
+    }
+    .cancel_add_book_btn{
+        width: 2.4rem;
     }
 }
 @media (max-width: 580px){
@@ -2265,6 +2330,17 @@ body{
     }
     .user_info_div_input{
         width: 12rem;
+    }
+    .genre_modal_div p{
+        font-size: 0.9rem;
+    }
+    .genre_modal_div input{
+        font-size: 0.9rem;
+        width: 6rem;
+    }
+    .genre_modal_div button{
+        font-size: 0.9rem;
+        width: 3rem;
     }
 
 
