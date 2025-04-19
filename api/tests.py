@@ -70,7 +70,7 @@ class BaseClass(TestCase):
 
 class AuthenticationTests(BaseClass):
 
-    def successful_login_test_1(self):
+    def test_1_successful_login(self):
         try:
             # Valid username and password from setUp
             login_data = {
@@ -83,7 +83,7 @@ class AuthenticationTests(BaseClass):
 
             # 302 = redirection and the page url should be for dashboard page
             self.assertEqual(response.status_code, 302)
-            self.assertEqual(response.url, '/dashbaord/')
+            self.assertEqual(response.url, '/dashboard/')
             
             # Sends a request to the user_view which is protected by @login_required
             user_response = self.client.get('/user/')
@@ -93,7 +93,7 @@ class AuthenticationTests(BaseClass):
 
             # Check if the fetched user data is same as the test user data that was used to login
             self.assertEqual(user_data['username'], 'testUser')
-            self.assertEqual(user_data['onkine_id'], 'testOnlineID')
+            self.assertEqual(user_data['online_id'], 'testOnlineID')
 
             print("Test 1 ---- Successful login test passed")
 
@@ -101,7 +101,7 @@ class AuthenticationTests(BaseClass):
             print(f"Test error: {str(e)}")
             raise e # Raises the error
     
-    def failed_login_test_2(self):
+    def test_2_failed_login(self):
         try:
             # Invalid username and password
             login_data = {
@@ -114,7 +114,7 @@ class AuthenticationTests(BaseClass):
 
             # No redirection (remains in login page)
             self.assertEqual(response.status_code, 200)
-            self.assertIn('error', response.content) # Return true if error message exists
+            self.assertIn('error', response.context) # Return true if error message exists
 
             # Sends a request to the user_view which is protected by @login_required
             user_response = self.client.get('/user/')
@@ -126,7 +126,7 @@ class AuthenticationTests(BaseClass):
             print(f"Test error: {str(e)}")
             raise e # Raises the error
     
-    def successful_signup_test_3(self):
+    def test_3_successful_signup(self):
 
         try:
 
@@ -153,7 +153,7 @@ class AuthenticationTests(BaseClass):
             
             # 302 = redirection and the page url should be for dashboard page
             self.assertEqual(response.status_code, 302)
-            self.assertEqual(response.url, '/dashbaord/')
+            self.assertEqual(response.url, '/dashboard/')
 
             User = get_user_model()
             # Retrieves the created user by filtering with the unique username
@@ -168,7 +168,7 @@ class AuthenticationTests(BaseClass):
 
             # Check if the fetched user data is same as the test user data that was used to signup
             self.assertEqual(user_data['username'], signup_data['username'])
-            self.assertEqual(user_data['onkine_id'], signup_data['online_id'])
+            self.assertEqual(user_data['online_id'], signup_data['online_id'])
 
             print("Test 3 ---- Successful signup test passed")
 
@@ -176,7 +176,7 @@ class AuthenticationTests(BaseClass):
             print(f"Test error: {str(e)}")
             raise e # Raises the error
     
-    def failed_signup_test_4(self):
+    def test_4_failed_signup(self):
 
         try:
 
@@ -209,7 +209,7 @@ class AuthenticationTests(BaseClass):
 
 class RecommendationTests(BaseClass):
 
-    def fetch_book_recommendation_test_1(self):
+    def test_1_fetch_book_recommendation(self):
 
         try:
 
@@ -252,9 +252,9 @@ class UserFeaturesTests(BaseClass):
         super().setUp() # For every test in this class the user is required to be logged in
         self.client.login(username='testUser', password='testPassword123')
     
-    def add_existing_genre_to_favourites_test_1(self):
+    def test_1_add_existing_genre_to_favourites(self):
 
-        fantasy_genre = Genre.objects.get(name='Fantasy').first()
+        fantasy_genre, _ = Genre.objects.get_or_create(name='Fantasy')
 
         data = {
             'action' : 'add_genre',
@@ -276,7 +276,7 @@ class UserFeaturesTests(BaseClass):
         if result: # if true print the below
             print("Test 1 ---- Favourite existing genre passed")
 
-    def create_new_genre_test_2(self):
+    def test_2_create_new_genre(self):
         # Testing for creating a new genre
         data = {
             'genre_name' : 'uNiQU3_G3nRE' # uniques genre name to avoid duplicate genres
@@ -294,7 +294,7 @@ class UserFeaturesTests(BaseClass):
         if result: # if true print the below
             print("Test 2 ---- Create new genre test passed")
     
-    def add_and_rate_favourite_book_3(self):
+    def test_3_add_and_rate_favourite_book(self):
         # Testing for favouriting and rating a book
 
         test_book = {
