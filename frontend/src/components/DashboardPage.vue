@@ -377,8 +377,11 @@ export default{
                 if (!response.ok){
                     throw new Error('Failed to logout');
                 }
-                this.userStore.clearUser();
-                window.location.href = "http://127.0.0.1:8000/login";
+                const data = await response.json();
+                if (data.logged_out){
+                    this.userStore.clearUser();
+                    window.location.href = "/login/";
+                }
 
             }
             catch (error){

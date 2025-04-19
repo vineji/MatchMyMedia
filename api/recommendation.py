@@ -2,7 +2,6 @@ import requests
 import spacy
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sentence_transformers import SentenceTransformer, util
 from surprise import SVD, Dataset, Reader
 from surprise.model_selection import train_test_split
 from .models import BookRating
@@ -16,8 +15,9 @@ redis_client = redis.Redis(host='127.0.0.1', port=6379, db=0, decode_responses=T
 load_dotenv()
 
 
-nlp = spacy.load("en_core_web_sm")
-model = SentenceTransformer("all-MiniLM-L6-v2")
+nlp_sm = spacy.load("en_core_web_sm")
+nlp_md = spacy.load("en_core_web_md")
+
 
 
 def fetch_books_from_google_api(query):
@@ -31,7 +31,7 @@ def fetch_books_from_google_api(query):
     max_results = 40
     
     filtered_categories = ["fiction", "drama", "adventure", "fantasy", "horror", "action", "comedy", "western"
-                           , "crime", "mystery", "romance", "magic", "family", "war", "kids", "children", "sci-fi", "comic", "novel", "graphic"]
+                           , "crime", "mystery", "romance", "magic", "war", "kids", "children", "sci-fi", "comic", "novel", "graphic"]
 
     try:
 
@@ -101,9 +101,12 @@ def fetch_books_from_google_api(query):
                     "image" : volumeInfo.get("imageLinks", {}).get("thumbnail")
                 })
             
-            start_index += len(books_data.get("items", []))
-            if len(books_data.get("items", [])) < 40:
-                    break
+            start_index += 40
+            print("-------------------------")
+            print(len(recommendations))
+            print("-------------------------")
+            if start_index > 121:
+                break
         
         dupe_title_date = set()
         final_recommendations = []
@@ -120,9 +123,9 @@ def fetch_books_from_google_api(query):
         return []
 
 
-def extract_keywords(text, n=7):
+def extract_keywords(text, n=5):
     
-    doc = nlp(text)
+    doc = nlp_sm(text)
     words = [token.lemma_ for token in doc if token.is_alpha and not token.is_stop]
 
     vectorizer = TfidfVectorizer(stop_words='english')
@@ -208,19 +211,18 @@ def get_collaborative_filtering_recommendations():
 
 def rank_books_by_cosine_similarity(media_query, books):
 
-    book_descriptions = [book.get("description","") for book in books]
+    media_embedding = nlp_md(media_query["description"])
+    ranked_books = []
 
-    book_embeddings = model.encode(book_descriptions, convert_to_tensor=True)
-     
-    media_embedding = model.encode(media_query["description"], convert_to_tensor=True)
 
-    similarity_scores = util.pytorch_cos_sim(media_embedding, book_embeddings)
 
-    similarity_scores = similarity_scores.squeeze(0).tolist()
-
-    ranked_books = list(zip(books, similarity_scores))
+    for book in books:
+        book_description = book.get("description", "")
+        book_embedding = nlp_md(book_description)
+        similarity = media_embedding.similarity(book_embedding)
+        ranked_books.append((book, similarity))
     
-    ranked_books.sort(key=lambda x: x[1], reverse=True)
+    ranked_books.sort(key=lambda x:x[1], reverse=True)    
 
     return [book[0] for book in ranked_books][:39]
     
@@ -249,7 +251,7 @@ def get_recommended_books(media_query):
     ranked_book_recommendations = rank_books_by_cosine_similarity(media_query, books)
 
     try:
-        redis_client.setex(cache_key, 1200, json.dumps(ranked_book_recommendations))
+        redis_client.setex(cache_key, 1, json.dumps(ranked_book_recommendations))
 
     except ConnectionError:
         print("Redis connect error. Skip cache writing")

@@ -497,10 +497,10 @@ export default {
         },
         redirectToLogin(){
             if (this.loggedUser.online_id){
-                window.location.href= "http://127.0.0.1:8080/dashboard/";
+                window.location.href= "/dashboard/";
             }
             else{
-                window.location.href= "http://127.0.0.1:8000/login/";
+                window.location.href= "/login/";
             }
         }
     },

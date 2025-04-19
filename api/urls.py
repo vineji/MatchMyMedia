@@ -18,5 +18,9 @@ urlpatterns = [
     path('user-list/', views.user_list_view, name='user-list'),
     path('friend-request/', views.friend_request_view, name='friend-request'),
     path('share-book/', views.share_book_view, name='share-books'),
+
+    re_path(r'^dashboard/?', views.main_spa),
+    re_path(r'^community/?', views.main_spa),
+    re_path(r'^.*$', views.main_spa)
 ]
 
