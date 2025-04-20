@@ -650,6 +650,9 @@ def share_book_view(request):
 
             friendship_object = Friendship.objects.filter(from_user=from_user, to_user=to_user).first()
 
+            if not friendship_object:
+                return JsonResponse({"error": "You need to be friends with this user"}, status=400)
+
             if not book:
                 return JsonResponse({"error": "Book is required"}, status=400)
             

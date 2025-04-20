@@ -553,6 +553,7 @@ class UserFeaturesTests(BaseClass):
             'book' : share_book
         }
 
+        # Send POST request to share book endpoint
         response = self.client.post(
             '/share-book/',
             json.dumps(data),
@@ -561,6 +562,7 @@ class UserFeaturesTests(BaseClass):
 
         response_data = response.json()
 
+        # Chceks for 400 error statud code and error message
         self.assertEqual(response.status_code, 400)
         self.assertIn('error', response_data)
 
