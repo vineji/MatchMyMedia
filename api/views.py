@@ -34,6 +34,12 @@ load_dotenv()
 
 
 def main_spa(request):
+
+    protected_paths = ['/dashboard','/dashboard/','/community','/community/']
+
+    if request.path in protected_paths and not request.user.is_authenticated:
+        return render(request, 'login.html')
+    
     return render(request, 'index.html')
 
 def get_csrf_token(request):
@@ -79,7 +85,7 @@ def user_view(request):
     if request.method == "GET":
         if request.user.is_authenticated:
             user_data = request.user.to_dict()
-            return JsonResponse(user_data, status==200)
+            return JsonResponse(user_data, status=200)
         return JsonResponse({'error' : 'Not authenticated'}, status=401)
         
     elif request.method == "PUT":

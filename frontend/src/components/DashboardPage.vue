@@ -1,9 +1,13 @@
 <template>
     <div class="page_container">
         <h1>User Dashboard</h1>
-        <router-link :to="{name: 'Main Page'}">Home</router-link>
-        <button @click="logout">Logout</button>
-        <router-link :to="{name: 'Social Page'}">Community</router-link>
+        <div class="dashboard_nav">
+            <div>
+                <router-link :to="{name: 'Main Page'}" class="nav_btns">Search Books</router-link>
+                <router-link :to="{name: 'Social Page'}" class="nav_btns">Community Page</router-link>
+            </div>
+            <button @click="logout" class="logout_btn">Logout</button>
+        </div>
         <div class="dashboard_container">   
             <div class="user_info">
                 <h2 class="user_info_header">User Information</h2>
@@ -832,6 +836,21 @@ export default{
 };
 </script>
 <style>
+
+.dashboard_nav{
+    width: 80rem;
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    align-items: center;
+}
+.dashboard_nav div{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 43.5rem;
+}
 
 body{
     background-color: rgba(247, 244, 244, 0.944);
@@ -2101,8 +2120,51 @@ body{
 .star_dashboard.filled{
     color: #FAA916;
 }
+.nav_btns{
+    all: unset;
+    background-color: #FBFFFE;
+    border: 3px solid #1B1B1E;
+    font-weight: 500;
+    color: #1B1B1E;
+    font-size: 1.1rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+    border-radius: 0.6rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: 0.3s ease;
+    cursor: pointer;
+}
+.nav_btns:hover{
+    background-color: #1B1B1E;
+    color: #FBFFFE;
+}
+.logout_btn{
+    all: unset;
+    background-color: #FBFFFE;
+    border: 3px solid #e51635;
+    font-weight: 500;
+    color: #e51635;
+    font-size: 1.1rem;
+    padding-top: 0.4rem;
+    padding-bottom: 0.4rem;
+    padding-left: 0.8rem;
+    padding-right: 0.8rem;
+    border-radius: 0.6rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    transition: 0.3s ease;
+    cursor: pointer;
+}
+.logout_btn:hover{
+    background-color: #e51635;
+    color: #FBFFFE;
+}
 
 @media (max-width: 1310px){
+    .dashboard_nav{
+        width: 73rem;
+    }
     .dashboard_container{
         width: 73rem;
     }
@@ -2155,6 +2217,13 @@ body{
 }
 
 @media (max-width: 1210px){
+    .dashboard_nav{
+        width: 43.5rem;
+    }
+    .dashboard_nav div{
+        width: unset;
+        gap: 1rem;
+    }
     .dashboard_container{
         flex-direction: column;
         align-items: center;
@@ -2231,6 +2300,9 @@ body{
 
 }
 @media (max-width: 750px){
+    .dashboard_nav{
+        width: 34rem;
+    }
     .user_info{
         padding: 2rem;
         width: 30rem;
@@ -2310,6 +2382,9 @@ body{
     }
 }
 @media (max-width: 580px){
+    .dashboard_nav{
+        width: 28rem;
+    }
     .user_info{
         padding: 1rem;
         width: 26rem;
