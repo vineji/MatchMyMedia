@@ -382,7 +382,7 @@ class UserFeaturesTests(BaseClass):
         }
         # Sending a put request to using friend request endpoint
         accept_response = self.client.put(
-            '/friends-request/',
+            '/friend-request/',
             json.dumps(accept_data),
             content_type='application/json'
         )
@@ -438,7 +438,7 @@ class UserFeaturesTests(BaseClass):
         }
         # Sending a put request to using friend request endpoint
         decline_response = self.client.put(
-            '/friends-request/',
+            '/friend-request/',
             json.dumps(decline_data),
             content_type='application/json'
         )
