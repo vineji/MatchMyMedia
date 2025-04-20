@@ -271,10 +271,9 @@ class UserFeaturesTests(BaseClass):
 
         User = get_user_model()
         test_user = User.objects.get(username='testUser')
-        result = self.assertIn(fantasy_genre, test_user.favourite_genres.all())
+        self.assertIn(fantasy_genre, test_user.favourite_genres.all())
 
-        if result: # if true print the below
-            print("Test 1 ---- Favourite existing genre passed")
+        print("Test 1 ---- Favourite existing genre passed")
 
     def test_2_create_new_genre(self):
         # Testing for creating a new genre
@@ -289,10 +288,9 @@ class UserFeaturesTests(BaseClass):
         )
 
         self.assertEqual(response.status_code, 201)
-        result = self.assertTrue(Genre.objects.filter(name=data['genre_name']).exists()) # Return true if the genre is in the genre table
+        self.assertTrue(Genre.objects.filter(name=data['genre_name']).exists()) # Return true if the genre is in the genre table
 
-        if result: # if true print the below
-            print("Test 2 ---- Create new genre test passed")
+        print("Test 2 ---- Create new genre test passed")
     
     def test_3_add_and_rate_favourite_book(self):
         # Testing for favouriting and rating a book
@@ -341,13 +339,257 @@ class UserFeaturesTests(BaseClass):
 
         test_book_rating = BookRating.objects.get(
             user=self.test_user,
-            book_id=test_book['id']
+            book_id=test_book['id'] # Get the book rating by filtering using the test user and test_book id
         )
 
-        result2 = self.assertEqual(test_book_rating.rating, 4)
+        self.assertEqual(test_book_rating.rating, 4)  # Checks if it has the same rating
 
-        if result1 and result2:
-            print("Test 3 ---- Add book to favourite and rate book test passed")
+        print("Test 3 ---- Add book to favourite and rate book test passed")
+    
+
+    def test_4_send_and_accept_friend_request(self):
+        # Testing for sending and accepting friend request
+
+        User = get_user_model()
+        friend = User.objects.create_user( # Created another user to send a friend request to
+            username='acceptUser',
+            password='acceptPassword',
+            online_id='acceptUser_id',
+            DOB = '2001-03-11',
+        )
+
+        data = {'friend_id' : friend.id}
+        
+        # Sending a post request to using friend request endpoint
+        response = self.client.post( 
+            '/friend-request/',
+            json.dumps(data),
+            content_type='application/json'
+        )
+
+
+        self.assertEqual(response.status_code, 200)
+
+        friend_request = FriendRequest.objects.get(from_user=self.test_user, to_user=friend)
+
+        self.assertEqual(friend_request.status, 'pending') # Checks if the created friend request is pending
+
+        self.client.force_login(friend) # Logging in as the other user to accept friend request
+
+        accept_data = {
+            'action' : 'accept',
+            'request_id' : friend_request.id
+        }
+        # Sending a put request to using friend request endpoint
+        accept_response = self.client.put(
+            '/friends-request/',
+            json.dumps(accept_data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(accept_response.status_code, 200)
+
+        friend_request.refresh_from_db() # Gets updated friend request after accepting
+        self.assertEqual(friend_request.status, 'accepted') # Checks if status is accepted
+
+
+        # When a friend request is accepted two friendship instances are created
+        friendship_created1 = Friendship.objects.filter(from_user=self.test_user, to_user=friend)
+        friendship_created2 = Friendship.objects.filter(from_user=friend, to_user=self.test_user)
+
+        # Checks if both friendship instances exist
+        self.assertTrue(friendship_created1)
+        self.assertTrue(friendship_created2)
+
+        print("Test 4 ---- Send and accept friend request test passed")
+    
+
+    def test_5_send_and_decline_friend_request(self):
+        # Testing for sending and declining friend request
+
+        User = get_user_model()
+        friend = User.objects.create_user( # Created another user to send a friend request to
+            username='declineUser',
+            password='declinePassword',
+            online_id='declineUser_id',
+            DOB = '2001-08-12',
+        )
+
+        data = {'friend_id' : friend.id}
+        
+        # Sending a post request to using friend request endpoint
+        response = self.client.post( 
+            '/friend-request/',
+            json.dumps(data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+        friend_request = FriendRequest.objects.get(from_user=self.test_user, to_user=friend)
+
+        self.assertEqual(friend_request.status, 'pending') # Checks if the created friend request is pending
+
+        self.client.force_login(friend) # Logging in as the other user to decline friend request
+
+        decline_data = {
+            'action' : 'decline',
+            'request_id' : friend_request.id
+        }
+        # Sending a put request to using friend request endpoint
+        decline_response = self.client.put(
+            '/friends-request/',
+            json.dumps(decline_data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(decline_response.status_code, 200)
+
+        friend_request.refresh_from_db() # Gets updated friend request after declining
+
+        self.assertEqual(friend_request.status, 'declined') # Checks if the status is now declined
+
+        # When a friend request is accepted two friendship instances are created so we need to make sure they have not been created when declined
+        friendship_created1 = Friendship.objects.filter(from_user=self.test_user, to_user=friend)
+        friendship_created2 = Friendship.objects.filter(from_user=friend, to_user=self.test_user)
+
+        # Checks if both friendship instances do not exist
+        self.assertFalse(friendship_created1)
+        self.assertFalse(friendship_created2)
+
+        print("Test 5 ---- Send and decline friend request test passed")
+    
+
+    def test_6_share_and_unshare_book_with_friend(self):
+        # Testing for sharing and unsharing books between friends
+
+        User = get_user_model()
+        friend = User.objects.create_user( 
+            username='shareUser',
+            password='sharePassword',
+            online_id='shareUser_id',
+            DOB = '1998-08-12',
+        )
+        
+        # Books shared from test_user to friend will be stored in this instance
+        Friendship.objects.create(from_user=self.test_user, to_user=friend)
+
+        # Books shared from friend to test_user will be stored in this instance
+        Friendship.objects.create(from_user=friend, to_user=self.test_user)
+
+        share_book = { # Book that will be shared
+            'id' : 'share_book_id',
+            'title' : 'SHARE BOOK',
+            'authors' : 'Share Author',
+            'published_date' : '2003-09-02',
+            'description' : 'This is the shared book',
+            'categories' : ['Sharing'],
+            'image' : 'http://test_example.com/image.png'
+        }
+
+        data = {
+            'to_user_id' : friend.id,
+            'book' : share_book
+        }
+
+        # Request to share book from test_user to friend via share books endpoint
+        share_response = self.client.post(
+            '/share-book/',
+            json.dumps(data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(share_response.status_code, 200)
+
+        friendship = Friendship.objects.get(from_user=self.test_user, to_user=friend)
+
+        # Checks if the book is in shared_books
+        self.assertTrue(any(book.get('id') == share_book['id'] for book in friendship.shared_books))
+
+        # Request to unshare book from test_user to friend via share books endpoint
+        unshare_response = self.client.delete(
+            '/share-book/',
+            json.dumps(data),
+            content_type='application/json'
+        )
+
+        self.assertEqual(unshare_response.status_code, 200)
+
+        friendship.refresh_from_db() # Gets updated friendship object after unsharing book
+
+        # Checks if the book is not in shared_books
+        self.assertFalse(any(book.get('id') == share_book['id'] for book in friendship.shared_books))
+
+        print("Test 6 ---- Share and unshare book with friend test passed")
+    
+
+    def test_7_cannot_share_book_with_non_friend(self):
+        # Testing for restrictions with sharing between non-friends
+
+        User = get_user_model()
+        non_friend = User.objects.create_user( 
+            username='nonFriendUser',
+            password='nonFriendPassword',
+            online_id='nonFriendUser_id',
+            DOB = '1996-08-12',
+        )
+
+        # Deletes any existing friendships between test_user and non_friend if there is any
+        Friendship.objects.filter(from_user=self.test_user, to_user=non_friend).delete()
+        Friendship.objects.filter(from_user=non_friend, to_user=self.test_user).delete()
+
+        share_book = { # Book that will be attempted to be shared
+            'id' : 'share_book_id',
+            'title' : 'SHARE BOOK',
+            'authors' : 'Share Author',
+            'published_date' : '2003-09-02',
+            'description' : 'This is the shared book',
+            'categories' : ['Sharing'],
+            'image' : 'http://test_example.com/image.png'
+        }
+
+        data = {
+            'to_user_id' : non_friend.id,
+            'book' : share_book
+        }
+
+        response = self.client.post(
+            '/share-book/',
+            json.dumps(data),
+            content_type='application/json'
+        )
+
+        response_data = response.json()
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', response_data)
+
+        print("Test 7 ---- Cannot share book with non-friend test passed")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+
     
 
     
