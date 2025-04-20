@@ -242,9 +242,8 @@ def rank_books_by_cosine_similarity(media_query, books):
 
     ranked_books = sorted(zip(books, cos_similarity_scores), key=lambda x : x[1], reverse=True)
 
-    return [book for book in ranked_books][:27]
+    return [book[0] for book in ranked_books][:27]
 
-    
 
 def get_recommended_books(media_query):
 

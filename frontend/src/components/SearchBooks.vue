@@ -27,7 +27,7 @@
             </div>
             <div style="display: flex; flex-direction: row; gap: 0.7rem;">
                 <button class="rcmnd-button" @click="recommendBooks(chosenMedia)" >Recommend Books</button>
-                <button class="login-btn" @click="redirectToLogin">{{ loggedUser.online_id ?  'Dashboard' : 'Login'}}</button>
+                <button class="login-btn" @click="redirectToLogin">{{ userStore.user_id ?  'Dashboard' : 'Login'}}</button>
             </div>
         </form>
         <RecommendModal
@@ -170,7 +170,6 @@ export default {
     },
     setup(){
         const userStore = useUserStore();
-        userStore.loadUser();
         return {userStore};
     },
     computed: {
@@ -1314,8 +1313,5 @@ li{
     }
 
 }
-
-
-
 
 </style>

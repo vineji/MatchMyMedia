@@ -18,12 +18,25 @@ export const useUserStore = defineStore('userStore',{
         loadUser(){
             const user = localStorage.getItem('user');
             if (user){
-                const parsedUser = JSON.parse(user);
-                this.user_id = parsedUser.user_id;
-                this.username = parsedUser.username;
-                this.online_id = parsedUser.online_id;
-                this.favourite_genres = parsedUser.favourite_genres;
+                try{
+                    const parsedUser = JSON.parse(user);
+
+                    if(parsedUser.user_id){
+                        this.user_id = parsedUser.user_id;
+                        this.username = parsedUser.username;
+                        this.online_id = parsedUser.online_id;
+                        this.favourite_genres = parsedUser.favourite_genres;
+                    }
+                    else{
+                        this.clearUser();
+                    }
+                }
+                catch (e){
+                    console.error("Error loading user: ", e);
+                }
+
             }
+
         },
         updateUsername(username){
             this.username = username;
