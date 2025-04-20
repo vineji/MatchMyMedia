@@ -322,11 +322,11 @@ export default {
                 this.rcmndBooks = data.recommendations || [];
             }
             catch (error){
-                console.error("Error fecthing recommendations ", error)
+                console.error("Error fetching recommendations ", error)
             }
         },
         async addToFavourites(book){
-            if (this.loggedUser.online_id){
+            if (this.userStore.user_id){
                 const book_object = {}
                 book_object.id = book.id;
                 book_object.image = book.volumeInfo?.imageLinks?.thumbnail;
@@ -373,7 +373,7 @@ export default {
 
         },
         async fetch_book_rating(){
-            if (this.loggedUser.online_id && this.searchMedia == "Books"){
+            if (this.userStore.user_id && this.searchMedia == "Books"){
                 try
                 {
                     const response = await fetch(`http://127.0.0.1:8000/book-rating/?book_id=${this.chosenMedia.id}`,
@@ -394,12 +394,14 @@ export default {
                 catch (error){
                     console.error("Error fetching book:", error);
                 }
-
+            }
+            else{
+                return;
             }
         },
         async rateBook(rating){
 
-            if (this.loggedUser.online_id){
+            if (this.userStore.user_id){
                 this.rating = rating;
                 try
                 {

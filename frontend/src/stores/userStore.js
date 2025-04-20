@@ -33,6 +33,7 @@ export const useUserStore = defineStore('userStore',{
                 }
                 catch (e){
                     console.error("Error loading user: ", e);
+                    this.clearUser();
                 }
 
             }

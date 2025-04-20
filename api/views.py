@@ -38,7 +38,7 @@ def main_spa(request):
 
 def get_csrf_token(request):
     csrf_token = get_token(request)
-    return JsonResponse({"csrfToken": csrf_token})
+    return JsonResponse({"csrfToken": csrf_token}, status=200)
 
 def login_view(request):
     if request.method== "POST":
@@ -56,7 +56,7 @@ def login_view(request):
 @login_required
 def logout_view(request):
     logout(request)
-    return JsonResponse({'logged_out': True})
+    return JsonResponse({'logged_out': True}, status=200)
 
 def sign_up_view(request):
     if request.method== "POST":
@@ -79,7 +79,8 @@ def user_view(request):
     if request.method == "GET":
         if request.user.is_authenticated:
             user_data = request.user.to_dict()
-            return JsonResponse(user_data)
+            return JsonResponse(user_data, status==200)
+        return JsonResponse({'error' : 'Not authenticated'}, status=401)
         
     elif request.method == "PUT":
 
@@ -100,7 +101,7 @@ def user_view(request):
                 form  = CustomUserUpdateForm(updated_data, instance=request.user)
                 if form.is_valid():
                     form.save()
-                    return JsonResponse({"message": "User details updated successfully!"})
+                    return JsonResponse({"message": "User details updated successfully!"}, status=200)
                 else:
                     print(form.errors)
                     return JsonResponse({"errors": form.errors}, status=400)
@@ -119,7 +120,7 @@ def user_view(request):
                 if form.is_valid():
                     user = form.save()
                     update_session_auth_hash(request, user)
-                    return JsonResponse({"message": "Password updated successfully!"})
+                    return JsonResponse({"message": "Password updated successfully!"}, status=200)
                 else:
                     print(form.errors)
                     return JsonResponse({"errors": form.errors}, status=400)
@@ -284,7 +285,7 @@ def user_list_view(request):
             'has_previous': page_object.has_previous(),
         }
 
-        return JsonResponse(response_data)
+        return JsonResponse(response_data, status=200)
 
 @login_required
 def genre_view(request):
@@ -340,9 +341,9 @@ def book_rating_view(request):
         ).first()
 
         if book_rating:
-            return JsonResponse({"book_rating" : book_rating.rating}, status=201)
+            return JsonResponse({"book_rating" : book_rating.rating}, status=200)
         else:
-            return JsonResponse({"book_rating" : 0}, status=201)
+            return JsonResponse({"book_rating" : 0}, status=200)
 
 
     elif request.method == "POST":
@@ -359,14 +360,15 @@ def book_rating_view(request):
         if book_rating:
             book_rating.rating = rating
             book_rating.save()
+            return JsonResponse({'message': 'Book rating updated successfully'}, status=200)
+        
         else:
             book_rating = BookRating.objects.create(
             user = request.user,
             book_id = book_id,
             rating = rating
-        )
-        
-        return JsonResponse({'message': 'Book rating added/updated successfully'})
+            )
+            return JsonResponse({'message': 'Book rating added successfully'}, status=201)
     
     return JsonResponse({"error": "Invalid request method"}, status=405)
 
@@ -396,9 +398,11 @@ def movie_search_view(request):
                 'total_pages': total_pages,
                 'current_page': current_page,
             }
-            return JsonResponse(response_data)
+            return JsonResponse(response_data, status=200) 
         else:
-            return JsonResponse({'movies':[]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return JsonResponse({'movies':[]}, status=502)
+        
+    return JsonResponse({"error": "Invalid request method"}, status=405)
         
 def show_search_view(request):
         
@@ -425,9 +429,11 @@ def show_search_view(request):
                 'total_pages': total_pages,
                 'current_page': current_page,
             }
-            return JsonResponse(response_data)
+            return JsonResponse(response_data, status=200)
         else:
-            return JsonResponse({'shows':[]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return JsonResponse({'shows':[]}, status=502)
+        
+    return JsonResponse({"error": "Invalid request method"}, status=405)
         
 
 def book_search_view(request):
@@ -460,9 +466,11 @@ def book_search_view(request):
                 'total_pages': total_pages,
                 'current_page': current_page
             }
-            return JsonResponse(response_data)
+            return JsonResponse(response_data, status=200)
         else:
-            return JsonResponse({'books':[]}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return JsonResponse({'books':[]}, status=502)
+        
+    return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
 def get_book_recommendations_view(request):
@@ -472,7 +480,9 @@ def get_book_recommendations_view(request):
 
         recommendations = recommendation.get_recommended_books(data) 
 
-        return JsonResponse({"recommendations": recommendations})
+        return JsonResponse({"recommendations": recommendations}, status=200)
+    
+    return JsonResponse({"error": "Invalid request method"}, status=405)
 
 
 @login_required
@@ -495,7 +505,7 @@ def friend_request_view(request):
 
             
             FriendRequest.objects.create(from_user = from_user, to_user = to_user)
-            return JsonResponse({"message" : "Friend Request Sent"})
+            return JsonResponse({"message" : "Friend Request Sent"}, status = 201)
             
         except get_user_model().DoesNotExist:
             return JsonResponse({"message" : " User Does Not Exists"}, status = 404)
@@ -517,7 +527,7 @@ def friend_request_view(request):
             friend_request_list.append(x.to_dict_sent())
 
 
-        return JsonResponse(friend_request_list, safe=False)
+        return JsonResponse(friend_request_list, safe=False, status = 200)
     
     elif request.method == "PUT":
 
